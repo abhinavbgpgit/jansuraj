@@ -31,6 +31,9 @@ export default function Header() {
           <Link to="/" className="text-sm text-slate-600 hover:text-slate-900">
             Home
           </Link>
+          <Link to="/purpose" className="text-sm text-slate-600 hover:text-slate-900">
+            Purpose
+          </Link>
           <Link to="/issues" className="text-sm text-slate-600 hover:text-slate-900">
             Issues
           </Link>

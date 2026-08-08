@@ -19,6 +19,7 @@ import TransparencyDashboard from './pages/TransparencyDashboard'
 import SearchPage from './pages/SearchPage'
 import Events from './pages/Events'
 import News from './pages/News'
+import Purpose from './pages/Purpose'
 import Login from './pages/Login'
 import Home from './pages/Home'
 
@@ -58,6 +59,7 @@ function App() {
           <Route path="search" element={<SearchPage />} />
           <Route path="events" element={<Events />} />
           <Route path="news" element={<News />} />
+          <Route path="purpose" element={<Purpose />} />
         </Route>
       </Routes>
     </BrowserRouter>
