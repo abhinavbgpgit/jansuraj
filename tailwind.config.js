@@ -2,7 +2,14 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["Inter", "Poppins", "system-ui", "sans-serif"],
+      },
+      boxShadow: {
+        soft: "0 30px 60px rgba(15, 23, 42, 0.08)",
+      },
+    },
   },
   plugins: [],
 }
