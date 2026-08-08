@@ -1,8 +1,11 @@
-import React, { useState, useMemo } from 'react'
+import React, {  useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ProgressStepper from '../components/ProgressStepper'
 import MapPicker from '../components/MapPicker'
 import addressData from '../data/addressData'
+import { auth, db } from "../firebase/firebase";
+
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function Join() {
   const navigate = useNavigate()
@@ -23,11 +26,12 @@ export default function Join() {
     location: null,
     phone: '',
   })
-  const [errors, setErrors] = useState({})
-  const [otp, setOtp] = useState('')
-  const [sentCode, setSentCode] = useState('')
-  const [authStage, setAuthStage] = useState('phone')
-  const [authError, setAuthError] = useState('')
+ const [errors, setErrors] = useState({});
+
+const [authError, setAuthError] = useState("");
+const [saving, setSaving] = useState(false);
+const [verifiedUser, setVerifiedUser] = useState(null);
+
 
   const districts = useMemo(() => Object.keys(addressData), [])
   const blocks = useMemo(() => (form.district ? Object.keys(addressData[form.district].blocks) : []), [form.district])
@@ -42,6 +46,34 @@ export default function Join() {
       setAuthError('')
     }
   }
+
+  useEffect(() => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    // User directly /join खोल रहा है
+    // और login नहीं किया है
+    navigate("/login", {
+      replace: true,
+    });
+
+    return;
+  }
+
+  // Login में OTP already verified है
+  setVerifiedUser(user);
+
+  // Firebase से verified phone
+  if (user.phoneNumber) {
+    setForm((previous) => ({
+      ...previous,
+      phone: user.phoneNumber.replace(
+        "+91",
+        ""
+      ),
+    }));
+  }
+}, [navigate]);
 
   function validateStep(s) {
     const nextErrors = {}
@@ -67,50 +99,237 @@ export default function Join() {
     if (validateStep(step)) setStep((s) => Math.min(4, s + 1))
   }
 
-  function prev() {
-    if (step === 4) {
-      setAuthStage('phone')
-      setOtp('')
-      setSentCode('')
-      setAuthError('')
-    }
-    setStep((s) => Math.max(1, s - 1))
+ function prev() {
+  setAuthError("");
+
+  setStep((s) =>
+    Math.max(1, s - 1)
+  );
+}
+
+  // function sendOtp(e) {
+  //   e.preventDefault()
+  //   setAuthError('')
+  //   if (!validateStep(4)) return
+
+  //   const code = Math.floor(100000 + Math.random() * 900000).toString()
+  //   setSentCode(code)
+  //   setAuthStage('otp')
+  // }
+
+  // function verifyOtp(e) {
+  //   e.preventDefault()
+  //   setAuthError('')
+  //   if (!otp.trim()) {
+  //     setAuthError('Please enter the OTP.')
+  //     return
+  //   }
+  //   if (otp !== sentCode) {
+  //     setAuthError('OTP does not match. Please try again.')
+  //     return
+  //   }
+
+  //   const normalized = form.phone.replace(/\D/g, '')
+  //   const member = {
+  //     ...form,
+  //     phone: normalized,
+  //     registeredAt: Date.now(),
+  //   }
+
+  //   localStorage.setItem('jansuraaj_member', JSON.stringify(member))
+  //   localStorage.setItem('jansuraaj_user', JSON.stringify({ phone: normalized, loggedInAt: Date.now() }))
+  //   navigate('/home')
+  // }
+async function createAccount(e) {
+  e.preventDefault();
+
+  setAuthError("");
+
+  // ------------------------------------------
+  // Firebase user check
+  // ------------------------------------------
+
+  const user =
+    auth.currentUser;
+
+  if (!user) {
+    setAuthError(
+      "Your login session has expired. Please login again."
+    );
+
+    navigate("/login", {
+      replace: true,
+    });
+
+    return;
   }
 
-  function sendOtp(e) {
-    e.preventDefault()
-    setAuthError('')
-    if (!validateStep(4)) return
+  // ------------------------------------------
+  // Validate all details
+  // ------------------------------------------
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString()
-    setSentCode(code)
-    setAuthStage('otp')
+  if (!validateStep(2)) {
+    setStep(2);
+    return;
   }
 
-  function verifyOtp(e) {
-    e.preventDefault()
-    setAuthError('')
-    if (!otp.trim()) {
-      setAuthError('Please enter the OTP.')
-      return
-    }
-    if (otp !== sentCode) {
-      setAuthError('OTP does not match. Please try again.')
-      return
-    }
-
-    const normalized = form.phone.replace(/\D/g, '')
-    const member = {
-      ...form,
-      phone: normalized,
-      registeredAt: Date.now(),
-    }
-
-    localStorage.setItem('jansuraaj_member', JSON.stringify(member))
-    localStorage.setItem('jansuraaj_user', JSON.stringify({ phone: normalized, loggedInAt: Date.now() }))
-    navigate('/home')
+  if (!validateStep(3)) {
+    setStep(3);
+    return;
   }
 
+  if (!validateStep(4)) {
+    setStep(4);
+    return;
+  }
+
+  try {
+    setSaving(true);
+
+    // ------------------------------------------
+    // Firestore reference
+    // users/{firebase UID}
+    // ------------------------------------------
+
+    const userRef = doc(
+      db,
+      "users",
+      user.uid
+    );
+
+    // ------------------------------------------
+    // User data
+    // ------------------------------------------
+
+    const userData = {
+      uid: user.uid,
+
+      phone:
+        user.phoneNumber ||
+        `+91${form.phone.replace(
+          /\D/g,
+          ""
+        )}`,
+
+      // Personal details
+      name: form.name.trim(),
+
+      education:
+        form.education.trim(),
+
+      profession:
+        form.profession.trim(),
+
+      skills:
+        form.skills.trim(),
+
+      social:
+        form.social.trim(),
+
+      // Address
+      district:
+        form.district,
+
+      block:
+        form.block,
+
+      panchayat:
+        form.panchayat,
+
+      village:
+        form.village,
+
+      ward:
+        form.ward,
+
+      // Map location
+      location: form.location
+        ? {
+            lat: form.location.lat,
+            lng: form.location.lng,
+          }
+        : null,
+
+      // Photo name for now
+      profilePhotoName:
+        form.photo
+          ? form.photo.name
+          : null,
+
+      // Account
+      role: "member",
+
+      status: "active",
+
+      createdAt:
+        serverTimestamp(),
+
+      updatedAt:
+        serverTimestamp(),
+    };
+
+    // ------------------------------------------
+    // SAVE TO FIRESTORE
+    // ------------------------------------------
+
+    await setDoc(
+      userRef,
+      userData
+    );
+
+    // ------------------------------------------
+    // Local login info
+    // ------------------------------------------
+
+    localStorage.setItem(
+      "jansuraaj_user",
+      JSON.stringify({
+        uid: user.uid,
+
+        phone:
+          user.phoneNumber ||
+          `+91${form.phone.replace(
+            /\D/g,
+            ""
+          )}`,
+
+        name: form.name,
+
+        loggedIn: true,
+      })
+    );
+
+    // ------------------------------------------
+    // Success
+    // ------------------------------------------
+
+    alert(
+      "Welcome to Jansuraaj!"
+    );
+
+    // ------------------------------------------
+    // HOME
+    // ------------------------------------------
+
+    navigate("/", {
+      replace: true,
+    });
+
+  } catch (error) {
+    console.error(
+      "Create account error:",
+      error
+    );
+
+    setAuthError(
+      error.message ||
+        "Failed to create account."
+    );
+
+  } finally {
+    setSaving(false);
+  }
+}
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
       <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -193,83 +412,236 @@ export default function Join() {
             </div>
           )}
 
-          {step === 4 && (
-            <div>
-              <h3 className="block text-sm font-semibold">Verify your phone</h3>
-              <p className="mt-2 text-sm text-slate-600">यह नंबर आपके लॉगिन और OTP verification के लिए उपयोग होगा।</p>
+         {step === 4 && (
+  <div>
+    {/* ================================
+        STEP 4 - MOBILE VERIFIED
+    ================================= */}
 
-              {authStage === 'phone' ? (
-                <form onSubmit={sendOtp} className="mt-5 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                  <label className="block text-sm font-medium text-slate-700">Phone number</label>
-                  <div className="mt-2 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                    <span className="text-sm text-slate-500">+91</span>
-                    <input
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) => update('phone', e.target.value)}
-                      placeholder="98765 43210"
-                      className="w-full border-none bg-transparent text-sm text-slate-900 outline-none"
-                    />
-                  </div>
-                  {errors.phone ? <div className="text-xs text-rose-600">{errors.phone}</div> : null}
-                  <button type="submit" className="w-full rounded-2xl bg-[#0ea5a4] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0bb99b]">
-                    Send OTP
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={verifyOtp} className="mt-5 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                  <div>
-                    <p className="text-sm text-slate-600">OTP sent to +91 {form.phone.replace(/\D/g, '')}</p>
-                    <p className="mt-2 text-sm text-slate-500">Your verification code is <span className="font-semibold text-slate-900">{sentCode}</span>.</p>
-                  </div>
+    <h3 className="block text-sm font-semibold text-slate-900">
+      Verify your phone
+    </h3>
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700">Enter OTP</label>
-                    <input
-                      type="text"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      placeholder="6-digit code"
-                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
-                    />
-                  </div>
+    <p className="mt-2 text-sm text-slate-600">
+      यह नंबर आपके लॉगिन और OTP verification
+      के लिए उपयोग होगा।
+    </p>
 
-                  {authError ? <div className="text-xs text-rose-600">{authError}</div> : null}
+    {/* ================================
+        VERIFIED PHONE
+    ================================= */}
 
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAuthStage('phone')
-                        setOtp('')
-                        setSentCode('')
-                        setAuthError('')
-                      }}
-                      className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
-                    >
-                      Change number
-                    </button>
-                    <button type="submit" className="rounded-2xl bg-[#0ea5a4] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0bb99b]">
-                      Verify OTP & Join
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          )}
+    <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+
+      <div className="flex items-center gap-3">
+
+        {/* CHECK ICON */}
+
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-lg font-bold text-white">
+          ✓
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
-          <button onClick={prev} className="rounded-full border px-4 py-2">Back</button>
-          {step < 4 ? (
-            <button onClick={next} className="rounded-full bg-sky-600 px-4 py-2 text-white">Next</button>
-          ) : (
-            <button onClick={authStage === 'phone' ? sendOtp : verifyOtp} className="rounded-full bg-emerald-600 px-4 py-2 text-white">
-              {authStage === 'phone' ? 'Send OTP' : 'Verify OTP & Join'}
-            </button>
-          )}
+        {/* PHONE DETAILS */}
+
+        <div>
+
+          <p className="font-semibold text-emerald-800">
+            Mobile Number Verified
+          </p>
+
+          <p className="mt-1 text-sm text-emerald-700">
+            {verifiedUser?.phoneNumber ||
+              `+91${form.phone}`}
+          </p>
+
         </div>
+
       </div>
+
+      <p className="mt-4 text-sm leading-6 text-emerald-700">
+        आपका mobile number OTP के द्वारा
+        successfully verify हो चुका है।
+        अब नीचे दिए गए button से अपना
+        Jansuraaj account create करें।
+      </p>
+
     </div>
-  )
+
+    {/* ================================
+        REGISTRATION SUMMARY
+    ================================= */}
+
+    <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+
+      <p className="text-sm font-semibold text-slate-800">
+        Registration Summary
+      </p>
+
+      <div className="mt-4 space-y-3 text-sm text-slate-600">
+
+        {/* NAME */}
+
+        <div className="flex justify-between gap-4">
+          <span className="font-medium text-slate-700">
+            Name
+          </span>
+
+          <span className="text-right">
+            {form.name || "Not provided"}
+          </span>
+        </div>
+
+        {/* EDUCATION */}
+
+        <div className="flex justify-between gap-4">
+          <span className="font-medium text-slate-700">
+            Education
+          </span>
+
+          <span className="text-right">
+            {form.education || "Not provided"}
+          </span>
+        </div>
+
+        {/* PROFESSION */}
+
+        <div className="flex justify-between gap-4">
+          <span className="font-medium text-slate-700">
+            Profession
+          </span>
+
+          <span className="text-right">
+            {form.profession || "Not provided"}
+          </span>
+        </div>
+
+        {/* DISTRICT */}
+
+        <div className="flex justify-between gap-4">
+          <span className="font-medium text-slate-700">
+            District
+          </span>
+
+          <span className="text-right">
+            {form.district || "Not provided"}
+          </span>
+        </div>
+
+        {/* BLOCK */}
+
+        <div className="flex justify-between gap-4">
+          <span className="font-medium text-slate-700">
+            Block
+          </span>
+
+          <span className="text-right">
+            {form.block || "Not provided"}
+          </span>
+        </div>
+
+        {/* PANCHAYAT */}
+
+        <div className="flex justify-between gap-4">
+          <span className="font-medium text-slate-700">
+            Panchayat
+          </span>
+
+          <span className="text-right">
+            {form.panchayat || "Not provided"}
+          </span>
+        </div>
+
+        {/* VILLAGE */}
+
+        <div className="flex justify-between gap-4">
+          <span className="font-medium text-slate-700">
+            Village
+          </span>
+
+          <span className="text-right">
+            {form.village || "Not provided"}
+          </span>
+        </div>
+
+        {/* WARD */}
+
+        <div className="flex justify-between gap-4">
+          <span className="font-medium text-slate-700">
+            Ward
+          </span>
+
+          <span className="text-right">
+            {form.ward || "Not provided"}
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+    {/* ================================
+        ERROR
+    ================================= */}
+
+    {authError && (
+      <div className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-rose-600">
+        {authError}
+      </div>
+    )}
+
+    {/* ================================
+        CREATE ACCOUNT BUTTON
+    ================================= */}
+
+    <button
+      type="button"
+      onClick={createAccount}
+      disabled={saving}
+      className="mt-5 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {saving
+        ? "Creating Account..."
+        : "Create Account & Join Jansuraaj"}
+    </button>
+
+  </div>
+)}
+
+{/* ====================================================
+    STEP NAVIGATION
+===================================================== */}
+
+<div className="mt-6 flex items-center gap-3">
+
+  {/* BACK BUTTON */}
+
+  {step > 1 && (
+    <button
+      type="button"
+      onClick={prev}
+      disabled={saving}
+      className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+    >
+      Back
+    </button>
+  )}
+
+  {/* NEXT BUTTON */}
+
+  {step < 4 && (
+    <button
+      type="button"
+      onClick={next}
+      className="rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+    >
+      Next
+    </button>
+  )}
+
+</div>
+
+</div>
+</div>
+</div>
+);
 }
