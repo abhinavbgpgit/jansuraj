@@ -21,6 +21,8 @@ import Events from './pages/Events'
 import News from './pages/News'
 import Login from './pages/Login'
 import Home from './pages/Home'
+import VerifyOTP from "./pages/VerifyOTP";
+
 
 function Layout() {
   return (
@@ -58,6 +60,10 @@ function App() {
           <Route path="search" element={<SearchPage />} />
           <Route path="events" element={<Events />} />
           <Route path="news" element={<News />} />
+            {/* OTP */}
+        <Route path="/verify-otp"element={<VerifyOTP />} />
+
+       
         </Route>
       </Routes>
     </BrowserRouter>
