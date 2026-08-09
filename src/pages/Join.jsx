@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ProgressStepper from '../components/ProgressStepper'
-import MapPicker from '../components/MapPicker'
-import addressData from '../data/addressData'
+import areaData from '../data/area.json'
 
 export default function Join() {
   const navigate = useNavigate()
@@ -19,6 +18,8 @@ export default function Join() {
     block: '',
     panchayat: '',
     village: '',
+    areaType: '',
+    localBody: '',
     ward: '',
     location: null,
     phone: '',
@@ -29,14 +30,17 @@ export default function Join() {
   const [authStage, setAuthStage] = useState('phone')
   const [authError, setAuthError] = useState('')
 
-  const districts = useMemo(() => Object.keys(addressData), [])
-  const blocks = useMemo(() => (form.district ? Object.keys(addressData[form.district].blocks) : []), [form.district])
-  const panchayats = useMemo(() => (form.district && form.block ? Object.keys(addressData[form.district].blocks[form.block].panchayats) : []), [form.district, form.block])
-  const villages = useMemo(() => (form.district && form.block && form.panchayat ? Object.keys(addressData[form.district].blocks[form.block].panchayats[form.panchayat].villages) : []), [form.district, form.block, form.panchayat])
-  const wards = useMemo(() => (form.district && form.block && form.panchayat && form.village ? addressData[form.district].blocks[form.block].panchayats[form.panchayat].villages[form.village].wards : []), [form.district, form.block, form.panchayat, form.village])
+  const districtData = useMemo(() => areaData?.district, [])
+  const areaOptions = useMemo(() => areaData?.district?.selection?.area_type || [], [])
 
   function update(field, value) {
-    setForm((f) => ({ ...f, [field]: value }))
+    setForm((f) => {
+      const next = { ...f, [field]: value }
+      if (['firstName', 'middleName', 'lastName'].includes(field)) {
+        next.name = [next.firstName, next.middleName, next.lastName].filter(Boolean).join(' ').trim()
+      }
+      return next
+    })
     setErrors((e) => ({ ...e, [field]: undefined }))
     if (field === 'phone') {
       setAuthError('')
@@ -65,11 +69,15 @@ export default function Join() {
       // profile photo optional
     }
     if (s === 2) {
-      if (!form.name) nextErrors.name = 'Full name is required'
+      if (!form.firstName?.trim()) nextErrors.firstName = 'First name is required'
+      if (!form.education) nextErrors.education = 'Please select education'
+      if (!form.profession) nextErrors.profession = 'Please select profession'
+      if (!form.aadhaar || form.aadhaar.length !== 12) nextErrors.aadhaar = 'Aadhaar number must be 12 digits'
     }
     if (s === 3) {
-      if (!form.district) nextErrors.district = 'Select district'
-      if (!form.ward) nextErrors.ward = 'Select ward'
+      if (!form.areaType) nextErrors.areaType = 'Please select rural or urban area'
+      if (!form.localBody) nextErrors.localBody = 'Please select a local body'
+      if (!form.ward) nextErrors.ward = 'Please select a ward'
     }
     if (s === 4) {
       const normalized = form.phone.replace(/\D/g, '')
@@ -143,6 +151,146 @@ export default function Join() {
       /* ignore in non-window environments */
     }
     navigate('/home')
+  }
+
+  function LocationPicker({ areaType, value, onChange }) {
+    const [search, setSearch] = useState('')
+    const [open, setOpen] = useState(false)
+
+    const district = districtData
+    const locations = areaType === 'rural'
+      ? district?.rural?.panchayats || []
+      : district?.urban?.local_bodies || []
+
+    const selected = locations.find((item) => item.id === value)
+    const normalizedSearch = search.trim().toLowerCase()
+    const filtered = locations.filter((item) => {
+      const haystack = `${item.name || ''} ${item.name_en || ''}`.toLowerCase()
+      if (!normalizedSearch) return true
+
+      const tokens = normalizedSearch
+        .split(/[^a-zA-Z0-9	0-9]+/)
+        .filter(Boolean)
+
+      return tokens.every((token) => haystack.includes(token))
+    })
+
+    const title = areaType === 'rural' ? 'ग्राम पंचायत' : 'नगर निकाय'
+    const placeholder = areaType === 'rural' ? 'ग्राम पंचायत खोजें...' : 'नगर निकाय खोजें...'
+
+    return (
+      <div className="mt-4">
+        <label className="mb-2 block text-sm font-semibold text-slate-700">
+          {title} <span className="text-red-500">*</span>
+        </label>
+
+        <div className="relative">
+          <div className="relative">
+            <input
+              type="text"
+              value={selected ? selected.name : search}
+              placeholder={placeholder}
+              onFocus={() => {
+                setOpen(true)
+                if (!search) {
+                  setSearch('')
+                }
+              }}
+              onChange={(e) => {
+                const nextValue = e.target.value
+                setSearch(nextValue)
+                if (value) {
+                  onChange('')
+                }
+                setOpen(true)
+              }}
+              className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-11 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+            />
+
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-lg text-slate-400">
+              🔍
+            </span>
+          </div>
+
+          {open && !value && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
+              <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl">
+                {filtered.length > 0 ? (
+                  filtered.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        onChange(item.id)
+                        setSearch('')
+                        setOpen(false)
+                      }}
+                      className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition hover:bg-green-50"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-slate-700">{item.name}</p>
+                        {item.name_en && <p className="mt-0.5 text-xs text-slate-400">{item.name_en}</p>}
+                      </div>
+                      <span className="text-slate-300">›</span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-6 text-center">
+                    <div className="text-2xl">🔎</div>
+                    <p className="mt-2 text-sm font-medium text-slate-600">कोई परिणाम नहीं मिला</p>
+                    <p className="mt-1 text-xs text-slate-400">नाम दोबारा जाँचकर लिखें।</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        <p className="mt-1.5 text-xs text-slate-400">नाम लिखकर खोजें या सूची में से चुनें।</p>
+      </div>
+    )
+  }
+
+  function WardPicker({ areaType, localBodyId, value, onChange }) {
+    const district = districtData
+    const locations = areaType === 'rural'
+      ? district?.rural?.panchayats || []
+      : district?.urban?.local_bodies || []
+
+    const localBody = locations.find((item) => item.id === localBodyId)
+    const wards = localBody?.wards || []
+
+    return (
+      <div className="mt-4">
+        <label className="mb-2 block text-sm font-semibold text-slate-700">
+          वार्ड <span className="text-red-500">*</span>
+        </label>
+
+        <div className="relative">
+          <select
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
+          >
+            <option value="">अपना वार्ड चुनें</option>
+            {wards.map((ward) => (
+              <option key={ward.id} value={ward.id}>
+                {ward.name}
+              </option>
+            ))}
+          </select>
+
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">▼</span>
+        </div>
+
+        {wards.length === 0 && (
+          <div className="mt-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5">
+            <p className="text-xs text-amber-700">इस क्षेत्र के वार्ड की सूची अभी उपलब्ध नहीं है।</p>
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -261,60 +409,373 @@ export default function Join() {
           )}
 
           {step === 2 && (
-            <div>
-              <label className="block text-sm">Personal Information</label>
-              <input className="mt-2 w-full rounded border p-2" placeholder="Full name" value={form.name} onChange={(e) => update('name', e.target.value)} />
-              {errors.name ? <div className="mt-1 text-xs text-rose-600">{errors.name}</div> : null}
+          <div className="space-y-5">
 
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <input className="rounded border p-2" placeholder="Education" value={form.education} onChange={(e)=> update('education', e.target.value)} />
-                <input className="rounded border p-2" placeholder="Profession" value={form.profession} onChange={(e)=> update('profession', e.target.value)} />
-              </div>
+  {/* नाम */}
+  <div>
+    <label className="mb-2 block text-sm font-semibold text-slate-700">
+      नाम <span className="text-red-500">*</span>
+    </label>
 
-              <input className="mt-3 w-full rounded border p-2" placeholder="Skills (comma separated)" value={form.skills} onChange={(e)=> update('skills', e.target.value)} />
-              <input className="mt-3 w-full rounded border p-2" placeholder="Social links (optional)" value={form.social} onChange={(e)=> update('social', e.target.value)} />
+    <div className="grid gap-3 sm:grid-cols-3">
 
-              <input className="mt-3 w-full rounded border p-2" placeholder="Aadhaar (optional)" value={form.aadhaar} onChange={(e)=> update('aadhaar', e.target.value)} />
-            </div>
+      <input
+        type="text"
+        placeholder="पहला नाम"
+        value={form.firstName || ""}
+        onChange={(e) => update("firstName", e.target.value)}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+      />
+
+      <input
+        type="text"
+        placeholder="मध्य नाम"
+        value={form.middleName || ""}
+        onChange={(e) => update("middleName", e.target.value)}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+      />
+
+      <input
+        type="text"
+        placeholder="अंतिम नाम"
+        value={form.lastName || ""}
+        onChange={(e) => update("lastName", e.target.value)}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+      />
+
+    </div>
+
+    {errors.firstName ? <p className="mt-1.5 text-xs font-medium text-red-500">{errors.firstName}</p> : <p className="mt-1.5 text-xs text-slate-400">पहला नाम भरना आवश्यक है।</p>}
+  </div>
+
+
+  {/* शिक्षा और पेशा */}
+  <div className="grid gap-4 sm:grid-cols-2">
+
+    {/* शिक्षा */}
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-slate-700">
+        शिक्षा <span className="text-red-500">*</span>
+      </label>
+
+      <select
+        value={form.education || ""}
+        onChange={(e) => update("education", e.target.value)}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
+      >
+        <option value="">शिक्षा चुनें</option>
+        <option value="Below Matric">मैट्रिक से कम</option>
+        <option value="Matric Pass">मैट्रिक पास (10वीं)</option>
+        <option value="12th Pass">12वीं पास</option>
+        <option value="Diploma / ITI">डिप्लोमा / आईटीआई</option>
+        <option value="Graduate">स्नातक</option>
+        <option value="Post Graduate / Masters">
+          स्नातकोत्तर / मास्टर्स
+        </option>
+        <option value="Other">अन्य</option>
+      </select>
+      {errors.education ? <p className="mt-1.5 text-xs font-medium text-red-500">{errors.education}</p> : null}
+    </div>
+
+
+    {/* पेशा */}
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-slate-700">
+        पेशा <span className="text-red-500">*</span>
+      </label>
+
+      <select
+        value={form.profession || ""}
+        onChange={(e) => update("profession", e.target.value)}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
+      >
+        <option value="">अपना पेशा चुनें</option>
+
+        <option value="Farmer / Agriculture">
+          किसान / कृषि
+        </option>
+
+        <option value="Agricultural Labourer">
+          कृषि मजदूर
+        </option>
+
+        <option value="Student">
+          विद्यार्थी
+        </option>
+
+        <option value="Teacher / Professor">
+          शिक्षक / प्रोफेसर
+        </option>
+
+        <option value="Government Employee">
+          सरकारी कर्मचारी
+        </option>
+
+        <option value="Private Employee">
+          निजी कर्मचारी
+        </option>
+
+        <option value="Business / Entrepreneur">
+          व्यवसायी / उद्यमी
+        </option>
+
+        <option value="Shopkeeper / Trader">
+          दुकानदार / व्यापारी
+        </option>
+
+        <option value="Self Employed">
+          स्वरोजगार
+        </option>
+
+        <option value="Doctor / Healthcare">
+          डॉक्टर / स्वास्थ्य सेवा
+        </option>
+
+        <option value="Engineer / IT Professional">
+          इंजीनियर / आईटी
+        </option>
+
+        <option value="Lawyer / Legal Professional">
+          वकील / कानूनी सेवा
+        </option>
+
+        <option value="Construction / Skilled Worker">
+          निर्माण कार्य / कुशल कारीगर
+        </option>
+
+        <option value="Driver / Transport">
+          चालक / परिवहन
+        </option>
+
+        <option value="Homemaker">
+          गृहिणी / गृहस्थ
+        </option>
+
+        <option value="Retired">
+          सेवानिवृत्त
+        </option>
+
+        <option value="Daily Wage Worker">
+          दैनिक मजदूर
+        </option>
+
+        <option value="Social Worker">
+          सामाजिक कार्यकर्ता
+        </option>
+
+        <option value="Journalist / Media">
+          पत्रकारिता / मीडिया
+        </option>
+
+        <option value="Other">
+          अन्य
+        </option>
+      </select>
+      {errors.profession ? <p className="mt-1.5 text-xs font-medium text-red-500">{errors.profession}</p> : null}
+    </div>
+
+  </div>
+
+
+  {/* कौशल */}
+  <div>
+
+    <div className="mb-3">
+      <label className="block text-sm font-semibold text-slate-700">
+        आपकी विशेषताएँ / कौशल
+      </label>
+
+      <p className="mt-1 text-xs leading-5 text-slate-500">
+        आप जिस चीज़ में बढ़िया हैं, उसे चुनिए। इससे जनसुराज में आपकी
+        महत्ता और आपकी उपयोगिता बढ़ेगी।
+      </p>
+    </div>
+
+
+    {/* Skill Capsules */}
+    <div className="flex flex-wrap gap-2.5">
+
+      {[
+        "शिक्षण एवं प्रशिक्षण",
+        "कृषि",
+        "पशुपालन",
+        "स्वास्थ्य सेवा",
+        "आईटी एवं तकनीक",
+        "कानूनी जानकारी",
+        "लेखा एवं वित्त",
+        "सामाजिक कार्य",
+        "जनसंपर्क",
+        "भाषण एवं वक्तृत्व",
+        "लेखन",
+        "फोटोग्राफी",
+        "वीडियो निर्माण",
+        "सोशल मीडिया",
+        "कार्यक्रम प्रबंधन",
+        "युवा कार्य",
+        "महिला एवं सामुदायिक कार्य",
+        "आपदा राहत",
+        "अनुसंधान एवं डेटा",
+        "व्यवसाय एवं उद्यमिता",
+        "अन्य",
+      ].map((skill) => {
+
+        const selected = (form.skills || []).includes(skill);
+
+        return (
+          <button
+            key={skill}
+            type="button"
+            onClick={() => {
+
+              const currentSkills = form.skills || [];
+
+              const updatedSkills = selected
+                ? currentSkills.filter((item) => item !== skill)
+                : [...currentSkills, skill];
+
+              update("skills", updatedSkills);
+            }}
+            className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+              selected
+                ? "border-green-600 bg-green-600 text-white shadow-sm hover:bg-green-700"
+                : "border-slate-200 bg-white text-slate-600 hover:border-green-400 hover:bg-green-50 hover:text-green-700"
+            }`}
+          >
+            {selected && (
+              <span className="mr-1.5">✓</span>
+            )}
+
+            {skill}
+          </button>
+        );
+      })}
+
+    </div>
+
+  </div>
+
+
+  {/* आधार */}
+  <div>
+
+    <label className="mb-2 block text-sm font-semibold text-slate-700">
+      आधार संख्या <span className="text-red-500">*</span>
+    </label>
+
+    <input
+      type="text"
+      inputMode="numeric"
+      maxLength={14}
+      placeholder="1234-5678-9012"
+      value={
+        form.aadhaar
+          ? form.aadhaar
+              .replace(/\D/g, "")
+              .replace(/(\d{4})(?=\d)/g, "$1-")
+          : ""
+      }
+      onChange={(e) => {
+
+        const value = e.target.value
+          .replace(/\D/g, "")
+          .slice(0, 12);
+
+        update("aadhaar", value);
+      }}
+      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm tracking-wider outline-none transition placeholder:tracking-normal placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+    />
+
+    <p className="mt-1.5 text-xs text-slate-400">
+      पहचान सत्यापन के लिए 12 अंकों की आधार संख्या आवश्यक है।
+    </p>
+
+    {errors.aadhaar ? (
+      <p className="mt-1 text-xs font-medium text-red-500">{errors.aadhaar}</p>
+    ) : form.aadhaar && form.aadhaar.length !== 12 ? (
+      <p className="mt-1 text-xs font-medium text-red-500">
+        आधार संख्या 12 अंकों की होनी चाहिए।
+      </p>
+    ) : null}
+
+  </div>
+
+</div>
           )}
 
           {step === 3 && (
-            <div>
-              <label className="block text-sm">Address</label>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                <select className="rounded border p-2" value={form.district} onChange={(e)=>{ update('district', e.target.value); update('block',''); update('panchayat',''); update('village',''); update('ward','') }}>
-                  <option value="">Select District</option>
-                  {districts.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-
-                <select className="rounded border p-2" value={form.block} onChange={(e)=>{ update('block', e.target.value); update('panchayat',''); update('village',''); update('ward','') }}>
-                  <option value="">Select Block</option>
-                  {blocks.map(b => <option key={b} value={b}>{b}</option>)}
-                </select>
-
-                <select className="rounded border p-2" value={form.panchayat} onChange={(e)=>{ update('panchayat', e.target.value); update('village',''); update('ward','') }}>
-                  <option value="">Select Panchayat</option>
-                  {panchayats.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-
-                <select className="rounded border p-2" value={form.village} onChange={(e)=>{ update('village', e.target.value); update('ward','') }}>
-                  <option value="">Select Village</option>
-                  {villages.map(v => <option key={v} value={v}>{v}</option>)}
-                </select>
-
-                <select className="rounded border p-2" value={form.ward} onChange={(e)=> update('ward', e.target.value)}>
-                  <option value="">Select Ward</option>
-                  {wards.map(w => <option key={w} value={w}>{w}</option>)}
-                </select>
-
+            <div className="mt-6">
+              <div className="mb-5">
+                <h3 className="text-base font-semibold text-slate-800">आप कहाँ रहते हैं?</h3>
+                <p className="mt-1 text-sm text-slate-500">अपना क्षेत्र चुनें, फिर स्थानीय निकाय और वार्ड चुनें।</p>
               </div>
-              {errors.district ? <div className="mt-1 text-xs text-rose-600">{errors.district}</div> : null}
-              {errors.ward ? <div className="mt-1 text-xs text-rose-600">{errors.ward}</div> : null}
 
-              <div className="mt-4">
-                <MapPicker initialPosition={[25.6,85.1]} onLocationSelect={(loc)=> update('location', loc)} />
-                {form.location ? <div className="mt-2 text-xs text-slate-600">Picked: {form.location.lat.toFixed(4)}, {form.location.lng.toFixed(4)}</div> : null}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    update('areaType', 'rural')
+                    update('localBody', '')
+                    update('ward', '')
+                  }}
+                  className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
+                    form.areaType === 'rural'
+                      ? 'border-green-500 bg-green-50 ring-2 ring-green-100'
+                      : 'border-slate-200 bg-white hover:border-green-300 hover:bg-green-50/50'
+                  }`}
+                >
+                  <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${form.areaType === 'rural' ? 'bg-green-600' : 'bg-green-50'}`}>
+                    🌾
+                  </div>
+                  <p className="text-sm font-semibold text-slate-800">ग्रामीण क्षेत्र</p>
+                  <p className="mt-1 text-xs text-slate-500">गाँव / ग्राम पंचायत</p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    update('areaType', 'urban')
+                    update('localBody', '')
+                    update('ward', '')
+                  }}
+                  className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
+                    form.areaType === 'urban'
+                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-100'
+                      : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50'
+                  }`}
+                >
+                  <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${form.areaType === 'urban' ? 'bg-blue-600' : 'bg-blue-50'}`}>
+                    🏙️
+                  </div>
+                  <p className="text-sm font-semibold text-slate-800">शहरी क्षेत्र</p>
+                  <p className="mt-1 text-xs text-slate-500">नगर निकाय</p>
+                </button>
               </div>
+
+              {errors.areaType ? <div className="mt-2 text-xs text-rose-600">{errors.areaType}</div> : null}
+
+              {form.areaType && (
+                <LocationPicker
+                  areaType={form.areaType}
+                  value={form.localBody}
+                  onChange={(value) => {
+                    update('localBody', value)
+                    update('ward', '')
+                  }}
+                />
+              )}
+
+              {form.localBody && (
+                <WardPicker
+                  areaType={form.areaType}
+                  localBodyId={form.localBody}
+                  value={form.ward}
+                  onChange={(value) => update('ward', value)}
+                />
+              )}
+
+              {errors.localBody ? <div className="mt-2 text-xs text-rose-600">{errors.localBody}</div> : null}
+              {errors.ward ? <div className="mt-2 text-xs text-rose-600">{errors.ward}</div> : null}
+
             </div>
           )}
 

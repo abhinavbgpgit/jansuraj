@@ -1,0 +1,661 @@
+{
+  "schema_version": "2.0.0",
+  "data_version": "2026-08",
+  "state": {
+    "id": "BR",
+    "name": "बिहार"
+  },
+  "district": {
+    "id": "BHAGALPUR",
+    "name": "भागलपुर",
+    "selection": {
+      "area_type": [
+        {
+          "id": "rural",
+          "name": "ग्रामीण क्षेत्र"
+        },
+        {
+          "id": "urban",
+          "name": "शहरी क्षेत्र"
+        }
+      ]
+    },
+    "rural": {
+      "label": "ग्राम पंचायत",
+      "panchayat_count": 242,
+      "ui_note": "प्रखंड को उपयोगकर्ता से नहीं पूछना है। प्रखंड backend metadata में रखा जा सकता है।",
+      "blocks": [
+        {
+          "id": "bihpur",
+          "name": "बिहपुर"
+        },
+        {
+          "id": "gopalpur",
+          "name": "गोपालपुर"
+        },
+        {
+          "id": "goradih",
+          "name": "गोराडीह"
+        },
+        {
+          "id": "ismailpur",
+          "name": "इस्माइलपुर"
+        },
+        {
+          "id": "jagdishpur",
+          "name": "जगदीशपुर"
+        },
+        {
+          "id": "kahalgaon",
+          "name": "कहलगांव"
+        },
+        {
+          "id": "kharik",
+          "name": "खरीक"
+        },
+        {
+          "id": "narayanpur",
+          "name": "नारायणपुर"
+        },
+        {
+          "id": "nathnagar",
+          "name": "नाथनगर"
+        },
+        {
+          "id": "naugachia",
+          "name": "नवगछिया"
+        },
+        {
+          "id": "pirpainti",
+          "name": "पीरपैंती"
+        },
+        {
+          "id": "rangra_chowk",
+          "name": "रंगरा चौक"
+        },
+        {
+          "id": "sabour",
+          "name": "सबौर"
+        },
+        {
+          "id": "shahkund",
+          "name": "शाहकुंड"
+        },
+        {
+          "id": "sanhoula",
+          "name": "सन्हौला"
+        },
+        {
+          "id": "sultanganj",
+          "name": "सुल्तानगंज"
+        }
+      ],
+      "panchayats": [
+        {
+          "id": "bihpur_gps_1",
+          "name": "बिहपुर ग्राम पंचायत",
+          "name_en": "Bihpur Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+            { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+          ]
+        },
+        {
+          "id": "gopalpur_gps_1",
+          "name": "गोपालपुर ग्राम पंचायत",
+          "name_en": "Gopalpur Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
+          ]
+        },
+        {
+          "id": "goradih_gps_1",
+          "name": "गोराडीह ग्राम पंचायत",
+          "name_en": "Goradih Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+            { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+          ]
+        },
+        {
+          "id": "ismailpur_gps_1",
+          "name": "इस्माइलपुर ग्राम पंचायत",
+          "name_en": "Ismailpur Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
+          ]
+        },
+        {
+          "id": "jagdishpur_gps_1",
+          "name": "जगदीशपुर ग्राम पंचायत",
+          "name_en": "Jagdishpur Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+            { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+          ]
+        },
+        {
+          "id": "kahalgaon_gps_1",
+          "name": "कहलगांव ग्राम पंचायत",
+          "name_en": "Kahalgaon Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
+          ]
+        },
+        {
+          "id": "kharik_gps_1",
+          "name": "खरीक ग्राम पंचायत",
+          "name_en": "Kharik Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+            { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+          ]
+        },
+        {
+          "id": "narayanpur_gps_1",
+          "name": "नारायणपुर ग्राम पंचायत",
+          "name_en": "Narayanpur Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
+          ]
+        },
+        {
+          "id": "nathnagar_gps_1",
+          "name": "नाथनगर ग्राम पंचायत",
+          "name_en": "Nathnagar Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+            { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+          ]
+        },
+        {
+          "id": "naugachia_gps_1",
+          "name": "नवगछिया ग्राम पंचायत",
+          "name_en": "Naugachia Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
+          ]
+        },
+        {
+          "id": "pirpainti_gps_1",
+          "name": "पीरपैंती ग्राम पंचायत",
+          "name_en": "Pirpainti Gram Panchayat",
+          "wards": [
+            { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+            { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+            { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+          ]
+        }
+      ],
+      "ward_source": "LGD / current Bihar rural ward dataset",
+      "status": "requires_official_lgd_import"
+    },
+    "urban": {
+      "label": "नगर निकाय",
+      "local_bodies": [
+        {
+          "id": "bhagalpur_municipal_corporation",
+          "name": "नगर निगम भागलपुर",
+          "type": "नगर निगम",
+          "wards": [
+            {
+              "id": "ward_01",
+              "number": 1,
+              "name": "वार्ड 1"
+            },
+            {
+              "id": "ward_02",
+              "number": 2,
+              "name": "वार्ड 2"
+            },
+            {
+              "id": "ward_03",
+              "number": 3,
+              "name": "वार्ड 3"
+            },
+            {
+              "id": "ward_04",
+              "number": 4,
+              "name": "वार्ड 4"
+            },
+            {
+              "id": "ward_05",
+              "number": 5,
+              "name": "वार्ड 5"
+            },
+            {
+              "id": "ward_06",
+              "number": 6,
+              "name": "वार्ड 6"
+            },
+            {
+              "id": "ward_07",
+              "number": 7,
+              "name": "वार्ड 7"
+            },
+            {
+              "id": "ward_08",
+              "number": 8,
+              "name": "वार्ड 8"
+            },
+            {
+              "id": "ward_09",
+              "number": 9,
+              "name": "वार्ड 9"
+            },
+            {
+              "id": "ward_10",
+              "number": 10,
+              "name": "वार्ड 10"
+            },
+            {
+              "id": "ward_11",
+              "number": 11,
+              "name": "वार्ड 11"
+            },
+            {
+              "id": "ward_12",
+              "number": 12,
+              "name": "वार्ड 12"
+            },
+            {
+              "id": "ward_13",
+              "number": 13,
+              "name": "वार्ड 13"
+            },
+            {
+              "id": "ward_14",
+              "number": 14,
+              "name": "वार्ड 14"
+            },
+            {
+              "id": "ward_15",
+              "number": 15,
+              "name": "वार्ड 15"
+            },
+            {
+              "id": "ward_16",
+              "number": 16,
+              "name": "वार्ड 16"
+            },
+            {
+              "id": "ward_17",
+              "number": 17,
+              "name": "वार्ड 17"
+            },
+            {
+              "id": "ward_18",
+              "number": 18,
+              "name": "वार्ड 18"
+            },
+            {
+              "id": "ward_19",
+              "number": 19,
+              "name": "वार्ड 19"
+            },
+            {
+              "id": "ward_20",
+              "number": 20,
+              "name": "वार्ड 20"
+            },
+            {
+              "id": "ward_21",
+              "number": 21,
+              "name": "वार्ड 21"
+            },
+            {
+              "id": "ward_22",
+              "number": 22,
+              "name": "वार्ड 22"
+            },
+            {
+              "id": "ward_23",
+              "number": 23,
+              "name": "वार्ड 23"
+            },
+            {
+              "id": "ward_24",
+              "number": 24,
+              "name": "वार्ड 24"
+            },
+            {
+              "id": "ward_25",
+              "number": 25,
+              "name": "वार्ड 25"
+            },
+            {
+              "id": "ward_26",
+              "number": 26,
+              "name": "वार्ड 26"
+            },
+            {
+              "id": "ward_27",
+              "number": 27,
+              "name": "वार्ड 27"
+            },
+            {
+              "id": "ward_28",
+              "number": 28,
+              "name": "वार्ड 28"
+            },
+            {
+              "id": "ward_29",
+              "number": 29,
+              "name": "वार्ड 29"
+            },
+            {
+              "id": "ward_30",
+              "number": 30,
+              "name": "वार्ड 30"
+            },
+            {
+              "id": "ward_31",
+              "number": 31,
+              "name": "वार्ड 31"
+            },
+            {
+              "id": "ward_32",
+              "number": 32,
+              "name": "वार्ड 32"
+            },
+            {
+              "id": "ward_33",
+              "number": 33,
+              "name": "वार्ड 33"
+            },
+            {
+              "id": "ward_34",
+              "number": 34,
+              "name": "वार्ड 34"
+            },
+            {
+              "id": "ward_35",
+              "number": 35,
+              "name": "वार्ड 35"
+            },
+            {
+              "id": "ward_36",
+              "number": 36,
+              "name": "वार्ड 36"
+            },
+            {
+              "id": "ward_37",
+              "number": 37,
+              "name": "वार्ड 37"
+            },
+            {
+              "id": "ward_38",
+              "number": 38,
+              "name": "वार्ड 38"
+            },
+            {
+              "id": "ward_39",
+              "number": 39,
+              "name": "वार्ड 39"
+            },
+            {
+              "id": "ward_40",
+              "number": 40,
+              "name": "वार्ड 40"
+            },
+            {
+              "id": "ward_41",
+              "number": 41,
+              "name": "वार्ड 41"
+            },
+            {
+              "id": "ward_42",
+              "number": 42,
+              "name": "वार्ड 42"
+            },
+            {
+              "id": "ward_43",
+              "number": 43,
+              "name": "वार्ड 43"
+            },
+            {
+              "id": "ward_44",
+              "number": 44,
+              "name": "वार्ड 44"
+            },
+            {
+              "id": "ward_45",
+              "number": 45,
+              "name": "वार्ड 45"
+            },
+            {
+              "id": "ward_46",
+              "number": 46,
+              "name": "वार्ड 46"
+            },
+            {
+              "id": "ward_47",
+              "number": 47,
+              "name": "वार्ड 47"
+            },
+            {
+              "id": "ward_48",
+              "number": 48,
+              "name": "वार्ड 48"
+            },
+            {
+              "id": "ward_49",
+              "number": 49,
+              "name": "वार्ड 49"
+            },
+            {
+              "id": "ward_50",
+              "number": 50,
+              "name": "वार्ड 50"
+            },
+            {
+              "id": "ward_51",
+              "number": 51,
+              "name": "वार्ड 51"
+            }
+          ]
+        },
+        {
+          "id": "habibpur_nagar_parishad",
+          "name": "नगर परिषद हबीबपुर",
+          "type": "नगर परिषद",
+          "wards": [
+            {
+              "id": "ward_01",
+              "number": 1,
+              "name": "वार्ड 1"
+            },
+            {
+              "id": "ward_02",
+              "number": 2,
+              "name": "वार्ड 2"
+            },
+            {
+              "id": "ward_03",
+              "number": 3,
+              "name": "वार्ड 3"
+            },
+            {
+              "id": "ward_04",
+              "number": 4,
+              "name": "वार्ड 4"
+            },
+            {
+              "id": "ward_05",
+              "number": 5,
+              "name": "वार्ड 5"
+            },
+            {
+              "id": "ward_06",
+              "number": 6,
+              "name": "वार्ड 6"
+            },
+            {
+              "id": "ward_07",
+              "number": 7,
+              "name": "वार्ड 7"
+            },
+            {
+              "id": "ward_08",
+              "number": 8,
+              "name": "वार्ड 8"
+            },
+            {
+              "id": "ward_09",
+              "number": 9,
+              "name": "वार्ड 9"
+            },
+            {
+              "id": "ward_10",
+              "number": 10,
+              "name": "वार्ड 10"
+            }
+          ]
+        },
+        {
+          "id": "kahalgaon_nagar_panchayat",
+          "name": "नगर पंचायत कहलगांव",
+          "type": "नगर पंचायत",
+          "wards": [
+            {
+              "id": "ward_01",
+              "number": 1,
+              "name": "वार्ड 1"
+            },
+            {
+              "id": "ward_02",
+              "number": 2,
+              "name": "वार्ड 2"
+            },
+            {
+              "id": "ward_03",
+              "number": 3,
+              "name": "वार्ड 3"
+            },
+            {
+              "id": "ward_04",
+              "number": 4,
+              "name": "वार्ड 4"
+            },
+            {
+              "id": "ward_05",
+              "number": 5,
+              "name": "वार्ड 5"
+            },
+            {
+              "id": "ward_06",
+              "number": 6,
+              "name": "वार्ड 6"
+            },
+            {
+              "id": "ward_07",
+              "number": 7,
+              "name": "वार्ड 7"
+            },
+            {
+              "id": "ward_08",
+              "number": 8,
+              "name": "वार्ड 8"
+            },
+            {
+              "id": "ward_09",
+              "number": 9,
+              "name": "वार्ड 9"
+            },
+            {
+              "id": "ward_10",
+              "number": 10,
+              "name": "वार्ड 10"
+            },
+            {
+              "id": "ward_11",
+              "number": 11,
+              "name": "वार्ड 11"
+            },
+            {
+              "id": "ward_12",
+              "number": 12,
+              "name": "वार्ड 12"
+            },
+            {
+              "id": "ward_13",
+              "number": 13,
+              "name": "वार्ड 13"
+            },
+            {
+              "id": "ward_14",
+              "number": 14,
+              "name": "वार्ड 14"
+            },
+            {
+              "id": "ward_15",
+              "number": 15,
+              "name": "वार्ड 15"
+            },
+            {
+              "id": "ward_16",
+              "number": 16,
+              "name": "वार्ड 16"
+            },
+            {
+              "id": "ward_17",
+              "number": 17,
+              "name": "वार्ड 17"
+            }
+          ]
+        },
+        {
+          "id": "naugachia_nagar_panchayat",
+          "name": "नगर पंचायत नवगछिया",
+          "type": "नगर पंचायत",
+          "wards": []
+        },
+        {
+          "id": "sultanganj_municipal_council",
+          "name": "नगर परिषद सुल्तानगंज",
+          "type": "नगर परिषद",
+          "wards": []
+        }
+      ]
+    }
+  },
+  "ui_flow": {
+    "step_1": "area_type",
+    "rural_flow": [
+      "जिला",
+      "ग्रामीण क्षेत्र",
+      "ग्राम पंचायत",
+      "वार्ड"
+    ],
+    "urban_flow": [
+      "जिला",
+      "शहरी क्षेत्र",
+      "नगर निकाय",
+      "वार्ड"
+    ],
+    "typeahead": true,
+    "block_visible_to_user": false
+  },
+  "data_integrity": {
+    "ward_id_rule": "ward IDs are unique only within their parent local body; use local_body_id + ward_id as the database key.",
+    "recommended_member_location_key": "BHAGALPUR:{area_type}:{local_body_id}:{ward_id}",
+    "do_not_use": "district + ward_number alone"
+  },
+  "sources": {
+    "district_admin": "https://bhagalpur.nic.in/",
+    "rural_panchayat_count": "Bhagalpur district administration: 242 Gram Panchayats",
+    "urban_local_bodies": "Bhagalpur district administration Municipalities page",
+    "urban_ward_delimitation": "Bhagalpur district administration published Nagar Panchayat/Nagar Parishad ward delimitation pages",
+    "lgd": "https://lgdirectory.gov.in/"
+  }
+}
