@@ -46,6 +46,22 @@ export default function Login() {
   }, []);
 
   // =====================================================
+  // CLEAR RECAPTCHA
+  // =====================================================
+
+  const clearRecaptcha = () => {
+    if (window.loginRecaptchaVerifier) {
+      try {
+        window.loginRecaptchaVerifier.clear();
+      } catch (error) {
+        console.log("reCAPTCHA clear error:", error);
+      }
+
+      window.loginRecaptchaVerifier = null;
+    }
+  };
+
+  // =====================================================
   // SETUP FIREBASE RECAPTCHA
   // =====================================================
 
@@ -114,6 +130,13 @@ export default function Login() {
         })
       );
 
+      // =====================================================
+      // IMPORTANT:
+      // OTP screen par jaane se pehle reCAPTCHA clear
+      // =====================================================
+
+      clearRecaptcha();
+
       setStage("otp");
     } catch (error) {
       console.error("Firebase OTP Error:", error);
@@ -150,15 +173,7 @@ export default function Login() {
       }
 
       // Reset recaptcha
-      if (window.loginRecaptchaVerifier) {
-        try {
-          window.loginRecaptchaVerifier.clear();
-        } catch (err) {
-          console.log(err);
-        }
-
-        window.loginRecaptchaVerifier = null;
-      }
+      clearRecaptcha();
     } finally {
       setLoading(false);
     }
@@ -280,7 +295,6 @@ export default function Login() {
                     value={phone}
                     onChange={(e) => {
                       setPhone(e.target.value.replace(/\D/g, ""));
-
                       setError("");
                     }}
                     placeholder="98765 43210"
@@ -337,7 +351,6 @@ export default function Login() {
                   value={otp}
                   onChange={(e) => {
                     setOtp(e.target.value.replace(/\D/g, ""));
-
                     setError("");
                   }}
                   placeholder="6-digit code"
@@ -352,6 +365,7 @@ export default function Login() {
                   type="button"
                   disabled={loading}
                   onClick={() => {
+                    clearRecaptcha();
                     setStage("phone");
                     setOtp("");
                     setError("");
