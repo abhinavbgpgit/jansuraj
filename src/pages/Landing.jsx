@@ -28,7 +28,7 @@ export default function Landing() {
         </p>
 
         <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <Link to="/login" className="inline-flex items-center justify-center rounded-full bg-[#0ea5a4] px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-[#0ea5a4]/20 transition hover:bg-[#0bb99b]">
+          <Link to="/join" className="inline-flex items-center justify-center rounded-full bg-[#0ea5a4] px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-lg shadow-[#0ea5a4]/20 transition hover:bg-[#0bb99b]">
             Join Jansuraaj
           </Link>
           <Link to="/login" className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-slate-700 shadow-sm transition hover:border-slate-400">

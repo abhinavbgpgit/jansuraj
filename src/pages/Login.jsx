@@ -1,97 +1,60 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import {
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  onAuthStateChanged,
+} from "firebase/auth";
 
-import { auth } from "../firebase/firebase";
+import { auth, db } from "../firebase/firebase";
+
+import {
+  doc,
+  getDoc,
+} from "firebase/firestore";
 
 export default function Login() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [stage, setStage] = useState("phone");
-
   const [error, setError] = useState("");
+  const [confirmationResult, setConfirmationResult] =
+    useState(null);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // =====================================================
-  // CHECK LOGIN
-  // =====================================================
+  // ==========================================
+  // CHECK FIREBASE LOGIN
+  // ==========================================
 
-  useEffect(() => {
-    const stored = localStorage.getItem("jansuraaj_user");
+ 
 
-    if (stored) {
-      navigate("/home");
-    }
-  }, [navigate]);
-
-  // =====================================================
+  // ==========================================
   // CLEANUP RECAPTCHA
-  // =====================================================
+  // ==========================================
 
   useEffect(() => {
     return () => {
-      if (window.loginRecaptchaVerifier) {
+      if (window.recaptchaVerifier) {
         try {
-          window.loginRecaptchaVerifier.clear();
+          window.recaptchaVerifier.clear();
         } catch (error) {
-          console.log(error);
+          console.log(
+            "reCAPTCHA cleanup error:",
+            error
+          );
         }
 
-        window.loginRecaptchaVerifier = null;
+        window.recaptchaVerifier = null;
       }
     };
   }, []);
 
-  // =====================================================
-  // CLEAR RECAPTCHA
-  // =====================================================
-
-  const clearRecaptcha = () => {
-    if (window.loginRecaptchaVerifier) {
-      try {
-        window.loginRecaptchaVerifier.clear();
-      } catch (error) {
-        console.log("reCAPTCHA clear error:", error);
-      }
-
-      window.loginRecaptchaVerifier = null;
-    }
-  };
-
-  // =====================================================
-  // SETUP FIREBASE RECAPTCHA
-  // =====================================================
-
-  const setupRecaptcha = () => {
-    if (window.loginRecaptchaVerifier) {
-      return window.loginRecaptchaVerifier;
-    }
-
-    window.loginRecaptchaVerifier = new RecaptchaVerifier(
-      auth,
-      "login-recaptcha-container",
-      {
-        size: "normal",
-
-        callback: () => {
-          console.log("reCAPTCHA solved");
-        },
-
-        "expired-callback": () => {
-          setError("reCAPTCHA expired. Please try again.");
-        },
-      }
-    );
-
-    return window.loginRecaptchaVerifier;
-  };
-
-  // =====================================================
-  // SEND OTP
-  // =====================================================
+  // ==========================================
+  // SEND FIREBASE OTP
+  // ==========================================
 
   const sendOtp = async (e) => {
     e.preventDefault();
@@ -101,305 +64,445 @@ export default function Login() {
     const normalized = phone.replace(/\D/g, "");
 
     if (normalized.length !== 10) {
-      setError("Please enter a valid 10-digit phone number.");
-
+      setError(
+        "Please enter a valid 10-digit phone number."
+      );
       return;
     }
-
-    const phoneNumber = `+91${normalized}`;
 
     try {
       setLoading(true);
 
-      const appVerifier = setupRecaptcha();
+      const phoneNumber = `+91${normalized}`;
 
-      const confirmationResult = await signInWithPhoneNumber(
-        auth,
-        phoneNumber,
-        appVerifier
-      );
+      // ========================================
+      // CREATE FIREBASE RECAPTCHA
+      // ========================================
 
-      // Firebase OTP confirmation result
-      window.jansuraajLoginConfirmation = confirmationResult;
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier =
+          new RecaptchaVerifier(
+            auth,
+            "recaptcha-container",
+            {
+              size: "invisible",
 
-      // Save phone temporarily
-      localStorage.setItem(
-        "jansuraaj_join_phone",
-        JSON.stringify({
-          phone: phoneNumber,
-        })
-      );
+              callback: () => {
+                console.log(
+                  "Firebase reCAPTCHA verified"
+                );
+              },
 
-      // =====================================================
-      // IMPORTANT:
-      // OTP screen par jaane se pehle reCAPTCHA clear
-      // =====================================================
+              "expired-callback": () => {
+                setError(
+                  "reCAPTCHA expired. Please try again."
+                );
 
-      clearRecaptcha();
+                if (window.recaptchaVerifier) {
+                  try {
+                    window.recaptchaVerifier.clear();
+                  } catch (error) {
+                    console.log(error);
+                  }
 
-      setStage("otp");
-    } catch (error) {
-      console.error("Firebase OTP Error:", error);
-
-      switch (error.code) {
-        case "auth/invalid-phone-number":
-          setError("Please enter a valid phone number.");
-          break;
-
-        case "auth/too-many-requests":
-          setError("Too many attempts. Please try again later.");
-          break;
-
-        case "auth/quota-exceeded":
-          setError("Firebase SMS quota exceeded.");
-          break;
-
-        case "auth/billing-not-enabled":
-          setError(
-            "Real SMS requires Firebase billing. For testing, use your Firebase test phone number."
+                  window.recaptchaVerifier = null;
+                }
+              },
+            }
           );
-          break;
-
-        case "auth/operation-not-allowed":
-          setError("Phone authentication is not enabled.");
-          break;
-
-        case "auth/captcha-check-failed":
-          setError("reCAPTCHA verification failed.");
-          break;
-
-        default:
-          setError(error.message || "Failed to send OTP.");
       }
 
-      // Reset recaptcha
-      clearRecaptcha();
+      // ========================================
+      // SEND REAL FIREBASE OTP
+      // ========================================
+
+      const confirmation =
+        await signInWithPhoneNumber(
+          auth,
+          phoneNumber,
+          window.recaptchaVerifier
+        );
+
+      setConfirmationResult(confirmation);
+
+      setStage("otp");
+
+      setError("");
+    } catch (error) {
+      console.error(
+        "Firebase Send OTP Error:",
+        error
+      );
+
+      let message =
+        "Failed to send OTP. Please try again.";
+
+      if (error.code === "auth/invalid-phone-number") {
+        message =
+          "Please enter a valid phone number.";
+      }
+
+      if (error.code === "auth/too-many-requests") {
+        message =
+          "Too many OTP requests. Please try again later.";
+      }
+
+      if (error.code === "auth/quota-exceeded") {
+        message =
+          "Firebase SMS quota exceeded. Please try again later.";
+      }
+
+      if (error.code === "auth/captcha-check-failed") {
+        message =
+          "reCAPTCHA verification failed. Please try again.";
+      }
+
+      setError(message);
+
+      if (window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch (recaptchaError) {
+          console.log(recaptchaError);
+        }
+
+        window.recaptchaVerifier = null;
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // =====================================================
-  // VERIFY OTP
-  // =====================================================
+  // ==========================================
+  // VERIFY FIREBASE OTP
+  // ==========================================
 
   const verifyOtp = async (e) => {
     e.preventDefault();
 
     setError("");
 
-    if (otp.length !== 6) {
-      setError("Please enter the 6-digit OTP.");
-
+    if (!otp.trim()) {
+      setError("Please enter the OTP.");
       return;
     }
 
-    const confirmationResult = window.jansuraajLoginConfirmation;
-
     if (!confirmationResult) {
-      setError("OTP session expired. Please send OTP again.");
+      setError(
+        "Please request OTP first."
+      );
+      return;
+    }
 
-      setStage("phone");
-
+    if (otp.trim().length !== 6) {
+      setError(
+        "Please enter a valid 6-digit OTP."
+      );
       return;
     }
 
     try {
       setLoading(true);
 
-      // Firebase OTP verification
-      const result = await confirmationResult.confirm(otp);
+      // ========================================
+      // FIREBASE OTP VERIFY
+      // ========================================
+
+      const result =
+        await confirmationResult.confirm(
+          otp.trim()
+        );
 
       const user = result.user;
 
-      console.log("Firebase OTP verified:", user);
+      // ========================================
+      // CHECK FIRESTORE USER
+      // ========================================
 
-      // -------------------------------------------------
-      // Save verified Firebase user temporarily
-      // -------------------------------------------------
+      const userRef = doc(
+        db,
+        "users",
+        user.uid
+      );
+
+      const userSnapshot =
+        await getDoc(userRef);
+
+      if (!userSnapshot.exists()) {
+        setError(
+          "No registered Jansuraaj profile found. Please join first."
+        );
+
+        // Sign out the newly authenticated user
+        await auth.signOut();
+
+        setLoading(false);
+        return;
+      }
+
+      // ========================================
+      // USER DATA
+      // ========================================
+
+      const userData =
+        userSnapshot.data();
+
+      // ========================================
+      // SAVE LOCAL LOGIN INFO
+      // ========================================
 
       localStorage.setItem(
-        "jansuraaj_join_phone",
+        "jansuraaj_user",
         JSON.stringify({
           uid: user.uid,
-          phone: user.phoneNumber || `+91${phone.replace(/\D/g, "")}`,
+
+          phone:
+            user.phoneNumber ||
+            `+91${phone.replace(/\D/g, "")}`,
+
+          name:
+            userData?.name || "",
+
+          loggedIn: true,
+
+          loggedInAt: Date.now(),
         })
       );
 
-      // Remove confirmation object
-      window.jansuraajLoginConfirmation = null;
+      // ========================================
+      // HOME
+      // ========================================
 
-      // -------------------------------------------------
-      // OTP VERIFY KE BAAD JOIN PAGE
-      // -------------------------------------------------
-
-      navigate("/join", {
+      navigate("/home", {
         replace: true,
       });
     } catch (error) {
-      console.error("OTP verification error:", error);
+      console.error(
+        "Firebase Verify OTP Error:",
+        error
+      );
 
-      switch (error.code) {
-        case "auth/invalid-verification-code":
-          setError("OTP does not match. Please try again.");
-          break;
+      let message =
+        "OTP does not match. Please try again.";
 
-        case "auth/code-expired":
-          setError("OTP has expired. Please request a new OTP.");
-          break;
-
-        default:
-          setError(error.message || "OTP verification failed.");
+      if (error.code === "auth/invalid-verification-code") {
+        message =
+          "Invalid OTP. Please enter the correct OTP.";
       }
+
+      if (error.code === "auth/code-expired") {
+        message =
+          "OTP has expired. Please request a new OTP.";
+      }
+
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  // =====================================================
-  // UI
-  // =====================================================
+  // ==========================================
+  // CHANGE NUMBER
+  // ==========================================
+
+  const changeNumber = () => {
+    setStage("phone");
+    setOtp("");
+    setError("");
+    setConfirmationResult(null);
+
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (error) {
+        console.log(error);
+      }
+
+      window.recaptchaVerifier = null;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10">
-      <div className="mx-auto max-w-md">
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <h1 className="text-3xl font-semibold text-slate-900">
-            Login to Jansuraaj
-          </h1>
+    <div className="mx-auto max-w-3xl px-4 py-6">
+      <div className="rounded-2xl border bg-white p-6 shadow-sm">
 
-          <p className="mt-2 text-sm text-slate-500">
-            Enter the phone number you used to join, then verify with OTP.
-          </p>
+        {/* ======================================
+            TITLE
+        ======================================= */}
 
-          {/* =================================================
-              PHONE STAGE
-          ================================================= */}
+        <h1 className="text-xl font-semibold">
+          Login to Jansuraaj
+        </h1>
 
-          {stage === "phone" ? (
-            <form onSubmit={sendOtp} className="space-y-5">
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-slate-700">
-                  Phone number
-                </label>
+        <p className="mt-1 text-sm text-slate-600">
+          Enter the phone number you used to join,
+          then verify with OTP.
+        </p>
 
-                <div className="mt-2 flex gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                  <span className="flex items-center text-sm text-slate-500">
-                    +91
-                  </span>
+        {/* Firebase reCAPTCHA container */}
 
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={10}
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value.replace(/\D/g, ""));
-                      setError("");
-                    }}
-                    placeholder="98765 43210"
-                    className="w-full bg-transparent text-sm text-slate-900 outline-none"
-                  />
-                </div>
+        <div id="recaptcha-container"></div>
+
+        {/* ======================================
+            PHONE STAGE
+        ======================================= */}
+
+        {stage === "phone" ? (
+          <form
+            onSubmit={sendOtp}
+            className="mt-6 space-y-5"
+          >
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Phone number
+              </label>
+
+              <div className="mt-2 flex gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+
+                <span className="flex items-center text-sm text-slate-500">
+                  +91
+                </span>
+
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  value={phone}
+                  onChange={(e) => {
+                    const value =
+                      e.target.value.replace(
+                        /\D/g,
+                        ""
+                      );
+
+                    setPhone(
+                      value.slice(0, 10)
+                    );
+
+                    setError("");
+                  }}
+                  placeholder="98765 43210"
+                  className="w-full bg-transparent text-sm text-slate-900 outline-none"
+                />
               </div>
+            </div>
 
-              {/* Firebase reCAPTCHA */}
+            {error && (
+              <p className="text-sm text-rose-600">
+                {error}
+              </p>
+            )}
 
-              <div
-                id="login-recaptcha-container"
-                className="flex justify-center"
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-2xl bg-[#0ea5a4] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0bb99b] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading
+                ? "Sending OTP..."
+                : "Send OTP"}
+            </button>
+          </form>
+        ) : (
+
+          /* ====================================
+             OTP STAGE
+          ===================================== */
+
+          <form
+            onSubmit={verifyOtp}
+            className="mt-6 space-y-5"
+          >
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+
+              <p className="text-sm text-slate-600">
+                OTP sent to
+              </p>
+
+              <p className="mt-1 text-lg font-semibold text-slate-900">
+                +91{" "}
+                {phone.replace(/\D/g, "")}
+              </p>
+
+              <p className="mt-3 text-sm text-slate-500">
+                Firebase OTP has been sent to
+                your mobile number.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Enter OTP
+              </label>
+
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={otp}
+                onChange={(e) => {
+                  const value =
+                    e.target.value.replace(
+                      /\D/g,
+                      ""
+                    );
+
+                  setOtp(
+                    value.slice(0, 6)
+                  );
+
+                  setError("");
+                }}
+                placeholder="6-digit code"
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
               />
+            </div>
 
-              {error && <p className="text-sm text-rose-600">{error}</p>}
+            {error && (
+              <p className="text-sm text-rose-600">
+                {error}
+              </p>
+            )}
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+
+              <button
+                type="button"
+                onClick={changeNumber}
+                disabled={loading}
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 disabled:opacity-50"
+              >
+                Change number
+              </button>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-2xl bg-[#0ea5a4] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0bb99b] disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-2xl bg-[#0ea5a4] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0bb99b] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "Sending OTP..." : "Send OTP"}
+                {loading
+                  ? "Verifying..."
+                  : "Verify OTP"}
               </button>
-            </form>
-          ) : (
-            /* =================================================
-               OTP STAGE
-            ================================================= */
 
-            <form onSubmit={verifyOtp} className="space-y-5">
-              <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-600">OTP sent to</p>
+            </div>
+          </form>
+        )}
 
-                <p className="mt-1 text-lg font-semibold text-slate-900">
-                  +91 {phone.replace(/\D/g, "")}
-                </p>
+        {/* ======================================
+            JOIN LINK
+        ======================================= */}
 
-                <p className="mt-3 text-sm text-slate-500">
-                  Enter the 6-digit verification code sent to your mobile
-                  number.
-                </p>
-              </div>
+        <div className="mt-6 text-center text-sm text-slate-500">
+          New to Jansuraaj?{" "}
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700">
-                  Enter OTP
-                </label>
-
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  value={otp}
-                  onChange={(e) => {
-                    setOtp(e.target.value.replace(/\D/g, ""));
-                    setError("");
-                  }}
-                  placeholder="6-digit code"
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-                />
-              </div>
-
-              {error && <p className="text-sm text-rose-600">{error}</p>}
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={() => {
-                    clearRecaptcha();
-                    setStage("phone");
-                    setOtp("");
-                    setError("");
-                  }}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
-                >
-                  Change number
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={loading || otp.length !== 6}
-                  className="rounded-2xl bg-[#0ea5a4] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0bb99b] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? "Verifying..." : "Verify OTP"}
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* =================================================
-              JOIN LINK
-          ================================================= */}
-
-          <div className="mt-6 text-center text-sm text-slate-500">
-            New to Jansuraaj?{" "}
-            <Link
-              to="/join"
-              className="font-semibold text-slate-900 hover:text-sky-600"
-            >
-              Join now
-            </Link>
-          </div>
+          <Link
+            to="/join"
+            className="font-semibold text-slate-900 hover:text-sky-600"
+          >
+            Join now
+          </Link>
         </div>
+
       </div>
     </div>
   );
