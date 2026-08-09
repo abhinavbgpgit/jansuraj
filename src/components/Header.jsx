@@ -1,19 +1,60 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/jansuraj_logo.png'
+import userFemale from '../assets/user_female.jpg'
 
 export default function Header() {
   const [loggedIn, setLoggedIn] = useState(false)
+  const [user, setUser] = useState(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
+  const menuRef = useRef(null)
 
   useEffect(() => {
     const stored = localStorage.getItem('jansuraaj_user')
-    setLoggedIn(Boolean(stored))
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      setLoggedIn(true)
+      setUser(parsed)
+    }
+  }, [])
+
+  useEffect(() => {
+    function refreshUser() {
+      const s = localStorage.getItem('jansuraaj_user')
+      if (s) {
+        setLoggedIn(true)
+        setUser(JSON.parse(s))
+      } else {
+        setLoggedIn(false)
+        setUser(null)
+      }
+    }
+
+    // respond to cross-window storage changes and in-window custom events
+    window.addEventListener('storage', refreshUser)
+    window.addEventListener('jansuraaj_user_change', refreshUser)
+    return () => {
+      window.removeEventListener('storage', refreshUser)
+      window.removeEventListener('jansuraaj_user_change', refreshUser)
+    }
+  }, [])
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const handleLogout = () => {
     localStorage.removeItem('jansuraaj_user')
     setLoggedIn(false)
+    setUser(null)
+    setMenuOpen(false)
     navigate('/')
   }
 
@@ -40,9 +81,6 @@ export default function Header() {
           <Link to="/notifications" className="text-sm text-slate-600 hover:text-slate-900">
             Alerts
           </Link>
-          <Link to="/profile" className="text-sm text-slate-600 hover:text-slate-900">
-            Profile
-          </Link>
           <Link to="/bihar-dashboard" className="text-sm text-slate-600 hover:text-slate-900">
             Dashboard
           </Link>
@@ -51,18 +89,71 @@ export default function Header() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
-          <Link to="/profile" className="rounded-full border border-slate-200/60 px-3 py-1 text-sm text-slate-700">
-            Profile
-          </Link>
-          {loggedIn && (
-            <button
-              type="button"
-              onClick={handleLogout}
+        <div className="flex items-center gap-3" ref={menuRef}>
+          {!loggedIn ? (
+            <Link
+              to="/login"
               className="rounded-full border border-slate-200/60 bg-white px-3 py-1 text-sm text-slate-700 transition hover:border-slate-300"
             >
-              Logout
-            </button>
+              Login
+            </Link>
+          ) : (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((open) => !open)}
+                className="flex items-center gap-2 rounded-full border border-slate-200/60 bg-white px-2 py-1 transition hover:border-slate-300"
+              >
+                <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-200">
+                  <img
+                    src={user?.photo || userFemale}
+                    alt={user?.name ? `${user.name} avatar` : 'User avatar'}
+                    className="h-full w-full object-cover"
+                  />
+                </span>
+                <span className="hidden text-sm font-medium text-slate-700 md:inline-block pr-4">
+                  {user?.name || 'Mamta Kumari'}
+                </span>
+                <span className="flex items-center gap-1 text-xl leading-none text-slate-600 pr-2">
+                  <span>·</span>
+                  <span>·</span>
+                  <span>·</span>
+                </span>
+              </button>
+
+              <div
+                className={`absolute right-0 mt-2 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl transition ${menuOpen ? 'block' : 'hidden'}`}
+              >
+                <Link
+                  to="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
+                >
+                  Profile
+                </Link>
+                <Link
+                  to="/notifications"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
+                >
+                  Notifications
+                </Link>
+                <Link
+                  to="/bihar-dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full px-4 py-3 text-left text-sm text-rose-600 transition hover:bg-slate-50"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>

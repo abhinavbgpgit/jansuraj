@@ -13,6 +13,10 @@ const NavButton = ({ to, label }) => {
 }
 
 export default function MobileBottomNav() {
+  // Show the mobile nav only when a user session exists
+  const stored = typeof window !== 'undefined' ? localStorage.getItem('jansuraaj_user') : null
+  if (!stored) return null
+
   return (
     <nav className="fixed bottom-4 left-0 right-0 z-50 mx-auto max-w-3xl px-4 md:hidden">
       <div className="backdrop-blur-md rounded-2xl border border-slate-200/50 bg-white/60 px-3 py-2 shadow-lg">

@@ -8,7 +8,7 @@ export default function Join() {
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
-    photo: null,
+    photo: '',
     name: '',
     education: '',
     profession: '',
@@ -43,6 +43,22 @@ export default function Join() {
     }
   }
 
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  async function handlePhotoChange(e) {
+    const file = e.target.files && e.target.files[0]
+    if (!file) return
+    const dataUrl = await readFileAsDataURL(file)
+    update('photo', dataUrl)
+  }
+
   function validateStep(s) {
     const nextErrors = {}
     if (s === 1) {
@@ -68,6 +84,10 @@ export default function Join() {
   }
 
   function prev() {
+    if (step === 1) {
+      navigate('/')
+      return
+    }
     if (step === 4) {
       setAuthStage('phone')
       setOtp('')
@@ -107,32 +127,137 @@ export default function Join() {
     }
 
     localStorage.setItem('jansuraaj_member', JSON.stringify(member))
-    localStorage.setItem('jansuraaj_user', JSON.stringify({ phone: normalized, loggedInAt: Date.now() }))
+    localStorage.setItem(
+      'jansuraaj_user',
+      JSON.stringify({
+        phone: normalized,
+        name: form.name,
+        photo: form.photo,
+        loggedInAt: Date.now(),
+      })
+    )
+    // notify other windows/components about the login change
+    try {
+      window.dispatchEvent(new Event('jansuraaj_user_change'))
+    } catch (e) {
+      /* ignore in non-window environments */
+    }
     navigate('/home')
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      <div className="rounded-2xl border bg-white p-6 shadow-sm">
+    <div className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-slate-50 px-4 py-8 font-sans">
+      <div className="w-full max-w-3xl rounded-2xl border bg-white p-6 shadow-sm">
         <h1 className="text-xl font-semibold">Join Jansuraaj</h1>
-        <p className="mt-1 text-sm text-slate-600">Create your member profile and verify your phone for login.</p>
+        <p className="mt-1 text-sm font-normal text-slate-600">Create your member profile and verify your phone for login.</p>
         <div className="mt-4">
           <ProgressStepper step={step} max={4} />
         </div>
 
         <div className="mt-4 space-y-4">
           {step === 1 && (
-            <div>
-              <label className="block text-sm">Profile Photo (optional)</label>
-              <div className="mt-2 flex items-center gap-3">
-                <div className="h-20 w-20 overflow-hidden rounded-lg bg-slate-100">
-                  {form.photo ? <img src={URL.createObjectURL(form.photo)} alt="profile" className="h-full w-full object-cover" /> : null}
-                </div>
-                <div>
-                  <input type="file" accept="image/*" onChange={(e) => update('photo', e.target.files && e.target.files[0])} />
-                </div>
-              </div>
-            </div>
+           <div>
+  <label className="block text-sm font-semibold text-slate-700">
+    Profile Photo
+    <span className="ml-1 text-xs font-normal text-slate-400">(optional)</span>
+  </label>
+
+  <div className="mt-3 flex items-center gap-5 rounded-xl border border-slate-200 bg-white p-4">
+    {/* Profile Preview */}
+    <div className="relative shrink-0">
+      <div className="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow-md ring-1 ring-slate-200">
+        {form.photo ? (
+          <img
+            src={form.photo}
+            alt="Profile"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-slate-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 6.75a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0"
+              />
+            </svg>
+          </div>
+        )}
+      </div>
+
+      {/* Camera badge */}
+      <label
+        htmlFor="profile-photo"
+        className="absolute bottom-0 right-0 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-blue-600 text-white shadow-md transition hover:bg-blue-700"
+        title="Change photo"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6.75 7.5h1.386a1.5 1.5 0 001.342-.83l.474-.95A1.5 1.5 0 0111.294 4.5h1.412a1.5 1.5 0 011.342.83l.474.95a1.5 1.5 0 001.342.83h1.386A2.25 2.25 0 0119.5 9.75v7.5a2.25 2.25 0 01-2.25 2.25h-10.5a2.25 2.25 0 01-2.25-2.25v-7.5A2.25 2.25 0 016.75 7.5z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 13.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+          />
+        </svg>
+      </label>
+    </div>
+
+    {/* Upload Area */}
+    <div className="min-w-0">
+      <label
+        htmlFor="profile-photo"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 16.5V3.75m0 0L7.5 8.25M12 3.75l4.5 4.5M4.5 15.75v1.5A3 3 0 007.5 20.25h9a3 3 0 003-3v-1.5"
+          />
+        </svg>
+
+        {form.photo ? "Change Photo" : "Upload Photo"}
+      </label>
+
+      <input
+        id="profile-photo"
+        type="file"
+        accept="image/*"
+        onChange={handlePhotoChange}
+        className="hidden"
+      />
+
+      <p className="mt-2 text-xs text-slate-400">
+        JPG, PNG or WEBP · Max 5MB
+      </p>
+    </div>
+  </div>
+</div>
           )}
 
           {step === 2 && (

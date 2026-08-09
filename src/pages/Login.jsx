@@ -48,13 +48,34 @@ export default function Login() {
       return
     }
     const normalized = phone.replace(/\D/g, '')
-    localStorage.setItem('jansuraaj_user', JSON.stringify({ phone: normalized, loggedInAt: Date.now() }))
+    const storedMember = JSON.parse(localStorage.getItem('jansuraaj_member') || 'null')
+    localStorage.setItem(
+      'jansuraaj_user',
+      JSON.stringify({
+        phone: normalized,
+        name: storedMember?.name || '',
+        photo: storedMember?.photo || '',
+        loggedInAt: Date.now(),
+      })
+    )
+    try {
+      window.dispatchEvent(new Event('jansuraaj_user_change'))
+    } catch (e) {
+      /* ignore */
+    }
     navigate('/home')
   }
 
   return (
     <div className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-slate-50 px-4 py-8">
-      <div className="w-full max-w-md rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+      <div className="w-full max-w-md rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft relative">
+        <Link
+          to="/"
+          className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-slate-200"
+          aria-label="Close login"
+        >
+          ×
+        </Link>
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-semibold text-slate-900">Login to Jansuraaj</h1>
           <p className="mt-2 text-sm text-slate-500">

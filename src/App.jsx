@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Outlet, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import MobileBottomNav from './components/MobileBottomNav'
@@ -24,14 +24,19 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 
 function Layout() {
+  const location = useLocation()
+  const stored = typeof window !== 'undefined' ? localStorage.getItem('jansuraaj_user') : null
+  const publicPaths = ['/', '/login', '/join']
+  const hideShell = !stored && publicPaths.includes(location.pathname)
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      <Header />
+      {!hideShell && <Header />}
       <main className="pb-24">
         <Outlet />
       </main>
-      <Footer />
-      <MobileBottomNav />
+      {!hideShell && <Footer />}
+      {!hideShell && <MobileBottomNav />}
     </div>
   )
 }
