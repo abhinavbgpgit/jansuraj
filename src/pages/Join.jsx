@@ -107,7 +107,9 @@ export default function Join() {
     try {
       setLoading(true);
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const backendUrl =
+        import.meta.env.VITE_DEPLOYED_BACKEND_URL ||
+        import.meta.env.VITE_BACKEND_URL;
 
       // STEP 1: Create member
       if (step === 1 && !memberId) {
@@ -213,7 +215,9 @@ export default function Join() {
     try {
       setLoading(true);
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const backendUrl =
+        import.meta.env.VITE_DEPLOYED_BACKEND_URL ||
+        import.meta.env.VITE_BACKEND_URL;
 
       const normalized = form.phone.replace(/\D/g, "");
 
@@ -262,7 +266,9 @@ export default function Join() {
     try {
       setLoading(true);
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const backendUrl =
+        import.meta.env.VITE_DEPLOYED_BACKEND_URL ||
+        import.meta.env.VITE_BACKEND_URL;
 
       //Firebase OTP verify
       const otpResponse = await axios.post(

@@ -32,7 +32,9 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const backendUrl =
+        import.meta.env.VITE_DEPLOYED_BACKEND_URL ||
+        import.meta.env.VITE_BACKEND_URL;
 
       const response = await axios.post(`${backendUrl}/api/auth/send-otp`, {
         phone: `+91${normalized}`,
@@ -63,7 +65,9 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const backendUrl =
+        import.meta.env.VITE_DEPLOYED_BACKEND_URL ||
+        import.meta.env.VITE_BACKEND_URL;
 
       const response = await axios.post(`${backendUrl}/api/auth/login`, {
         sessionInfo,
