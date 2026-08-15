@@ -24,6 +24,7 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 
 function Layout() {
+  
   const location = useLocation()
   const stored = typeof window !== 'undefined' ? localStorage.getItem('jansuraaj_user') : null
   const publicPaths = ['/', '/login', '/join']
