@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ProgressStepper from "../components/ProgressStepper";
 import areaData from "../data/area.json";
+import districts from "../data/districts.json";
 import axios from "axios";
 
 export default function Join() {
@@ -337,7 +338,7 @@ export default function Join() {
     }
   }
 
-  function LocationPicker({ areaType, value, onChange }) {
+  function LocationPicker({  districtId, areaType, value, onChange }) {
     const [search, setSearch] = useState("");
     const [open, setOpen] = useState(false);
 
@@ -451,7 +452,7 @@ export default function Join() {
     );
   }
 
-  function WardPicker({ areaType, localBodyId, value, onChange }) {
+  function WardPicker({districtId, areaType, localBodyId, value, onChange }) {
     const district = districtData;
     const locations =
       areaType === "rural"
@@ -884,106 +885,177 @@ export default function Join() {
 
           {step === 3 && (
             <div className="mt-6">
-              <div className="mb-5">
-                <h3 className="text-base font-semibold text-slate-800">
-                  आप कहाँ रहते हैं?
-                </h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  अपना क्षेत्र चुनें, फिर स्थानीय निकाय और वार्ड चुनें।
-                </p>
-              </div>
+  {/* ================= DISTRICT ================= */}
+  <div className="mb-6">
+    <div className="mb-3">
+      <h3 className="text-base font-semibold text-slate-800">
+        सबसे पहले अपना जिला चुनें
+      </h3>
 
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    update("areaType", "rural");
-                    update("localBody", "");
-                    update("ward", "");
-                  }}
-                  className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
-                    form.areaType === "rural"
-                      ? "border-green-500 bg-green-50 ring-2 ring-green-100"
-                      : "border-slate-200 bg-white hover:border-green-300 hover:bg-green-50/50"
-                  }`}
-                >
-                  <div
-                    className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
-                      form.areaType === "rural" ? "bg-green-600" : "bg-green-50"
-                    }`}
-                  >
-                    🌾
-                  </div>
-                  <p className="text-sm font-semibold text-slate-800">
-                    ग्रामीण क्षेत्र
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    गाँव / ग्राम पंचायत
-                  </p>
-                </button>
+      <p className="mt-1 text-sm text-slate-500">
+        अपना जिला चुनने के बाद ही आगे का क्षेत्र दिखाई देगा।
+      </p>
+    </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    update("areaType", "urban");
-                    update("localBody", "");
-                    update("ward", "");
-                  }}
-                  className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
-                    form.areaType === "urban"
-                      ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100"
-                      : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
-                  }`}
-                >
-                  <div
-                    className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
-                      form.areaType === "urban" ? "bg-blue-600" : "bg-blue-50"
-                    }`}
-                  >
-                    🏙️
-                  </div>
-                  <p className="text-sm font-semibold text-slate-800">
-                    शहरी क्षेत्र
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">नगर निकाय</p>
-                </button>
-              </div>
+    <select
+      value={form.district}
+      onChange={(e) => {
+        const districtId = e.target.value;
 
-              {errors.areaType ? (
-                <div className="mt-2 text-xs text-rose-600">
-                  {errors.areaType}
-                </div>
-              ) : null}
+        update("district", districtId);
 
-              {form.areaType && (
-                <LocationPicker
-                  areaType={form.areaType}
-                  value={form.localBody}
-                  onChange={(value) => {
-                    update("localBody", value);
-                    update("ward", "");
-                  }}
-                />
-              )}
+        // District बदलने पर नीचे की सारी selection reset
+        update("areaType", "");
+        update("localBody", "");
+        update("ward", "");
+      }}
+      className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all ${
+        errors.district
+          ? "border-rose-400 focus:border-rose-500"
+          : "border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      }`}
+    >
+      <option value="">जिला चुनें</option>
 
-              {form.localBody && (
-                <WardPicker
-                  areaType={form.areaType}
-                  localBodyId={form.localBody}
-                  value={form.ward}
-                  onChange={(value) => update("ward", value)}
-                />
-              )}
+      {districts.map((district) => (
+        <option key={district.id} value={district.id}>
+          {district.name}
+        </option>
+      ))}
+    </select>
 
-              {errors.localBody ? (
-                <div className="mt-2 text-xs text-rose-600">
-                  {errors.localBody}
-                </div>
-              ) : null}
-              {errors.ward ? (
-                <div className="mt-2 text-xs text-rose-600">{errors.ward}</div>
-              ) : null}
-            </div>
+    {errors.district ? (
+      <div className="mt-2 text-xs text-rose-600">
+        {errors.district}
+      </div>
+    ) : null}
+  </div>
+
+  {/* ================= AREA TYPE ================= */}
+  {form.district && (
+    <>
+      <div className="mb-5">
+        <h3 className="text-base font-semibold text-slate-800">
+          आप कहाँ रहते हैं?
+        </h3>
+
+        <p className="mt-1 text-sm text-slate-500">
+          अपना क्षेत्र चुनें, फिर स्थानीय निकाय और वार्ड चुनें।
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {/* RURAL */}
+        <button
+          type="button"
+          onClick={() => {
+            update("areaType", "rural");
+            update("localBody", "");
+            update("ward", "");
+          }}
+          className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
+            form.areaType === "rural"
+              ? "border-green-500 bg-green-50 ring-2 ring-green-100"
+              : "border-slate-200 bg-white hover:border-green-300 hover:bg-green-50/50"
+          }`}
+        >
+          <div
+            className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
+              form.areaType === "rural"
+                ? "bg-green-600"
+                : "bg-green-50"
+            }`}
+          >
+            🌾
+          </div>
+
+          <p className="text-sm font-semibold text-slate-800">
+            ग्रामीण क्षेत्र
+          </p>
+
+          <p className="mt-1 text-xs text-slate-500">
+            गाँव / ग्राम पंचायत
+          </p>
+        </button>
+
+        {/* URBAN */}
+        <button
+          type="button"
+          onClick={() => {
+            update("areaType", "urban");
+            update("localBody", "");
+            update("ward", "");
+          }}
+          className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
+            form.areaType === "urban"
+              ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100"
+              : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
+          }`}
+        >
+          <div
+            className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
+              form.areaType === "urban"
+                ? "bg-blue-600"
+                : "bg-blue-50"
+            }`}
+          >
+            🏙️
+          </div>
+
+          <p className="text-sm font-semibold text-slate-800">
+            शहरी क्षेत्र
+          </p>
+
+          <p className="mt-1 text-xs text-slate-500">
+            नगर निकाय
+          </p>
+        </button>
+      </div>
+
+      {errors.areaType ? (
+        <div className="mt-2 text-xs text-rose-600">
+          {errors.areaType}
+        </div>
+      ) : null}
+
+      {/* ================= LOCAL BODY ================= */}
+      {form.areaType && (
+        <LocationPicker
+        districtId={form.district}
+          areaType={form.areaType}
+          value={form.localBody}
+          onChange={(value) => {
+            update("localBody", value);
+            update("ward", "");
+          }}
+        />
+      )}
+
+      {/* ================= WARD ================= */}
+      {form.localBody && (
+        <WardPicker
+        districtId={form.district}
+          areaType={form.areaType}
+          localBodyId={form.localBody}
+          value={form.ward}
+          onChange={(value) => update("ward", value)}
+        />
+      )}
+
+      {errors.localBody ? (
+        <div className="mt-2 text-xs text-rose-600">
+          {errors.localBody}
+        </div>
+      ) : null}
+
+      {errors.ward ? (
+        <div className="mt-2 text-xs text-rose-600">
+          {errors.ward}
+        </div>
+      ) : null}
+    </>
+  )}
+</div>
           )}
 
           {step === 4 && (
