@@ -163,6 +163,7 @@ export default function Join() {
         const response = await axios.put(
           `${backendUrl}/api/members/${memberId}/location`,
           {
+            district: from.district,
             areaType: form.areaType,
             localBody: form.localBody,
             ward: form.ward,
@@ -342,7 +343,7 @@ export default function Join() {
     const [search, setSearch] = useState("");
     const [open, setOpen] = useState(false);
 
-    const district = districtData;
+    const district = areaData?.districts?.[districtId];
     const locations =
       areaType === "rural"
         ? district?.rural?.panchayats || []
@@ -453,7 +454,7 @@ export default function Join() {
   }
 
   function WardPicker({districtId, areaType, localBodyId, value, onChange }) {
-    const district = districtData;
+    const district = areaData?.districts?.[districtId];
     const locations =
       areaType === "rural"
         ? district?.rural?.panchayats || []
