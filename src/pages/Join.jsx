@@ -160,10 +160,11 @@ export default function Join() {
 
       // STEP 3: Location
       if (step === 3) {
+        
         const response = await axios.put(
           `${backendUrl}/api/members/${memberId}/location`,
           {
-            district: from.district,
+            district: form.district,
             areaType: form.areaType,
             localBody: form.localBody,
             ward: form.ward,
@@ -242,102 +243,99 @@ export default function Join() {
     }
   }
 
-  async function verifyOtp(e) {
-    e.preventDefault();
-    setAuthError("");
+ async function verifyOtp(e) {
+  e.preventDefault();
+  setAuthError("");
 
-    if (!otp.trim()) {
-      setAuthError("Please enter the OTP.");
-      return;
-    }
+  if (!otp.trim()) {
+    setAuthError("Please enter the OTP.");
+    return;
+  }
 
-    if (!sessionInfo) {
-      setAuthError("OTP session expired. Please send OTP again.");
-      return;
-    }
+  if (!sessionInfo) {
+    setAuthError("OTP session expired. Please send OTP again.");
+    return;
+  }
 
-    if (!memberId) {
-      setAuthError("Member profile was not created. Please go back.");
-      return;
-    }
+  if (!memberId) {
+    setAuthError("Member profile was not created. Please go back.");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-      //Firebase OTP verify
-      const otpResponse = await axios.post(
-        `${backendUrl}/api/auth/verify-otp`,
-        {
-          sessionInfo,
-          code: otp,
-        }
-      );
-
-      //OTP Verify
-
-      if (!otpResponse.data.success) {
-        throw new Error(otpResponse.data.message || "OTP verification failed");
+    // ==========================================
+    // 1. VERIFY OTP
+    // ==========================================
+    const otpResponse = await axios.post(
+      `${backendUrl}/api/auth/verify-otp`,
+      {
+        sessionInfo,
+        code: otp,
+      },
+      {
+        withCredentials: true,
       }
+    );
 
-      const firebaseUid = otpResponse.data.firebaseUid;
-
-      // 2. Firebase UID  MongoDB member connect
-      const memberResponse = await axios.put(
-        `${backendUrl}/api/members/${memberId}/firebase`,
-        {
-          firebaseUid,
-        }
-      );
-
-      // console.log(
-      //   'Firebase account connected:',
-      //   memberResponse.data
-      // )
-
-      if (!memberResponse.data.success) {
-        throw new Error(
-          memberResponse.data.message || "Failed to connect Firebase account"
-        );
-      }
-
-      // Token save
-      localStorage.setItem("token", otpResponse.data.idToken);
-
-      // Member save
-      localStorage.setItem(
-        "jansuraaj_member",
-        JSON.stringify(memberResponse.data.member)
-      );
-
-      // User save
-      localStorage.setItem(
-        "jansuraaj_user",
-        JSON.stringify({
-          phone: otpResponse.data.phoneNumber,
-          name: memberResponse.data.member?.name || form.name,
-          photo: memberResponse.data.member?.photo || "",
-          loggedInAt: Date.now(),
-        })
-      );
-
-      window.dispatchEvent(new Event("jansuraaj_user_change"));
-
-      // Home
-      navigate("/home");
-    } catch (error) {
-      console.error("Join OTP error:", error.response?.data || error.message);
-
-      setAuthError(
-        error.response?.data?.message ||
-          error.message ||
+    if (!otpResponse.data.success) {
+      throw new Error(
+        otpResponse.data.message ||
           "OTP verification failed"
       );
-    } finally {
-      setLoading(false);
     }
+
+    const memberResponse = await axios.put(
+  `${backendUrl}/api/members/${memberId}/firebase`,
+  {},
+  {
+    withCredentials: true,
   }
+);
+
+    if (!memberResponse.data.success) {
+      throw new Error(
+        memberResponse.data.message ||
+          "Failed to connect Firebase account"
+      );
+    }
+
+    // ==========================================
+    // IMPORTANT
+    // ==========================================
+    // Yahan token/user ko localStorage me SAVE
+    // NAHI karna hai.
+    //
+    // Authentication HttpOnly cookie se handle hogi.
+
+    // Header ko login change batana
+    window.dispatchEvent(
+      new Event("jansuraaj_auth_change")
+    );
+
+    // ==========================================
+    // HOME
+    // ==========================================
+    navigate("/home");
+
+  } catch (error) {
+    console.error(
+      "Join OTP error:",
+      error.response?.data || error.message
+    );
+
+    setAuthError(
+      error.response?.data?.message ||
+        error.message ||
+        "OTP verification failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+}
 
   function LocationPicker({  districtId, areaType, value, onChange }) {
     const [search, setSearch] = useState("");
