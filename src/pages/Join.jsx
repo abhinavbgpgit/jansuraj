@@ -58,23 +58,77 @@ export default function Join() {
     // }
   }
 
-  function readFileAsDataURL(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
+  function compressImage(file, maxWidth = 1200, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const img = new Image();
+
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        // Image ko max 1200px width tak resize karo
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) {
+          reject(new Error("Image processing failed"));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // JPEG me compress
+        const compressedDataUrl = canvas.toDataURL(
+          "image/jpeg",
+          quality
+        );
+
+        resolve(compressedDataUrl);
+      };
+
+      img.onerror = () => {
+        reject(new Error("Invalid image"));
+      };
+
+      img.src = event.target.result;
+    };
+
+    reader.onerror = () => {
+      reject(new Error("Unable to read image"));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
 
 async function handlePhotoChange(e) {
   const file = e.target.files && e.target.files[0];
+
   if (!file) return;
 
   const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-  // File type check
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  // Allowed file types
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ];
+
+  // ==============================
+  // FILE TYPE CHECK
+  // ==============================
 
   if (!allowedTypes.includes(file.type)) {
     setErrors((prev) => ({
@@ -86,35 +140,62 @@ async function handlePhotoChange(e) {
     return;
   }
 
-  // File size check
+  // ==============================
+  // FILE SIZE CHECK
+  // ==============================
+
   if (file.size > MAX_SIZE) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
 
-   setErrors((prev) => ({
-  ...prev,
-  photo: `Image ${sizeMB} MB ki hai. Maximum 5 MB allowed hai.`,
-}));
+    setErrors((prev) => ({
+      ...prev,
+      photo: `Image ${sizeMB} MB ki hai. Maximum 5 MB allowed hai.`,
+    }));
 
-// Photo ko clear karo, lekin error ko clear mat karo
-setForm((prev) => ({
-  ...prev,
-  photo: "",
-}));
+    setForm((prev) => ({
+      ...prev,
+      photo: "",
+    }));
 
-// Input reset
-e.target.value = "";
-
-return;
+    e.target.value = "";
+    return;
   }
 
-  // Valid image
-  setErrors((prev) => ({
-    ...prev,
-    photo: undefined,
-  }));
+  try {
+    // ==============================
+    // COMPRESS IMAGE
+    // ==============================
 
-  const dataUrl = await readFileAsDataURL(file);
-  update("photo", dataUrl);
+    const compressedImage = await compressImage(
+      file,
+      1200,
+      0.75
+    );
+
+    // Error clear
+    setErrors((prev) => ({
+      ...prev,
+      photo: undefined,
+    }));
+
+    // Compressed image save
+    update("photo", compressedImage);
+
+  } catch (error) {
+    console.error("Image compression error:", error);
+
+    setErrors((prev) => ({
+      ...prev,
+      photo: "Image process nahi ho payi. Dusri image try karein.",
+    }));
+
+    setForm((prev) => ({
+      ...prev,
+      photo: "",
+    }));
+  }
+
+  e.target.value = "";
 }
 
   function validateStep(s) {
@@ -157,11 +238,15 @@ return;
       if (step === 1 && !memberId) {
         const formData = new FormData();
 
-        if (form.photo) {
-          const blob = await fetch(form.photo).then((res) => res.blob());
+      if (form.photo) {
+  const blob = await fetch(form.photo).then((res) => res.blob());
 
-          formData.append("photo", blob, "profile-photo.jpg");
-        }
+  formData.append(
+    "photo",
+    blob,
+    "profile-photo.jpg"
+  );
+}
 
         const response = await axios.post(
           `${backendUrl}/api/members`,
@@ -1337,11 +1422,12 @@ return;
           </button>
           {step < 4 ? (
             <button
-              onClick={next}
-              className="rounded-full bg-sky-600 px-4 py-2 text-white"
-            >
-              Next
-            </button>
+  onClick={next}
+  disabled={loading}
+  className="rounded-full bg-sky-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {loading ? "Please wait..." : "Next"}
+</button>
           ) : (
             // <button
             //   onClick={authStage === "phone" ? sendOtp : verifyOtp}
