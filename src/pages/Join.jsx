@@ -67,12 +67,55 @@ export default function Join() {
     });
   }
 
-  async function handlePhotoChange(e) {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const dataUrl = await readFileAsDataURL(file);
-    update("photo", dataUrl);
+async function handlePhotoChange(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+
+  // File type check
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!allowedTypes.includes(file.type)) {
+    setErrors((prev) => ({
+      ...prev,
+      photo: "Sirf JPG, PNG ya WEBP image upload karein.",
+    }));
+
+    e.target.value = "";
+    return;
   }
+
+  // File size check
+  if (file.size > MAX_SIZE) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+
+   setErrors((prev) => ({
+  ...prev,
+  photo: `Image ${sizeMB} MB ki hai. Maximum 5 MB allowed hai.`,
+}));
+
+// Photo ko clear karo, lekin error ko clear mat karo
+setForm((prev) => ({
+  ...prev,
+  photo: "",
+}));
+
+// Input reset
+e.target.value = "";
+
+return;
+  }
+
+  // Valid image
+  setErrors((prev) => ({
+    ...prev,
+    photo: undefined,
+  }));
+
+  const dataUrl = await readFileAsDataURL(file);
+  update("photo", dataUrl);
+}
 
   function validateStep(s) {
     const nextErrors = {};
@@ -683,6 +726,13 @@ export default function Join() {
                   <p className="mt-2 text-xs text-slate-400">
                     JPG, PNG or WEBP · Max 5MB
                   </p>
+                  {errors.photo && (
+  <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+    <p className="text-xs font-medium text-red-600">
+      ⚠️ {errors.photo}
+    </p>
+  </div>
+)}
                 </div>
               </div>
             </div>
