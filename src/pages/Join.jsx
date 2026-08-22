@@ -27,13 +27,13 @@ export default function Join() {
     phone: "",
   });
   const [errors, setErrors] = useState({});
-  const [otp, setOtp] = useState("");
+  // const [otp, setOtp] = useState("");
   const [memberId, setMemberId] = useState("");
-  const [sessionInfo, setSessionInfo] = useState("");
-  const [firebaseUid, setFirebaseUid] = useState("");
+  // const [sessionInfo, setSessionInfo] = useState("");
+  // const [firebaseUid, setFirebaseUid] = useState("");
   const [loading, setLoading] = useState(false);
-  const [authStage, setAuthStage] = useState("phone");
-  const [authError, setAuthError] = useState("");
+  // const [authStage, setAuthStage] = useState("phone");
+  // const [authError, setAuthError] = useState("");
 
   const districtData = useMemo(() => areaData?.district, []);
   const areaOptions = useMemo(
@@ -53,9 +53,9 @@ export default function Join() {
       return next;
     });
     setErrors((e) => ({ ...e, [field]: undefined }));
-    if (field === "phone") {
-      setAuthError("");
-    }
+    // if (field === "phone") {
+    //   setAuthError("");
+    // }
   }
 
   function readFileAsDataURL(file) {
@@ -193,72 +193,10 @@ export default function Join() {
     }
   }
 
-  function prev() {
-    if (step === 1) {
-      navigate("/");
-      return;
-    }
-    if (step === 4) {
-      setAuthStage("phone");
-      setOtp("");
-      setSessionInfo("");
-      setAuthError("");
-    }
-    setStep((s) => Math.max(1, s - 1));
-  }
+  async function completeJoin() {
+  setErrors({});
 
-  async function sendOtp(e) {
-    e.preventDefault();
-    setAuthError("");
-
-    if (!validateStep(4)) return;
-
-    try {
-      setLoading(true);
-
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-      const normalized = form.phone.replace(/\D/g, "");
-
-      const response = await axios.post(`${backendUrl}/api/auth/send-otp`, {
-        phone: `+91${normalized}`,
-      });
-
-      //Send OTP
-
-      if (!response.data.success) {
-        throw new Error(response.data.message || "Failed to send OTP");
-      }
-
-      setSessionInfo(response.data.sessionInfo);
-      setAuthStage("otp");
-    } catch (error) {
-      console.error("Send OTP error:", error.response?.data || error.message);
-
-      setAuthError(
-        error.response?.data?.message || error.message || "Failed to send OTP"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
- async function verifyOtp(e) {
-  e.preventDefault();
-  setAuthError("");
-
-  if (!otp.trim()) {
-    setAuthError("Please enter the OTP.");
-    return;
-  }
-
-  if (!sessionInfo) {
-    setAuthError("OTP session expired. Please send OTP again.");
-    return;
-  }
-
-  if (!memberId) {
-    setAuthError("Member profile was not created. Please go back.");
+  if (!validateStep(4)) {
     return;
   }
 
@@ -267,75 +205,209 @@ export default function Join() {
 
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-    // ==========================================
-    // 1. VERIFY OTP
-    // ==========================================
-    const otpResponse = await axios.post(
-      `${backendUrl}/api/auth/verify-otp`,
-      {
-        sessionInfo,
-        code: otp,
-      },
-      {
-        withCredentials: true,
-      }
-    );
+    if (!backendUrl) {
+      throw new Error("Backend URL is not configured");
+    }
 
-    if (!otpResponse.data.success) {
+    if (!memberId) {
       throw new Error(
-        otpResponse.data.message ||
-          "OTP verification failed"
+        "Member profile was not created. Please go back and try again."
       );
     }
 
-    const memberResponse = await axios.put(
-  `${backendUrl}/api/members/${memberId}/firebase`,
-  {},
+    const normalizedPhone = form.phone
+      .replace(/\D/g, "")
+      .slice(-10);
+
+    // ==========================================
+    // COMPLETE MEMBER REGISTRATION
+    // ==========================================
+
+    const response = await axios.put(
+  `${backendUrl}/api/members/${memberId}/complete`,
+  {
+    phone: `+91${normalizedPhone}`,
+  },
   {
     withCredentials: true,
   }
 );
 
-    if (!memberResponse.data.success) {
+    if (!response.data?.success) {
       throw new Error(
-        memberResponse.data.message ||
-          "Failed to connect Firebase account"
+        response.data?.message ||
+          "Failed to complete registration"
       );
     }
 
-    // ==========================================
-    // IMPORTANT
-    // ==========================================
-    // Yahan token/user ko localStorage me SAVE
-    // NAHI karna hai.
-    //
-    // Authentication HttpOnly cookie se handle hogi.
-
-    // Header ko login change batana
+    // Header ko authentication change batao
     window.dispatchEvent(
       new Event("jansuraaj_auth_change")
     );
 
-    // ==========================================
-    // HOME
-    // ==========================================
+    // Home
     navigate("/home");
 
   } catch (error) {
     console.error(
-      "Join OTP error:",
+      "Complete join error:",
       error.response?.data || error.message
     );
 
-    setAuthError(
-      error.response?.data?.message ||
+    setErrors({
+      api:
+        error.response?.data?.message ||
         error.message ||
-        "OTP verification failed"
-    );
+        "Failed to complete registration",
+    });
   } finally {
     setLoading(false);
   }
 }
+
+  function prev() {
+    if (step === 1) {
+      navigate("/");
+      return;
+    }
+    // if (step === 4) {
+    //   setAuthStage("phone");
+    //   setOtp("");
+    //   setSessionInfo("");
+    //   setAuthError("");
+    // }
+    setStep((s) => Math.max(1, s - 1));
+  }
+
+  // async function sendOtp(e) {
+  //   e.preventDefault();
+  //   setAuthError("");
+
+  //   if (!validateStep(4)) return;
+
+  //   try {
+  //     setLoading(true);
+
+  //     const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  //     const normalized = form.phone.replace(/\D/g, "");
+
+  //     const response = await axios.post(`${backendUrl}/api/auth/send-otp`, {
+  //       phone: `+91${normalized}`,
+  //     });
+
+  //     //Send OTP
+
+  //     if (!response.data.success) {
+  //       throw new Error(response.data.message || "Failed to send OTP");
+  //     }
+
+  //     setSessionInfo(response.data.sessionInfo);
+  //     setAuthStage("otp");
+  //   } catch (error) {
+  //     console.error("Send OTP error:", error.response?.data || error.message);
+
+  //     setAuthError(
+  //       error.response?.data?.message || error.message || "Failed to send OTP"
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
+
+//  async function verifyOtp(e) {
+//   e.preventDefault();
+//   setAuthError("");
+
+//   if (!otp.trim()) {
+//     setAuthError("Please enter the OTP.");
+//     return;
+//   }
+
+//   if (!sessionInfo) {
+//     setAuthError("OTP session expired. Please send OTP again.");
+//     return;
+//   }
+
+//   if (!memberId) {
+//     setAuthError("Member profile was not created. Please go back.");
+//     return;
+//   }
+
+//   try {
+//     setLoading(true);
+
+//     const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+//     // ==========================================
+//     // 1. VERIFY OTP
+//     // ==========================================
+//     const otpResponse = await axios.post(
+//       `${backendUrl}/api/auth/verify-otp`,
+//       {
+//         sessionInfo,
+//         code: otp,
+//       },
+//       {
+//         withCredentials: true,
+//       }
+//     );
+
+//     if (!otpResponse.data.success) {
+//       throw new Error(
+//         otpResponse.data.message ||
+//           "OTP verification failed"
+//       );
+//     }
+
+//     const memberResponse = await axios.put(
+//   `${backendUrl}/api/members/${memberId}/firebase`,
+//   {},
+//   {
+//     withCredentials: true,
+//   }
+// );
+
+//     if (!memberResponse.data.success) {
+//       throw new Error(
+//         memberResponse.data.message ||
+//           "Failed to connect Firebase account"
+//       );
+//     }
+
+//     // ==========================================
+//     // IMPORTANT
+//     // ==========================================
+//     // Yahan token/user ko localStorage me SAVE
+//     // NAHI karna hai.
+//     //
+//     // Authentication HttpOnly cookie se handle hogi.
+
+//     // Header ko login change batana
+//     window.dispatchEvent(
+//       new Event("jansuraaj_auth_change")
+//     );
+
+//     // ==========================================
+//     // HOME
+//     // ==========================================
+//     navigate("/home");
+
+//   } catch (error) {
+//     console.error(
+//       "Join OTP error:",
+//       error.response?.data || error.message
+//     );
+
+//     setAuthError(
+//       error.response?.data?.message ||
+//         error.message ||
+//         "OTP verification failed"
+//     );
+//   } finally {
+//     setLoading(false);
+//   }
+// }
 
   function LocationPicker({  districtId, areaType, value, onChange }) {
     const [search, setSearch] = useState("");
@@ -1057,7 +1129,7 @@ export default function Join() {
 </div>
           )}
 
-          {step === 4 && (
+          {/* {step === 4 && (
             <div>
               <h3 className="block text-sm font-semibold">Verify your phone</h3>
               <p className="mt-2 text-sm text-slate-600">
@@ -1149,7 +1221,64 @@ export default function Join() {
                 </form>
               )}
             </div>
-          )}
+          )} */}
+{step === 4 && (
+  <div>
+    <h3 className="block text-sm font-semibold">
+      Verify your phone
+    </h3>
+
+    <p className="mt-2 text-sm text-slate-600">
+      यह मोबाइल नंबर आपके लॉगिन के लिए उपयोग होगा।
+    </p>
+
+    <div className="mt-5 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+
+      <label className="block text-sm font-medium text-slate-700">
+        Phone number
+      </label>
+
+      <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+
+        <span className="text-sm text-slate-500">
+          +91
+        </span>
+
+        <input
+          type="tel"
+          inputMode="numeric"
+          autoComplete="tel"
+          value={form.phone}
+          onChange={(e) => {
+            const value = e.target.value
+              .replace(/\D/g, "")
+              .slice(0, 10);
+
+            update("phone", value);
+          }}
+          placeholder="98765 43210"
+          maxLength={10}
+          className="w-full border-none bg-transparent text-sm text-slate-900 outline-none"
+        />
+
+      </div>
+
+      {errors.phone && (
+        <div className="text-xs text-rose-600">
+          {errors.phone}
+        </div>
+      )}
+
+      {errors.api && (
+        <div className="text-xs text-rose-600">
+          {errors.api}
+        </div>
+      )}
+
+    </div>
+  </div>
+)}
+          
         </div>
 
         <div className="mt-6 flex items-center gap-3">
@@ -1164,17 +1293,24 @@ export default function Join() {
               Next
             </button>
           ) : (
+            // <button
+            //   onClick={authStage === "phone" ? sendOtp : verifyOtp}
+            //   disabled={loading}
+            //   className="rounded-full bg-emerald-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+            // >
+            //   {loading
+            //     ? "Please wait..."
+            //     : authStage === "phone"
+            //     ? "Send OTP"
+            //     : "Verify OTP & Join"}
+            // </button>
             <button
-              onClick={authStage === "phone" ? sendOtp : verifyOtp}
-              disabled={loading}
-              className="rounded-full bg-emerald-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading
-                ? "Please wait..."
-                : authStage === "phone"
-                ? "Send OTP"
-                : "Verify OTP & Join"}
-            </button>
+  onClick={completeJoin}
+  disabled={loading}
+  className="rounded-full bg-emerald-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {loading ? "Joining..." : "Join Jansuraaj"}
+</button>
           )}
         </div>
       </div>
