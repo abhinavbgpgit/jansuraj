@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import IssueSuccessModal from "../popups/IssueSuccessModal";
 // import MapPicker from "../components/MapPicker";
 
 export default function ReportIssue() {
@@ -14,6 +15,8 @@ export default function ReportIssue() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // ==========================================
   // SUBMIT PROBLEM
@@ -77,10 +80,7 @@ export default function ReportIssue() {
       formData.append("category", category);
 
       // Problem description
-      formData.append(
-        "description",
-        description.trim()
-      );
+      formData.append("description", description.trim());
 
       // Latitude
       // formData.append(
@@ -142,10 +142,8 @@ export default function ReportIssue() {
       // ==========================================
 
       if (response.data?.success) {
-        setSuccess(
-          "Problem reported successfully."
-        );
-
+        setSuccess("");
+        setShowSuccessModal(true);
         // Reset form
         setCategory("");
         setDescription("");
@@ -154,12 +152,10 @@ export default function ReportIssue() {
         // setLocation(null);
 
         // Reset image input
-        const imageInput =
-          document.getElementById("problem-images");
+        const imageInput = document.getElementById("problem-images");
 
         // Reset video input
-        const videoInput =
-          document.getElementById("problem-videos");
+        const videoInput = document.getElementById("problem-videos");
 
         if (imageInput) {
           imageInput.value = "";
@@ -169,10 +165,7 @@ export default function ReportIssue() {
           videoInput.value = "";
         }
       } else {
-        setError(
-          response.data?.message ||
-            "Failed to report problem."
-        );
+        setError(response.data?.message || "Failed to report problem.");
       }
     } catch (error) {
       console.error("Report problem error:", {
@@ -183,17 +176,12 @@ export default function ReportIssue() {
 
       // Unauthorized
       if (error.response?.status === 401) {
-        setError(
-          "Your login session has expired. Please login again."
-        );
+        setError("Your login session has expired. Please login again.");
 
         return;
       }
 
-      setError(
-        error.response?.data?.message ||
-          "Failed to report problem."
-      );
+      setError(error.response?.data?.message || "Failed to report problem.");
     } finally {
       setLoading(false);
     }
@@ -204,9 +192,7 @@ export default function ReportIssue() {
   // ==========================================
 
   const handleImageChange = (e) => {
-    const files = Array.from(
-      e.target.files || []
-    );
+    const files = Array.from(e.target.files || []);
 
     setImages(files);
   };
@@ -216,9 +202,7 @@ export default function ReportIssue() {
   // ==========================================
 
   const handleVideoChange = (e) => {
-    const files = Array.from(
-      e.target.files || []
-    );
+    const files = Array.from(e.target.files || []);
 
     setVideos(files);
   };
@@ -229,33 +213,23 @@ export default function ReportIssue() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-
       {/* ======================================
           HEADER
       ====================================== */}
 
-      <h1 className="text-xl font-semibold">
-        Report an Issue
-      </h1>
+      <h1 className="text-xl font-semibold">Report an Issue</h1>
 
       <p className="mt-1 text-sm text-slate-600">
-       Upload photos/videos and submit your issue.
+        Upload photos/videos and submit your issue.
       </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-4 space-y-4"
-      >
-
+      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         {/* ====================================
             IMAGES
         ==================================== */}
 
         <div className="rounded-xl border p-4">
-          <label
-            htmlFor="problem-images"
-            className="block text-sm font-medium"
-          >
+          <label htmlFor="problem-images" className="block text-sm font-medium">
             Upload Images
           </label>
 
@@ -280,10 +254,7 @@ export default function ReportIssue() {
         ==================================== */}
 
         <div className="rounded-xl border p-4">
-          <label
-            htmlFor="problem-videos"
-            className="block text-sm font-medium"
-          >
+          <label htmlFor="problem-videos" className="block text-sm font-medium">
             Upload Videos
           </label>
 
@@ -329,52 +300,31 @@ export default function ReportIssue() {
         ==================================== */}
 
         <div className="rounded-xl border p-4">
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium"
-          >
+          <label htmlFor="category" className="block text-sm font-medium">
             Category
           </label>
 
           <select
             id="category"
             value={category}
-            onChange={(e) =>
-              setCategory(e.target.value)
-            }
+            onChange={(e) => setCategory(e.target.value)}
             className="mt-2 w-full rounded border p-2"
           >
-            <option value="">
-              Select category
-            </option>
+            <option value="">Select category</option>
 
-            <option value="road">
-              Road
-            </option>
+            <option value="road">Road</option>
 
-            <option value="sanitation">
-              Sanitation
-            </option>
+            <option value="sanitation">Sanitation</option>
 
-            <option value="health">
-              Health
-            </option>
+            <option value="health">Health</option>
 
-            <option value="electricity">
-              Electricity
-            </option>
+            <option value="electricity">Electricity</option>
 
-            <option value="water">
-              Water
-            </option>
+            <option value="water">Water</option>
 
-            <option value="education">
-              Education
-            </option>
+            <option value="education">Education</option>
 
-            <option value="other">
-              Other
-            </option>
+            <option value="other">Other</option>
           </select>
         </div>
 
@@ -383,19 +333,14 @@ export default function ReportIssue() {
         ==================================== */}
 
         <div className="rounded-xl border p-4">
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium"
-          >
+          <label htmlFor="description" className="block text-sm font-medium">
             Description
           </label>
 
           <textarea
             id="description"
             value={description}
-            onChange={(e) =>
-              setDescription(e.target.value)
-            }
+            onChange={(e) => setDescription(e.target.value)}
             className="mt-2 w-full rounded border p-2"
             rows={4}
             maxLength={2000}
@@ -421,11 +366,11 @@ export default function ReportIssue() {
             SUCCESS
         ==================================== */}
 
-        {success && (
+        {/* {success && (
           <div className="rounded-lg bg-green-50 p-3 text-sm text-green-600">
             {success}
           </div>
-        )}
+        )} */}
 
         {/* ====================================
             SUBMIT
@@ -437,13 +382,20 @@ export default function ReportIssue() {
             disabled={loading}
             className="rounded-full bg-sky-600 px-5 py-2 text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading
-              ? "Submitting..."
-              : "Submit"}
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </div>
-
       </form>
+      {showSuccessModal && (
+        <IssueSuccessModal
+          onReportAnother={() => {
+            setShowSuccessModal(false);
+          }}
+          onDashboard={() => {
+            window.location.href = "/bihar-dashboard";
+          }}
+        />
+      )}
     </div>
   );
 }

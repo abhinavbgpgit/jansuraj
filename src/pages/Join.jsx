@@ -4,6 +4,186 @@ import ProgressStepper from "../components/ProgressStepper";
 import areaData from "../data/area.json";
 import districts from "../data/districts.json";
 import axios from "axios";
+import AddressConfirmModal from "../popups/AddressConfirmModal";
+
+function LocationPicker({
+  districtId,
+  areaType,
+  value,
+  onChange,
+  type = "localBody",
+}) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+
+  const district = areaData?.districts?.[districtId];
+
+  const locations =
+    type === "district"
+      ? districts
+      : areaType === "rural"
+      ? district?.rural?.panchayats || []
+      : district?.urban?.local_bodies || [];
+
+  const selected = locations.find((item) => item.id === value);
+  const normalizedSearch = search.trim().toLowerCase();
+
+  const filtered = locations.filter((item) => {
+    const hindiName = String(item.name || "").toLowerCase();
+    const englishName = String(item.name_en || "").toLowerCase();
+
+    if (!normalizedSearch) return true;
+
+    return (
+      hindiName.includes(normalizedSearch) ||
+      englishName.includes(normalizedSearch)
+    );
+  });
+
+  const title =
+    type === "district"
+      ? "जिला"
+      : areaType === "rural"
+      ? "ग्राम पंचायत"
+      : "नगर निकाय";
+
+  const placeholder =
+    type === "district"
+      ? "जिला खोजें / Search district"
+      : areaType === "rural"
+      ? "ग्राम पंचायत खोजें..."
+      : "नगर निकाय खोजें...";
+
+  return (
+    <div className="mt-4">
+      <label className="mb-2 block text-sm font-semibold text-slate-700">
+        {title} <span className="text-red-500">*</span>
+      </label>
+
+      <div className="relative">
+        <div className="relative">
+          <input
+            type="text"
+            value={value ? inputValue || selected?.name || "" : search}
+            placeholder={placeholder}
+            onFocus={() => {
+              setOpen(true);
+
+              if (value && selected) {
+                const selectedName = selected.name || "";
+
+                setInputValue(selectedName);
+                setSearch(selectedName);
+              }
+            }}
+            onChange={(e) => {
+              const nextValue = e.target.value;
+
+              setInputValue(nextValue);
+              setSearch(nextValue);
+
+              if (value) {
+                onChange("");
+              }
+
+              setOpen(true);
+            }}
+            className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-11 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+          />
+
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-lg text-slate-400">
+            🔍
+          </span>
+        </div>
+
+        {open && !value && (
+          <>
+            <div
+              className="fixed inset-0 z-20"
+              onClick={() => setOpen(false)}
+            />
+            <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl">
+              {filtered.length > 0 ? (
+                filtered.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      onChange(item.id);
+                      setInputValue(item.name || "");
+                      setSearch("");
+                      setOpen(false);
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition hover:bg-green-50"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">
+                        {item.name}
+                      </p>
+                      {item.name_en && (
+                        <p className="mt-0.5 text-xs text-slate-400">
+                          {item.name_en}
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-slate-300">›</span>
+                  </button>
+                ))
+              ) : (
+                <div className="px-4 py-6 text-center">
+                  <div className="text-2xl">🔎</div>
+                  <p className="mt-2 text-sm font-medium text-slate-600">
+                    कोई परिणाम नहीं मिला
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    नाम दोबारा जाँचकर लिखें।
+                  </p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      <p className="mt-1.5 text-xs text-slate-400">
+        नाम लिखकर खोजें या सूची में से चुनें।
+      </p>
+    </div>
+  );
+}
+
+function WardPicker({ value, onChange }) {
+  return (
+    <div className="mt-4">
+      <label className="mb-2 block text-sm font-semibold text-slate-700">
+        वार्ड <span className="text-red-500">*</span>
+      </label>
+
+      <div className="relative">
+        {/* Permanent "वार्ड" text */}
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+          वार्ड
+        </span>
+
+        <input
+          type="text"
+          inputMode="numeric"
+          value={value || ""}
+          onChange={(e) => {
+            // केवल number allow होगा
+            const wardNumber = e.target.value.replace(/\D/g, "");
+            onChange(wardNumber);
+          }}
+          placeholder="नंबर लिखें"
+          className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-16 pr-4 text-sm text-slate-700 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
+        />
+      </div>
+
+      <p className="mt-2 text-xs text-slate-400">अपना वार्ड नंबर लिखें</p>
+    </div>
+  );
+}
 
 export default function Join() {
   const navigate = useNavigate();
@@ -32,6 +212,8 @@ export default function Join() {
   // const [sessionInfo, setSessionInfo] = useState("");
   // const [firebaseUid, setFirebaseUid] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [showAddressConfirm, setShowAddressConfirm] = useState(false);
   // const [authStage, setAuthStage] = useState("phone");
   // const [authError, setAuthError] = useState("");
 
@@ -59,144 +241,132 @@ export default function Join() {
   }
 
   function compressImage(file, maxWidth = 1200, quality = 0.75) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
-    reader.onload = (event) => {
-      const img = new Image();
+      reader.onload = (event) => {
+        const img = new Image();
 
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
 
-        // Image ko max 1200px width tak resize karo
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
+          // Image ko max 1200px width tak resize karo
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
 
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
 
-        const ctx = canvas.getContext("2d");
+          const ctx = canvas.getContext("2d");
 
-        if (!ctx) {
-          reject(new Error("Image processing failed"));
-          return;
-        }
+          if (!ctx) {
+            reject(new Error("Image processing failed"));
+            return;
+          }
 
-        ctx.drawImage(img, 0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
 
-        // JPEG me compress
-        const compressedDataUrl = canvas.toDataURL(
-          "image/jpeg",
-          quality
-        );
+          // JPEG me compress
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
 
-        resolve(compressedDataUrl);
+          resolve(compressedDataUrl);
+        };
+
+        img.onerror = () => {
+          reject(new Error("Invalid image"));
+        };
+
+        img.src = event.target.result;
       };
 
-      img.onerror = () => {
-        reject(new Error("Invalid image"));
+      reader.onerror = () => {
+        reject(new Error("Unable to read image"));
       };
 
-      img.src = event.target.result;
-    };
-
-    reader.onerror = () => {
-      reject(new Error("Unable to read image"));
-    };
-
-    reader.readAsDataURL(file);
-  });
-}
-
-async function handlePhotoChange(e) {
-  const file = e.target.files && e.target.files[0];
-
-  if (!file) return;
-
-  const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
-
-  // Allowed file types
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-  ];
-
-  // ==============================
-  // FILE TYPE CHECK
-  // ==============================
-
-  if (!allowedTypes.includes(file.type)) {
-    setErrors((prev) => ({
-      ...prev,
-      photo: "Sirf JPG, PNG ya WEBP image upload karein.",
-    }));
-
-    e.target.value = "";
-    return;
+      reader.readAsDataURL(file);
+    });
   }
 
-  // ==============================
-  // FILE SIZE CHECK
-  // ==============================
+  async function handlePhotoChange(e) {
+    const file = e.target.files && e.target.files[0];
 
-  if (file.size > MAX_SIZE) {
-    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    if (!file) return;
 
-    setErrors((prev) => ({
-      ...prev,
-      photo: `Image ${sizeMB} MB ki hai. Maximum 5 MB allowed hai.`,
-    }));
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-    setForm((prev) => ({
-      ...prev,
-      photo: "",
-    }));
+    // Allowed file types
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-    e.target.value = "";
-    return;
-  }
-
-  try {
     // ==============================
-    // COMPRESS IMAGE
+    // FILE TYPE CHECK
     // ==============================
 
-    const compressedImage = await compressImage(
-      file,
-      1200,
-      0.75
-    );
+    if (!allowedTypes.includes(file.type)) {
+      setErrors((prev) => ({
+        ...prev,
+        photo: "Sirf JPG, PNG ya WEBP image upload karein.",
+      }));
 
-    // Error clear
-    setErrors((prev) => ({
-      ...prev,
-      photo: undefined,
-    }));
+      e.target.value = "";
+      return;
+    }
 
-    // Compressed image save
-    update("photo", compressedImage);
+    // ==============================
+    // FILE SIZE CHECK
+    // ==============================
 
-  } catch (error) {
-    console.error("Image compression error:", error);
+    if (file.size > MAX_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
 
-    setErrors((prev) => ({
-      ...prev,
-      photo: "Image process nahi ho payi. Dusri image try karein.",
-    }));
+      setErrors((prev) => ({
+        ...prev,
+        photo: `Image ${sizeMB} MB ki hai. Maximum 5 MB allowed hai.`,
+      }));
 
-    setForm((prev) => ({
-      ...prev,
-      photo: "",
-    }));
+      setForm((prev) => ({
+        ...prev,
+        photo: "",
+      }));
+
+      e.target.value = "";
+      return;
+    }
+
+    try {
+      // ==============================
+      // COMPRESS IMAGE
+      // ==============================
+
+      const compressedImage = await compressImage(file, 1200, 0.75);
+
+      // Error clear
+      setErrors((prev) => ({
+        ...prev,
+        photo: undefined,
+      }));
+
+      // Compressed image save
+      update("photo", compressedImage);
+    } catch (error) {
+      console.error("Image compression error:", error);
+
+      setErrors((prev) => ({
+        ...prev,
+        photo: "Image process nahi ho payi. Dusri image try karein.",
+      }));
+
+      setForm((prev) => ({
+        ...prev,
+        photo: "",
+      }));
+    }
+
+    e.target.value = "";
   }
-
-  e.target.value = "";
-}
 
   function validateStep(s) {
     const nextErrors = {};
@@ -212,10 +382,19 @@ async function handlePhotoChange(e) {
       //   nextErrors.aadhaar = "Aadhaar number must be 12 digits";
     }
     if (s === 3) {
+      // if (!form.areaType)
+      //   nextErrors.areaType = "Please select rural or urban area";
+      // if (!form.localBody) nextErrors.localBody = "Please select a local body";
+      // if (!form.ward) nextErrors.ward = "Please select a ward";
+      if (!form.district) nextErrors.district = "कृपया अपना जिला चुनें";
+
       if (!form.areaType)
-        nextErrors.areaType = "Please select rural or urban area";
-      if (!form.localBody) nextErrors.localBody = "Please select a local body";
-      if (!form.ward) nextErrors.ward = "Please select a ward";
+        nextErrors.areaType = "कृपया ग्रामीण या शहरी क्षेत्र चुनें";
+
+      if (!form.localBody)
+        nextErrors.localBody = "कृपया ग्राम पंचायत / नगर निकाय चुनें";
+
+      if (!form.ward) nextErrors.ward = "कृपया अपना वार्ड नंबर लिखें";
     }
     if (s === 4) {
       const normalized = form.phone.replace(/\D/g, "");
@@ -226,8 +405,13 @@ async function handlePhotoChange(e) {
     return Object.keys(nextErrors).length === 0;
   }
 
-  async function next() {
+  async function next(skipAddressConfirmation = false) {
     if (!validateStep(step)) return;
+
+    if (step === 3 && !skipAddressConfirmation) {
+      setShowAddressConfirm(true);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -238,15 +422,11 @@ async function handlePhotoChange(e) {
       if (step === 1 && !memberId) {
         const formData = new FormData();
 
-      if (form.photo) {
-  const blob = await fetch(form.photo).then((res) => res.blob());
+        if (form.photo) {
+          const blob = await fetch(form.photo).then((res) => res.blob());
 
-  formData.append(
-    "photo",
-    blob,
-    "profile-photo.jpg"
-  );
-}
+          formData.append("photo", blob, "profile-photo.jpg");
+        }
 
         const response = await axios.post(
           `${backendUrl}/api/members`,
@@ -288,7 +468,6 @@ async function handlePhotoChange(e) {
 
       // STEP 3: Location
       if (step === 3) {
-        
         const response = await axios.put(
           `${backendUrl}/api/members/${memberId}/location`,
           {
@@ -322,76 +501,70 @@ async function handlePhotoChange(e) {
   }
 
   async function completeJoin() {
-  setErrors({});
+    setErrors({});
 
-  if (!validateStep(4)) {
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-    if (!backendUrl) {
-      throw new Error("Backend URL is not configured");
+    if (!validateStep(4)) {
+      return;
     }
 
-    if (!memberId) {
-      throw new Error(
-        "Member profile was not created. Please go back and try again."
+    try {
+      setLoading(true);
+
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+      if (!backendUrl) {
+        throw new Error("Backend URL is not configured");
+      }
+
+      if (!memberId) {
+        throw new Error(
+          "Member profile was not created. Please go back and try again."
+        );
+      }
+
+      const normalizedPhone = form.phone.replace(/\D/g, "").slice(-10);
+
+      // ==========================================
+      // COMPLETE MEMBER REGISTRATION
+      // ==========================================
+
+      const response = await axios.put(
+        `${backendUrl}/api/members/${memberId}/complete`,
+        {
+          phone: `+91${normalizedPhone}`,
+        },
+        {
+          withCredentials: true,
+        }
       );
-    }
 
-    const normalizedPhone = form.phone
-      .replace(/\D/g, "")
-      .slice(-10);
+      if (!response.data?.success) {
+        throw new Error(
+          response.data?.message || "Failed to complete registration"
+        );
+      }
 
-    // ==========================================
-    // COMPLETE MEMBER REGISTRATION
-    // ==========================================
+      // Header ko authentication change batao
+      window.dispatchEvent(new Event("jansuraaj_auth_change"));
 
-    const response = await axios.put(
-  `${backendUrl}/api/members/${memberId}/complete`,
-  {
-    phone: `+91${normalizedPhone}`,
-  },
-  {
-    withCredentials: true,
-  }
-);
-
-    if (!response.data?.success) {
-      throw new Error(
-        response.data?.message ||
-          "Failed to complete registration"
+      // Home
+      navigate("/home");
+    } catch (error) {
+      console.error(
+        "Complete join error:",
+        error.response?.data || error.message
       );
+
+      setErrors({
+        api:
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to complete registration",
+      });
+    } finally {
+      setLoading(false);
     }
-
-    // Header ko authentication change batao
-    window.dispatchEvent(
-      new Event("jansuraaj_auth_change")
-    );
-
-    // Home
-    navigate("/home");
-
-  } catch (error) {
-    console.error(
-      "Complete join error:",
-      error.response?.data || error.message
-    );
-
-    setErrors({
-      api:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to complete registration",
-    });
-  } finally {
-    setLoading(false);
   }
-}
 
   function prev() {
     if (step === 1) {
@@ -443,259 +616,99 @@ async function handlePhotoChange(e) {
   //   }
   // }
 
-//  async function verifyOtp(e) {
-//   e.preventDefault();
-//   setAuthError("");
+  //  async function verifyOtp(e) {
+  //   e.preventDefault();
+  //   setAuthError("");
 
-//   if (!otp.trim()) {
-//     setAuthError("Please enter the OTP.");
-//     return;
-//   }
+  //   if (!otp.trim()) {
+  //     setAuthError("Please enter the OTP.");
+  //     return;
+  //   }
 
-//   if (!sessionInfo) {
-//     setAuthError("OTP session expired. Please send OTP again.");
-//     return;
-//   }
+  //   if (!sessionInfo) {
+  //     setAuthError("OTP session expired. Please send OTP again.");
+  //     return;
+  //   }
 
-//   if (!memberId) {
-//     setAuthError("Member profile was not created. Please go back.");
-//     return;
-//   }
+  //   if (!memberId) {
+  //     setAuthError("Member profile was not created. Please go back.");
+  //     return;
+  //   }
 
-//   try {
-//     setLoading(true);
+  //   try {
+  //     setLoading(true);
 
-//     const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  //     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-//     // ==========================================
-//     // 1. VERIFY OTP
-//     // ==========================================
-//     const otpResponse = await axios.post(
-//       `${backendUrl}/api/auth/verify-otp`,
-//       {
-//         sessionInfo,
-//         code: otp,
-//       },
-//       {
-//         withCredentials: true,
-//       }
-//     );
+  //     // ==========================================
+  //     // 1. VERIFY OTP
+  //     // ==========================================
+  //     const otpResponse = await axios.post(
+  //       `${backendUrl}/api/auth/verify-otp`,
+  //       {
+  //         sessionInfo,
+  //         code: otp,
+  //       },
+  //       {
+  //         withCredentials: true,
+  //       }
+  //     );
 
-//     if (!otpResponse.data.success) {
-//       throw new Error(
-//         otpResponse.data.message ||
-//           "OTP verification failed"
-//       );
-//     }
+  //     if (!otpResponse.data.success) {
+  //       throw new Error(
+  //         otpResponse.data.message ||
+  //           "OTP verification failed"
+  //       );
+  //     }
 
-//     const memberResponse = await axios.put(
-//   `${backendUrl}/api/members/${memberId}/firebase`,
-//   {},
-//   {
-//     withCredentials: true,
-//   }
-// );
+  //     const memberResponse = await axios.put(
+  //   `${backendUrl}/api/members/${memberId}/firebase`,
+  //   {},
+  //   {
+  //     withCredentials: true,
+  //   }
+  // );
 
-//     if (!memberResponse.data.success) {
-//       throw new Error(
-//         memberResponse.data.message ||
-//           "Failed to connect Firebase account"
-//       );
-//     }
+  //     if (!memberResponse.data.success) {
+  //       throw new Error(
+  //         memberResponse.data.message ||
+  //           "Failed to connect Firebase account"
+  //       );
+  //     }
 
-//     // ==========================================
-//     // IMPORTANT
-//     // ==========================================
-//     // Yahan token/user ko localStorage me SAVE
-//     // NAHI karna hai.
-//     //
-//     // Authentication HttpOnly cookie se handle hogi.
+  //     // ==========================================
+  //     // IMPORTANT
+  //     // ==========================================
+  //     // Yahan token/user ko localStorage me SAVE
+  //     // NAHI karna hai.
+  //     //
+  //     // Authentication HttpOnly cookie se handle hogi.
 
-//     // Header ko login change batana
-//     window.dispatchEvent(
-//       new Event("jansuraaj_auth_change")
-//     );
+  //     // Header ko login change batana
+  //     window.dispatchEvent(
+  //       new Event("jansuraaj_auth_change")
+  //     );
 
-//     // ==========================================
-//     // HOME
-//     // ==========================================
-//     navigate("/home");
+  //     // ==========================================
+  //     // HOME
+  //     // ==========================================
+  //     navigate("/home");
 
-//   } catch (error) {
-//     console.error(
-//       "Join OTP error:",
-//       error.response?.data || error.message
-//     );
+  //   } catch (error) {
+  //     console.error(
+  //       "Join OTP error:",
+  //       error.response?.data || error.message
+  //     );
 
-//     setAuthError(
-//       error.response?.data?.message ||
-//         error.message ||
-//         "OTP verification failed"
-//     );
-//   } finally {
-//     setLoading(false);
-//   }
-// }
-
-  function LocationPicker({  districtId, areaType, value, onChange }) {
-    const [search, setSearch] = useState("");
-    const [open, setOpen] = useState(false);
-
-    const district = areaData?.districts?.[districtId];
-    const locations =
-      areaType === "rural"
-        ? district?.rural?.panchayats || []
-        : district?.urban?.local_bodies || [];
-
-    const selected = locations.find((item) => item.id === value);
-    const normalizedSearch = search.trim().toLowerCase();
-    const filtered = locations.filter((item) => {
-      const haystack = `${item.name || ""} ${item.name_en || ""}`.toLowerCase();
-      if (!normalizedSearch) return true;
-
-      const tokens = normalizedSearch.split(/[^a-zA-Z0-9	0-9]+/).filter(Boolean);
-
-      return tokens.every((token) => haystack.includes(token));
-    });
-
-    const title = areaType === "rural" ? "ग्राम पंचायत" : "नगर निकाय";
-    const placeholder =
-      areaType === "rural" ? "ग्राम पंचायत खोजें..." : "नगर निकाय खोजें...";
-
-    return (
-      <div className="mt-4">
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
-          {title} <span className="text-red-500">*</span>
-        </label>
-
-        <div className="relative">
-          <div className="relative">
-            <input
-              type="text"
-              value={selected ? selected.name : search}
-              placeholder={placeholder}
-              onFocus={() => {
-                setOpen(true);
-                if (!search) {
-                  setSearch("");
-                }
-              }}
-              onChange={(e) => {
-                const nextValue = e.target.value;
-                setSearch(nextValue);
-                if (value) {
-                  onChange("");
-                }
-                setOpen(true);
-              }}
-              className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-11 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
-            />
-
-            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-lg text-slate-400">
-              🔍
-            </span>
-          </div>
-
-          {open && !value && (
-            <>
-              <div
-                className="fixed inset-0 z-20"
-                onClick={() => setOpen(false)}
-              />
-              <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl">
-                {filtered.length > 0 ? (
-                  filtered.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => {
-                        onChange(item.id);
-                        setSearch("");
-                        setOpen(false);
-                      }}
-                      className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition hover:bg-green-50"
-                    >
-                      <div>
-                        <p className="text-sm font-medium text-slate-700">
-                          {item.name}
-                        </p>
-                        {item.name_en && (
-                          <p className="mt-0.5 text-xs text-slate-400">
-                            {item.name_en}
-                          </p>
-                        )}
-                      </div>
-                      <span className="text-slate-300">›</span>
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-4 py-6 text-center">
-                    <div className="text-2xl">🔎</div>
-                    <p className="mt-2 text-sm font-medium text-slate-600">
-                      कोई परिणाम नहीं मिला
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">
-                      नाम दोबारा जाँचकर लिखें।
-                    </p>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-
-        <p className="mt-1.5 text-xs text-slate-400">
-          नाम लिखकर खोजें या सूची में से चुनें।
-        </p>
-      </div>
-    );
-  }
-
-  function WardPicker({districtId, areaType, localBodyId, value, onChange }) {
-    const district = areaData?.districts?.[districtId];
-    const locations =
-      areaType === "rural"
-        ? district?.rural?.panchayats || []
-        : district?.urban?.local_bodies || [];
-
-    const localBody = locations.find((item) => item.id === localBodyId);
-    const wards = localBody?.wards || [];
-
-    return (
-      <div className="mt-4">
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
-          वार्ड <span className="text-red-500">*</span>
-        </label>
-
-        <div className="relative">
-          <select
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
-          >
-            <option value="">अपना वार्ड चुनें</option>
-            {wards.map((ward) => (
-              <option key={ward.id} value={ward.id}>
-                {ward.name}
-              </option>
-            ))}
-          </select>
-
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
-            ▼
-          </span>
-        </div>
-
-        {wards.length === 0 && (
-          <div className="mt-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5">
-            <p className="text-xs text-amber-700">
-              इस क्षेत्र के वार्ड की सूची अभी उपलब्ध नहीं है।
-            </p>
-          </div>
-        )}
-      </div>
-    );
-  }
+  //     setAuthError(
+  //       error.response?.data?.message ||
+  //         error.message ||
+  //         "OTP verification failed"
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   return (
     <div className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-slate-50 px-4 py-8 font-sans">
@@ -812,12 +825,12 @@ async function handlePhotoChange(e) {
                     JPG, PNG or WEBP · Max 5MB
                   </p>
                   {errors.photo && (
-  <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
-    <p className="text-xs font-medium text-red-600">
-      ⚠️ {errors.photo}
-    </p>
-  </div>
-)}
+                    <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                      <p className="text-xs font-medium text-red-600">
+                        ⚠️ {errors.photo}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1091,177 +1104,159 @@ async function handlePhotoChange(e) {
 
           {step === 3 && (
             <div className="mt-6">
-  {/* ================= DISTRICT ================= */}
-  <div className="mb-6">
-    <div className="mb-3">
-      <h3 className="text-base font-semibold text-slate-800">
-        सबसे पहले अपना जिला चुनें
-      </h3>
+              {/* ================= DISTRICT ================= */}
+              <div className="mb-6">
+                <div className="mb-3">
+                  <h3 className="text-base font-semibold text-slate-800">
+                    सबसे पहले अपना जिला चुनें
+                  </h3>
 
-      <p className="mt-1 text-sm text-slate-500">
-        अपना जिला चुनने के बाद ही आगे का क्षेत्र दिखाई देगा।
-      </p>
-    </div>
+                  <p className="mt-1 text-sm text-slate-500">
+                    अपना जिला चुनने के बाद ही आगे का क्षेत्र दिखाई देगा।
+                  </p>
+                </div>
 
-    <select
-      value={form.district}
-      onChange={(e) => {
-        const districtId = e.target.value;
+                <LocationPicker
+                  type="district"
+                  value={form.district}
+                  onChange={(value) => {
+                    update("district", value);
+                    update("areaType", "");
+                    update("localBody", "");
+                    update("ward", "");
+                  }}
+                />
 
-        update("district", districtId);
+                {errors.district ? (
+                  <div className="mt-2 text-xs text-rose-600">
+                    {errors.district}
+                  </div>
+                ) : null}
+              </div>
 
-        // District बदलने पर नीचे की सारी selection reset
-        update("areaType", "");
-        update("localBody", "");
-        update("ward", "");
-      }}
-      className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all ${
-        errors.district
-          ? "border-rose-400 focus:border-rose-500"
-          : "border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-      }`}
-    >
-      <option value="">जिला चुनें</option>
+              {/* ================= AREA TYPE ================= */}
+              {form.district && (
+                <>
+                  <div className="mb-5">
+                    <h3 className="text-base font-semibold text-slate-800">
+                      आप कहाँ रहते हैं?
+                    </h3>
 
-      {districts.map((district) => (
-        <option key={district.id} value={district.id}>
-          {district.name}
-        </option>
-      ))}
-    </select>
+                    <p className="mt-1 text-sm text-slate-500">
+                      अपना क्षेत्र चुनें, फिर स्थानीय निकाय और वार्ड चुनें।
+                    </p>
+                  </div>
 
-    {errors.district ? (
-      <div className="mt-2 text-xs text-rose-600">
-        {errors.district}
-      </div>
-    ) : null}
-  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* RURAL */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        update("areaType", "rural");
+                        update("localBody", "");
+                        update("ward", "");
+                      }}
+                      className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
+                        form.areaType === "rural"
+                          ? "border-green-500 bg-green-50 ring-2 ring-green-100"
+                          : "border-slate-200 bg-white hover:border-green-300 hover:bg-green-50/50"
+                      }`}
+                    >
+                      <div
+                        className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
+                          form.areaType === "rural"
+                            ? "bg-green-600"
+                            : "bg-green-50"
+                        }`}
+                      >
+                        🌾
+                      </div>
 
-  {/* ================= AREA TYPE ================= */}
-  {form.district && (
-    <>
-      <div className="mb-5">
-        <h3 className="text-base font-semibold text-slate-800">
-          आप कहाँ रहते हैं?
-        </h3>
+                      <p className="text-sm font-semibold text-slate-800">
+                        ग्रामीण क्षेत्र
+                      </p>
 
-        <p className="mt-1 text-sm text-slate-500">
-          अपना क्षेत्र चुनें, फिर स्थानीय निकाय और वार्ड चुनें।
-        </p>
-      </div>
+                      <p className="mt-1 text-xs text-slate-500">
+                        गाँव / ग्राम पंचायत
+                      </p>
+                    </button>
 
-      <div className="grid grid-cols-2 gap-3">
-        {/* RURAL */}
-        <button
-          type="button"
-          onClick={() => {
-            update("areaType", "rural");
-            update("localBody", "");
-            update("ward", "");
-          }}
-          className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
-            form.areaType === "rural"
-              ? "border-green-500 bg-green-50 ring-2 ring-green-100"
-              : "border-slate-200 bg-white hover:border-green-300 hover:bg-green-50/50"
-          }`}
-        >
-          <div
-            className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
-              form.areaType === "rural"
-                ? "bg-green-600"
-                : "bg-green-50"
-            }`}
-          >
-            🌾
-          </div>
+                    {/* URBAN */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        update("areaType", "urban");
+                        update("localBody", "");
+                        update("ward", "");
+                      }}
+                      className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
+                        form.areaType === "urban"
+                          ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100"
+                          : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
+                      }`}
+                    >
+                      <div
+                        className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
+                          form.areaType === "urban"
+                            ? "bg-blue-600"
+                            : "bg-blue-50"
+                        }`}
+                      >
+                        🏙️
+                      </div>
 
-          <p className="text-sm font-semibold text-slate-800">
-            ग्रामीण क्षेत्र
-          </p>
+                      <p className="text-sm font-semibold text-slate-800">
+                        शहरी क्षेत्र
+                      </p>
 
-          <p className="mt-1 text-xs text-slate-500">
-            गाँव / ग्राम पंचायत
-          </p>
-        </button>
+                      <p className="mt-1 text-xs text-slate-500">नगर निकाय</p>
+                    </button>
+                  </div>
 
-        {/* URBAN */}
-        <button
-          type="button"
-          onClick={() => {
-            update("areaType", "urban");
-            update("localBody", "");
-            update("ward", "");
-          }}
-          className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
-            form.areaType === "urban"
-              ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100"
-              : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
-          }`}
-        >
-          <div
-            className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
-              form.areaType === "urban"
-                ? "bg-blue-600"
-                : "bg-blue-50"
-            }`}
-          >
-            🏙️
-          </div>
+                  {errors.areaType ? (
+                    <div className="mt-2 text-xs text-rose-600">
+                      {errors.areaType}
+                    </div>
+                  ) : null}
 
-          <p className="text-sm font-semibold text-slate-800">
-            शहरी क्षेत्र
-          </p>
+                  {/* ================= LOCAL BODY ================= */}
+                  {form.areaType && (
+                    <LocationPicker
+                      districtId={form.district}
+                      areaType={form.areaType}
+                      value={form.localBody}
+                      onChange={(value) => {
+                        update("localBody", value);
+                        update("ward", "");
+                      }}
+                    />
+                  )}
 
-          <p className="mt-1 text-xs text-slate-500">
-            नगर निकाय
-          </p>
-        </button>
-      </div>
+                  {/* ================= WARD ================= */}
+                  {form.localBody && (
+                    <WardPicker
+                      // districtId={form.district}
+                      //   areaType={form.areaType}
+                      //   localBodyId={form.localBody}
+                      value={form.ward}
+                      onChange={(value) => update("ward", value)}
+                    />
+                  )}
 
-      {errors.areaType ? (
-        <div className="mt-2 text-xs text-rose-600">
-          {errors.areaType}
-        </div>
-      ) : null}
+                  {errors.localBody ? (
+                    <div className="mt-2 text-xs text-rose-600">
+                      {errors.localBody}
+                    </div>
+                  ) : null}
 
-      {/* ================= LOCAL BODY ================= */}
-      {form.areaType && (
-        <LocationPicker
-        districtId={form.district}
-          areaType={form.areaType}
-          value={form.localBody}
-          onChange={(value) => {
-            update("localBody", value);
-            update("ward", "");
-          }}
-        />
-      )}
-
-      {/* ================= WARD ================= */}
-      {form.localBody && (
-        <WardPicker
-        districtId={form.district}
-          areaType={form.areaType}
-          localBodyId={form.localBody}
-          value={form.ward}
-          onChange={(value) => update("ward", value)}
-        />
-      )}
-
-      {errors.localBody ? (
-        <div className="mt-2 text-xs text-rose-600">
-          {errors.localBody}
-        </div>
-      ) : null}
-
-      {errors.ward ? (
-        <div className="mt-2 text-xs text-rose-600">
-          {errors.ward}
-        </div>
-      ) : null}
-    </>
-  )}
-</div>
+                  {errors.ward ? (
+                    <div className="mt-2 text-xs text-rose-600">
+                      {errors.ward}
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </div>
           )}
 
           {/* {step === 4 && (
@@ -1357,63 +1352,50 @@ async function handlePhotoChange(e) {
               )}
             </div>
           )} */}
-{step === 4 && (
-  <div>
-    <h3 className="block text-sm font-semibold">
-      Verify your phone
-    </h3>
+          {step === 4 && (
+            <div>
+              <h3 className="block text-sm font-semibold">Verify your phone</h3>
 
-    <p className="mt-2 text-sm text-slate-600">
-      यह मोबाइल नंबर आपके लॉगिन के लिए उपयोग होगा।
-    </p>
+              <p className="mt-2 text-sm text-slate-600">
+                यह मोबाइल नंबर आपके लॉगिन के लिए उपयोग होगा।
+              </p>
 
-    <div className="mt-5 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+              <div className="mt-5 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                <label className="block text-sm font-medium text-slate-700">
+                  Phone number
+                </label>
 
-      <label className="block text-sm font-medium text-slate-700">
-        Phone number
-      </label>
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                  <span className="text-sm text-slate-500">+91</span>
 
-      <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    value={form.phone}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
 
-        <span className="text-sm text-slate-500">
-          +91
-        </span>
+                      update("phone", value);
+                    }}
+                    placeholder="98765 43210"
+                    maxLength={10}
+                    className="w-full border-none bg-transparent text-sm text-slate-900 outline-none"
+                  />
+                </div>
 
-        <input
-          type="tel"
-          inputMode="numeric"
-          autoComplete="tel"
-          value={form.phone}
-          onChange={(e) => {
-            const value = e.target.value
-              .replace(/\D/g, "")
-              .slice(0, 10);
+                {errors.phone && (
+                  <div className="text-xs text-rose-600">{errors.phone}</div>
+                )}
 
-            update("phone", value);
-          }}
-          placeholder="98765 43210"
-          maxLength={10}
-          className="w-full border-none bg-transparent text-sm text-slate-900 outline-none"
-        />
-
-      </div>
-
-      {errors.phone && (
-        <div className="text-xs text-rose-600">
-          {errors.phone}
-        </div>
-      )}
-
-      {errors.api && (
-        <div className="text-xs text-rose-600">
-          {errors.api}
-        </div>
-      )}
-
-    </div>
-  </div>
-)}
-          
+                {errors.api && (
+                  <div className="text-xs text-rose-600">{errors.api}</div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 flex items-center gap-3">
@@ -1422,12 +1404,12 @@ async function handlePhotoChange(e) {
           </button>
           {step < 4 ? (
             <button
-  onClick={next}
-  disabled={loading}
-  className="rounded-full bg-sky-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
->
-  {loading ? "Please wait..." : "Next"}
-</button>
+              onClick={() => next()}
+              disabled={loading}
+              className="rounded-full bg-sky-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Please wait..." : "Next"}
+            </button>
           ) : (
             // <button
             //   onClick={authStage === "phone" ? sendOtp : verifyOtp}
@@ -1441,14 +1423,30 @@ async function handlePhotoChange(e) {
             //     : "Verify OTP & Join"}
             // </button>
             <button
-  onClick={completeJoin}
-  disabled={loading}
-  className="rounded-full bg-emerald-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
->
-  {loading ? "Joining..." : "Join Jansuraaj"}
-</button>
+              onClick={completeJoin}
+              disabled={loading}
+              className="rounded-full bg-emerald-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Joining..." : "Join Jansuraaj"}
+            </button>
           )}
         </div>
+
+        {/* =========popup======= */}
+
+        {showAddressConfirm && (
+          <AddressConfirmModal
+            form={form}
+            districts={districts}
+            areaData={areaData}
+            loading={loading}
+            onBack={() => setShowAddressConfirm(false)}
+            onConfirm={() => {
+              setShowAddressConfirm(false);
+              next(true);
+            }}
+          />
+        )}
       </div>
     </div>
   );

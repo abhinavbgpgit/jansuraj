@@ -208,6 +208,7 @@
           {
             "id": "bhagalpur_municipal_corporation",
             "name": "नगर निगम भागलपुर",
+            "name_en":"bhagalpur_municipal_corporation",
             "type": "नगर निगम",
             "wards": [
               {
