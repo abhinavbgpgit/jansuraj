@@ -15,7 +15,7 @@ export default function Join() {
     profession: "",
     skills: "",
     social: "",
-    aadhaar: "",
+    // aadhaar: "",
     district: "",
     block: "",
     panchayat: "",
@@ -208,8 +208,8 @@ async function handlePhotoChange(e) {
         nextErrors.firstName = "First name is required";
       if (!form.education) nextErrors.education = "Please select education";
       if (!form.profession) nextErrors.profession = "Please select profession";
-      if (!form.aadhaar || form.aadhaar.length !== 12)
-        nextErrors.aadhaar = "Aadhaar number must be 12 digits";
+      // if (!form.aadhaar || form.aadhaar.length !== 12)
+      //   nextErrors.aadhaar = "Aadhaar number must be 12 digits";
     }
     if (s === 3) {
       if (!form.areaType)
@@ -275,7 +275,7 @@ async function handlePhotoChange(e) {
             education: form.education,
             profession: form.profession,
             skills: form.skills,
-            aadhaar: form.aadhaar,
+            // aadhaar: form.aadhaar,
           }
         );
 
@@ -1045,7 +1045,7 @@ async function handlePhotoChange(e) {
               </div>
 
               {/* आधार */}
-              <div>
+              {/* <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   आधार संख्या <span className="text-red-500">*</span>
                 </label>
@@ -1085,7 +1085,7 @@ async function handlePhotoChange(e) {
                     आधार संख्या 12 अंकों की होनी चाहिए।
                   </p>
                 ) : null}
-              </div>
+              </div> */}
             </div>
           )}
 

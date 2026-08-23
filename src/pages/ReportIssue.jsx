@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import MapPicker from "../components/MapPicker";
+// import MapPicker from "../components/MapPicker";
 
 export default function ReportIssue() {
   const [category, setCategory] = useState("");
@@ -9,7 +9,7 @@ export default function ReportIssue() {
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
 
-  const [location, setLocation] = useState(null);
+  // const [location, setLocation] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -43,15 +43,15 @@ export default function ReportIssue() {
       return;
     }
 
-    if (
-      location?.latitude === undefined ||
-      location?.latitude === null ||
-      location?.longitude === undefined ||
-      location?.longitude === null
-    ) {
-      setError("Please select problem location on the map.");
-      return;
-    }
+    // if (
+    //   location?.latitude === undefined ||
+    //   location?.latitude === null ||
+    //   location?.longitude === undefined ||
+    //   location?.longitude === null
+    // ) {
+    //   setError("Please select problem location on the map.");
+    //   return;
+    // }
 
     // ==========================================
     // SUBMIT
@@ -83,16 +83,16 @@ export default function ReportIssue() {
       );
 
       // Latitude
-      formData.append(
-        "latitude",
-        String(location.latitude)
-      );
+      // formData.append(
+      //   "latitude",
+      //   String(location.latitude)
+      // );
 
       // Longitude
-      formData.append(
-        "longitude",
-        String(location.longitude)
-      );
+      // formData.append(
+      //   "longitude",
+      //   String(location.longitude)
+      // );
 
       // ==========================================
       // IMAGES
@@ -117,8 +117,8 @@ export default function ReportIssue() {
       console.log("Submitting problem:", {
         category,
         description: description.trim(),
-        latitude: location.latitude,
-        longitude: location.longitude,
+        // latitude: location.latitude,
+        // longitude: location.longitude,
         images: images.length,
         videos: videos.length,
       });
@@ -151,7 +151,7 @@ export default function ReportIssue() {
         setDescription("");
         setImages([]);
         setVideos([]);
-        setLocation(null);
+        // setLocation(null);
 
         // Reset image input
         const imageInput =
@@ -239,8 +239,7 @@ export default function ReportIssue() {
       </h1>
 
       <p className="mt-1 text-sm text-slate-600">
-        Upload photos/videos, pick location and
-        submit.
+       Upload photos/videos and submit your issue.
       </p>
 
       <form
@@ -308,7 +307,7 @@ export default function ReportIssue() {
             LOCATION
         ==================================== */}
 
-        <MapPicker
+        {/* <MapPicker
           onLocationSelect={setLocation}
         />
 
@@ -323,7 +322,7 @@ export default function ReportIssue() {
               {location.longitude.toFixed(6)}
             </span>
           </div>
-        )}
+        )} */}
 
         {/* ====================================
             CATEGORY
