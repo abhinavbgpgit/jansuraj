@@ -20,13 +20,12 @@ export default function MobileBottomNav() {
   if (!stored) return null
 
   return (
-    <nav className="fixed bottom-4 left-0 right-0 z-50 mx-auto max-w-3xl px-4 md:hidden">
+    <nav className="fixed bottom-4 left-0 right-0 z-50 mx-auto max-w-3xl px-4 lg:hidden">
       <div className="backdrop-blur-md rounded-2xl border border-slate-200/50 bg-white/60 px-3 py-2 shadow-lg">
         <div className="flex items-center justify-between">
-          <NavButton to="/" label={t('Home')} />
+          <NavButton to="/home" label={t('Dashboard')} />
+          <NavButton to="/purpose" label={t('Purpose')} />
           <NavButton to="/issues" label={t('Issues')} />
-          <NavButton to="/join" label={t('Join')} />
-          <NavButton to="/profile" label={t('Profile')} />
         </div>
       </div>
     </nav>
