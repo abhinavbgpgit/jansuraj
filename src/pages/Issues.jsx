@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import VideoPreview from "../components/VideoPreview";
+import { useLanguage } from "../i18n";
 
 export default function Issues() {
+  const { t } = useLanguage();
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -135,10 +137,10 @@ export default function Issues() {
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">सभी समस्याएँ</h1>
+          <h1 className="text-3xl font-bold text-slate-900">{t("All Issues")}</h1>
 
           <p className="mt-2 text-sm text-slate-600">
-            यहाँ आपके क्षेत्र की सभी समस्याएँ दिखाई देंगी।
+            {t("Here you will see all issues in your area.")}
           </p>
         </div>
 
@@ -146,7 +148,7 @@ export default function Issues() {
           to="/report"
           className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
         >
-          नई समस्या दर्ज करें
+          {t("New Issue")}
         </Link>
       </div>
 
@@ -157,14 +159,14 @@ export default function Issues() {
       {issues.length === 0 ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center">
           <p className="text-slate-600">
-            अभी आपके क्षेत्र में कोई समस्या दर्ज नहीं है।
+            {t("No issues have been reported in your area yet.")}
           </p>
 
           <Link
             to="/report"
             className="mt-4 inline-block rounded-full bg-sky-600 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-700"
           >
-            पहली समस्या दर्ज करें
+            {t("Report your first issue")}
           </Link>
         </div>
       ) : (

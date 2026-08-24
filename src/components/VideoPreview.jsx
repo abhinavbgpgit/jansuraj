@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLanguage } from "../i18n";
 import { createPortal } from "react-dom";
 
 function getYouTubeEmbedUrl(url) {
@@ -80,6 +81,7 @@ function getVideoInfo(url) {
 }
 
 function VideoPreview({ videos = [] }) {
+  const { t } = useLanguage();
   const cleanVideos = useMemo(() => {
     return Array.isArray(videos)
       ? videos.map((url) => url?.trim()).filter(Boolean)
@@ -221,7 +223,7 @@ function VideoPreview({ videos = [] }) {
                   type="button"
                   onClick={closeModal}
                   className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-2xl font-medium leading-none text-slate-600 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-red-50 hover:text-red-500 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-red-100"
-                  aria-label="वीडियो बंद करें"
+                  aria-label={t("Close")}
                 >
                   ×
                 </button>

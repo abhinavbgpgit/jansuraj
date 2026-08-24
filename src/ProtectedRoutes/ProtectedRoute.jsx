@@ -1,8 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useLanguage } from "../i18n";
 
 const ProtectedRoute = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
@@ -25,7 +27,7 @@ const ProtectedRoute = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t("Loading...")}</div>;
   }
 
   return authenticated ? <Outlet /> : <Navigate to="/login" replace />;

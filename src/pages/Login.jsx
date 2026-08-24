@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useLanguage } from "../i18n";
 
 export default function Login() {
+  const { t } = useLanguage();
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -229,7 +231,7 @@ export default function Login() {
         <Link
           to="/"
           className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-slate-200"
-          aria-label="Close login"
+          aria-label={t("Close")}
         >
           ×
         </Link>
@@ -241,11 +243,11 @@ export default function Login() {
         <div className="mb-6 text-center">
 
           <h1 className="text-3xl font-semibold text-slate-900">
-            Login to Jansuraaj
+            {t("Login to Jansuraaj")}
           </h1>
 
           <p className="mt-2 text-sm text-slate-500">
-            Enter the phone number you used to join.
+            {t("Enter the phone number you used to join.")}
           </p>
 
         </div>
@@ -264,7 +266,7 @@ export default function Login() {
           <div>
 
             <label className="block text-sm font-medium text-slate-700">
-              Phone number
+              {t("Phone number")}
             </label>
 
             <div className="mt-2 flex gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
@@ -324,9 +326,7 @@ export default function Login() {
             className="w-full rounded-2xl bg-[#0ea5a4] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0bb99b] disabled:cursor-not-allowed disabled:opacity-60"
           >
 
-            {loading
-              ? "Logging in..."
-              : "Login"}
+            {loading ? t("Logging in...") : t("Login")}
 
           </button>
 
@@ -338,13 +338,13 @@ export default function Login() {
 
         <div className="mt-6 text-center text-sm text-slate-500">
 
-          New to Jansuraaj?{" "}
+          {t("New to Jansuraaj?")} {" "}
 
           <Link
             to="/join"
             className="font-semibold text-slate-900 hover:text-sky-600"
           >
-            Join now
+            {t("Join now")}
           </Link>
 
         </div>

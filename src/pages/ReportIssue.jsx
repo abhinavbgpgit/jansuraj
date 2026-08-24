@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import axios from "axios";
 import IssueSuccessModal from "../popups/IssueSuccessModal";
 import VideoLinksInput from "../components/VideoLinksInput";
+import { useLanguage } from "../i18n";
 // import MapPicker from "../components/MapPicker";
 
 export default function ReportIssue() {
+  const { t } = useLanguage();
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
 
@@ -15,7 +17,6 @@ export default function ReportIssue() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -26,24 +27,23 @@ export default function ReportIssue() {
     e.preventDefault();
 
     setError("");
-    setSuccess("");
 
     // ==========================================
     // VALIDATION
     // ==========================================
 
     if (!category) {
-      setError("Please select a category.");
+      setError(t("Please select a category."));
       return;
     }
 
     if (!description.trim()) {
-      setError("Please enter problem description.");
+      setError(t("Please enter problem description."));
       return;
     }
 
     if (description.trim().length > 2000) {
-      setError("Description cannot exceed 2000 characters.");
+      setError(t("Description cannot exceed 2000 characters."));
       return;
     }
 
@@ -148,7 +148,6 @@ formData.append(
       // ==========================================
 
       if (response.data?.success) {
-        setSuccess("");
         setShowSuccessModal(true);
         // Reset form
         setCategory("");
@@ -208,10 +207,10 @@ if (imageInput) {
           HEADER
       ====================================== */}
 
-      <h1 className="text-xl font-semibold">Report an Issue</h1>
+      <h1 className="text-xl font-semibold">{t("Report an Issue")}</h1>
 
       <p className="mt-1 text-sm text-slate-600">
-        Upload photos, add video links, and submit your issue.
+        {t("Upload photos, add video links, and submit your issue.")}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
@@ -221,7 +220,7 @@ if (imageInput) {
 
         <div className="rounded-xl border p-4">
           <label htmlFor="problem-images" className="block text-sm font-medium">
-            Upload Images
+            {t("Upload Images")}
           </label>
 
           <input
@@ -276,7 +275,7 @@ if (imageInput) {
 
         <div className="rounded-xl border p-4">
           <label htmlFor="category" className="block text-sm font-medium">
-            Category
+            {t("Category")}
           </label>
 
           <select
@@ -285,21 +284,21 @@ if (imageInput) {
             onChange={(e) => setCategory(e.target.value)}
             className="mt-2 w-full rounded border p-2"
           >
-            <option value="">Select category</option>
+            <option value="">{t("Select category")}</option>
 
-            <option value="road">Road</option>
+            <option value="road">{t("Road")}</option>
 
-            <option value="sanitation">Sanitation</option>
+            <option value="sanitation">{t("Sanitation")}</option>
 
-            <option value="health">Health</option>
+            <option value="health">{t("Health")}</option>
 
-            <option value="electricity">Electricity</option>
+            <option value="electricity">{t("Electricity")}</option>
 
-            <option value="water">Water</option>
+            <option value="water">{t("Water")}</option>
 
-            <option value="education">Education</option>
+            <option value="education">{t("Education")}</option>
 
-            <option value="other">Other</option>
+            <option value="other">{t("Other")}</option>
           </select>
         </div>
 
@@ -309,7 +308,7 @@ if (imageInput) {
 
         <div className="rounded-xl border p-4">
           <label htmlFor="description" className="block text-sm font-medium">
-            Description
+            {t("Description")}
           </label>
 
           <textarea
@@ -319,7 +318,7 @@ if (imageInput) {
             className="mt-2 w-full rounded border p-2"
             rows={4}
             maxLength={2000}
-            placeholder="Describe the problem..."
+            placeholder={t("Describe the problem...")}
           />
 
           <p className="mt-1 text-right text-xs text-slate-400">
@@ -357,7 +356,7 @@ if (imageInput) {
             disabled={loading}
             className="rounded-full bg-sky-600 px-5 py-2 text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Submitting..." : "Submit"}
+            {loading ? t("Submitting...") : t("Submit")}
           </button>
         </div>
       </form>
@@ -367,7 +366,7 @@ if (imageInput) {
             setShowSuccessModal(false);
           }}
           onDashboard={() => {
-            window.location.href = "/bihar-dashboard";
+            window.location.href = "/home";
           }}
         />
       )}

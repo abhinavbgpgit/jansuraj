@@ -1,6 +1,9 @@
 import React from "react";
 
+import { useLanguage } from "../i18n";
+
 const Purpose = () => {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
 
@@ -406,7 +409,7 @@ const Purpose = () => {
         </div>
 
         <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 p-5 text-green-900">
-          <strong>Privacy Principle:</strong> केवल आवश्यक जानकारी ली जाएगी।
+          <strong>{t("Privacy Principle:")}</strong> {t("केवल आवश्यक जानकारी ली जाएगी।")}
           Aadhaar जैसी अत्यधिक संवेदनशील जानकारी को अनिवार्य नहीं बनाया जाएगा।
         </div>
 

@@ -5,8 +5,10 @@ import axios from "axios";
 import joinImage from "../assets/jansuraj_join_image.png";
 import mobileJoinImage from "../assets/mobile_view_login_image.png";
 import logo from "../assets/jansuraj_logo.png";
+import { useLanguage } from "../i18n";
 
 export default function Landing() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // ==========================================
@@ -92,11 +94,11 @@ export default function Landing() {
 
                   <div className="text-left">
                     <div className="text-sm font-semibold">
-                      Join Jansuraaj
+                      {t("Join Jansuraaj")}
                     </div>
 
                     <div className="mt-1 text-xs opacity-90">
-                      सदस्य प्रोफ़ाइल बनाने और सत्यापन के लिए Join करें।
+                      {t("Create your member profile and verify your phone for login.")}
                     </div>
                   </div>
 
@@ -120,11 +122,11 @@ export default function Landing() {
 
                   <div className="text-left">
                     <div className="text-sm font-semibold text-slate-900">
-                      Login to Jansuraaj
+                      {t("Login to Jansuraaj")}
                     </div>
 
                     <div className="mt-1 text-xs text-slate-600">
-                      Issue दर्ज करने के लिए Login करें
+                      {t("Login to report an issue")}
                     </div>
                   </div>
 

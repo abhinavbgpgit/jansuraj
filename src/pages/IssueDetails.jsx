@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
+import { useLanguage } from "../i18n";
 
 export default function IssueDetails() {
+  const { t } = useLanguage();
   const { id } = useParams();
 
   const [issue, setIssue] = useState(null);
@@ -138,7 +140,7 @@ export default function IssueDetails() {
               to="/login"
               className="inline-flex rounded-full bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
             >
-              Login करें
+              {t("Login")}
             </Link>
           )}
         </div>

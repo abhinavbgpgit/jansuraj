@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n";
 
 export default function LocationTest() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -68,7 +70,7 @@ export default function LocationTest() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Khalifabagh Chowk, Bhagalpur"
+          placeholder={t("Khalifabagh Chowk, Bhagalpur")}
           className="w-full rounded-lg border px-4 py-3"
         />
 

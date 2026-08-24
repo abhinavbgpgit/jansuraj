@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import MembershipCardComponent from "../components/MembershipCardComponent";
 import axios from "axios";
+import { useLanguage } from "../i18n";
 
 export default function Profile() {
+  const { t } = useLanguage();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -63,7 +65,7 @@ export default function Profile() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 text-center">
         <p className="text-slate-600">
-          Loading profile...
+          {t("Loading profile...")}
         </p>
       </div>
     );
@@ -91,7 +93,7 @@ export default function Profile() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 text-center">
         <p className="text-slate-600">
-          Profile not found.
+          {t("Profile not found.")}
         </p>
       </div>
     );
@@ -104,7 +106,7 @@ export default function Profile() {
     <div className="mx-auto max-w-3xl px-4 py-6">
 
       <h1 className="text-xl font-semibold text-slate-900">
-        Profile
+        {t("Profile")}
       </h1>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -118,11 +120,11 @@ export default function Profile() {
         <div>
 
           <div className="rounded-xl border border-slate-200 bg-white p-4">
-            Reported Issues
+            {t("Reported Issues")}
           </div>
 
           <div className="mt-3 rounded-xl border border-slate-200 bg-white p-4">
-            Volunteer History
+            {t("Volunteer History")}
           </div>
 
         </div>

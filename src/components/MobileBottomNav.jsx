@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useLanguage } from '../i18n'
 
 const NavButton = ({ to, label }) => {
   const loc = useLocation()
@@ -13,6 +14,7 @@ const NavButton = ({ to, label }) => {
 }
 
 export default function MobileBottomNav() {
+  const { t } = useLanguage()
   // Show the mobile nav only when a user session exists
   const stored = typeof window !== 'undefined' ? localStorage.getItem('jansuraaj_user') : null
   if (!stored) return null
@@ -21,11 +23,10 @@ export default function MobileBottomNav() {
     <nav className="fixed bottom-4 left-0 right-0 z-50 mx-auto max-w-3xl px-4 md:hidden">
       <div className="backdrop-blur-md rounded-2xl border border-slate-200/50 bg-white/60 px-3 py-2 shadow-lg">
         <div className="flex items-center justify-between">
-          <NavButton to="/" label="Home" />
-          <NavButton to="/issues" label="Issues" />
-          <NavButton to="/join" label="Join" />
-          <NavButton to="/notifications" label="Alerts" />
-          <NavButton to="/profile" label="Profile" />
+          <NavButton to="/" label={t('Home')} />
+          <NavButton to="/issues" label={t('Issues')} />
+          <NavButton to="/join" label={t('Join')} />
+          <NavButton to="/profile" label={t('Profile')} />
         </div>
       </div>
     </nav>

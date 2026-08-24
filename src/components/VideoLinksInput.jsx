@@ -1,6 +1,8 @@
 import React from "react";
+import { useLanguage } from "../i18n";
 
 function VideoLinksInput({ value = [""], onChange }) {
+  const { t } = useLanguage();
   const links = Array.isArray(value) && value.length > 0 ? value : [""];
 
   const updateLink = (index, newValue) => {
@@ -25,7 +27,7 @@ function VideoLinksInput({ value = [""], onChange }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4">
       <label className="block text-sm font-semibold text-slate-700">
-        वीडियो लिंक
+        {t("वीडियो लिंक")}
       </label>
 
       <p className="mt-1 text-xs leading-5 text-slate-400">
@@ -40,7 +42,7 @@ function VideoLinksInput({ value = [""], onChange }) {
               type="url"
               value={link}
               onChange={(e) => updateLink(index, e.target.value)}
-              placeholder="YouTube या Facebook वीडियो लिंक डालें"
+              placeholder={t("YouTube या Facebook वीडियो लिंक डालें")}
               className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
             />
 

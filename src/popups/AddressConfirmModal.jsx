@@ -1,3 +1,5 @@
+import { useLanguage } from "../i18n";
+
 const AddressConfirmModal = ({
   form,
   districts,
@@ -6,6 +8,7 @@ const AddressConfirmModal = ({
   onBack,
   onConfirm,
 }) => {
+  const { language, t } = useLanguage();
   const districtName =
     districts.find((item) => item.id === form.district)?.name || "-";
 
@@ -26,18 +29,18 @@ const AddressConfirmModal = ({
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
 
         <h3 className="text-xl font-semibold text-slate-800">
-          अपना पता जाँचें
+          {t("Review your address")}
         </h3>
 
         <p className="mt-1 text-sm text-slate-500">
-          कृपया आगे बढ़ने से पहले अपनी जानकारी जाँच लें।
+          {t("Please review your information before continuing.")}
         </p>
 
         <div className="mt-5 space-y-3 rounded-xl bg-slate-50 p-4">
 
           <div className="flex justify-between gap-4">
             <span className="text-sm text-slate-500">
-              जिला
+              {t("District")}
             </span>
 
             <span className="text-right text-sm font-medium text-slate-800">
@@ -47,14 +50,14 @@ const AddressConfirmModal = ({
 
           <div className="flex justify-between gap-4">
             <span className="text-sm text-slate-500">
-              क्षेत्र
+              {t("Area")}
             </span>
 
             <span className="text-right text-sm font-medium text-slate-800">
               {form.areaType === "rural"
-                ? "ग्रामीण क्षेत्र"
+                ? t("Rural area")
                 : form.areaType === "urban"
-                ? "शहरी क्षेत्र"
+                ? t("Urban area")
                 : "-"}
             </span>
           </div>
@@ -62,8 +65,8 @@ const AddressConfirmModal = ({
           <div className="flex justify-between gap-4">
             <span className="text-sm text-slate-500">
               {form.areaType === "rural"
-                ? "ग्राम पंचायत"
-                : "नगर निकाय"}
+                ? t("Gram panchayat")
+                : t("Urban local body")}
             </span>
 
             <span className="text-right text-sm font-medium text-slate-800">
@@ -73,7 +76,7 @@ const AddressConfirmModal = ({
 
           <div className="flex justify-between gap-4">
             <span className="text-sm text-slate-500">
-              वार्ड
+              {t("Ward")}
             </span>
 
             <span className="text-right text-sm font-medium text-slate-800">
@@ -84,7 +87,7 @@ const AddressConfirmModal = ({
         </div>
 
         <p className="mt-4 text-sm font-medium text-slate-700">
-          क्या यह जानकारी सही है?
+          {t("Is this information correct?")}
         </p>
 
         <div className="mt-5 flex justify-end gap-3">
@@ -94,7 +97,7 @@ const AddressConfirmModal = ({
             onClick={onBack}
             className="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            वापस बदलें
+            {t("Go back and edit")}
           </button>
 
           <button
@@ -103,7 +106,7 @@ const AddressConfirmModal = ({
             onClick={onConfirm}
             className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-60"
           >
-            {loading ? "Please wait..." : "ठीक है"}
+            {loading ? t("Please wait...") : language === "hi" ? "ठीक है" : t("Confirm")}
           </button>
 
         </div>

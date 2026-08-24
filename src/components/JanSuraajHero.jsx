@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { issues } from "../data/issues";
+import { useLanguage } from "../i18n";
 
 export default function JanSuraajHero() {
+  const { t } = useLanguage();
   const [filter, setFilter] = useState("all");
   const navigate = useNavigate();
 
@@ -52,20 +54,19 @@ export default function JanSuraajHero() {
         <div className="animate-[heroIn_.8s_ease_forwards]">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#176B4D]/15 bg-[#EEF6F1]/80 px-3 py-2 text-[11px] font-extrabold text-[#176B4D]">
             <span className="h-2 w-2 rounded-full bg-[#21845A] shadow-[0_0_0_5px_rgba(33,132,90,.10)] animate-pulse" />
-            बिहार के हर वार्ड की आवाज़
+            {t("बिहार के हर वार्ड की आवाज़")}
           </div>
 
           <h1 className="mb-6 max-w-[680px] text-[42px] font-black leading-[1.1] tracking-[-1.8px] sm:text-[50px] lg:text-[67px] lg:tracking-[-2.5px]">
             आपके वार्ड की <span className="relative text-[#D97706]">
-              समस्या,
+              {t("समस्या,")}
               <span className="absolute -bottom-1 left-0 right-0 h-[7px] -rotate-1 rounded-full bg-[#F59E0B]/20" />
             </span>{" "}
-            अब पूरे बिहार के सामने।
+            {t("अब पूरे बिहार के सामने।")}
           </h1>
 
           <p className="mb-8 max-w-[610px] text-[14px] leading-[1.9] text-[#6B766F] sm:text-[15px] lg:text-[16px]">
-            सड़क, पानी, नाली, बिजली या किसी भी सार्वजनिक समस्या को दर्ज कीजिए। उसकी स्थिति देखिए,
-            कार्रवाई की टाइमलाइन देखिए और जानिए कि समस्या कहाँ तक पहुँची।
+            {t("सड़क, पानी, नाली, बिजली या किसी भी सार्वजनिक समस्या को दर्ज कीजिए। उसकी स्थिति देखिए, कार्रवाई की टाइमलाइन देखिए और जानिए कि समस्या कहाँ तक पहुँची।")}
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -74,14 +75,14 @@ export default function JanSuraajHero() {
               className="inline-flex h-[52px] items-center justify-center gap-2 rounded-xl border border-[#F59E0B] bg-[#F59E0B] px-5 text-[13px] font-extrabold text-[#17231D] shadow-[0_12px_25px_rgba(245,158,11,.20)] transition-all duration-200 hover:-translate-y-1 hover:bg-[#D97706] hover:text-white"
             >
               <span className="text-lg leading-none">＋</span>
-              समस्या दर्ज करें
+              {t("समस्या दर्ज करें")}
             </button>
 
             <button
               onClick={exploreIssues}
               className="inline-flex h-[52px] items-center justify-center gap-2 rounded-xl border border-[#E5E0D5] bg-white/70 px-5 text-[13px] font-extrabold text-[#17231D] transition-all duration-200 hover:-translate-y-1 hover:border-[#176B4D] hover:text-[#176B4D]"
             >
-              अपने वार्ड की समस्याएँ देखें
+              {t("अपने वार्ड की समस्याएँ देखें")}
               <span>→</span>
             </button>
           </div>
@@ -90,7 +91,7 @@ export default function JanSuraajHero() {
             <span className="grid h-6 w-6 place-items-center rounded-lg bg-[#EEF6F1] font-black text-[#176B4D]">
               ✓
             </span>
-            समस्या दर्ज होने से समाधान तक पूरी स्थिति सार्वजनिक
+              {t("समस्या दर्ज होने से समाधान तक पूरी स्थिति सार्वजनिक")}
           </div>
         </div>
 
@@ -110,7 +111,7 @@ export default function JanSuraajHero() {
                 onClick={exploreIssues}
                 className="border-none bg-transparent text-[10px] font-extrabold text-[#176B4D] transition-colors hover:text-[#D97706]"
               >
-                सभी देखें →
+                {t("सभी देखें →")}
               </button>
             </div>
 
@@ -179,12 +180,12 @@ export default function JanSuraajHero() {
               <div className="mt-3 flex items-center justify-between rounded-[13px] bg-[#0F4D38] px-3.5 py-3 text-white">
                 <div className="flex items-baseline gap-1.5">
                   <strong className="text-[21px]">27</strong>
-                  <span className="text-[8px] text-white/60">कुल समस्याएँ</span>
+                  <span className="text-[8px] text-white/60">{t("कुल समस्याएँ")}</span>
                 </div>
                 <div className="text-right text-[8px] leading-[1.5] text-white/70">
-                  18 पर कार्रवाई जारी
+                  {t("18 पर कार्रवाई जारी")}
                   <br />
-                  9 का समाधान
+                  {t("9 का समाधान")}
                 </div>
               </div>
             </div>
@@ -193,13 +194,13 @@ export default function JanSuraajHero() {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 flex h-12 items-center justify-center gap-1.5 border-t border-[#E5E0D5] bg-[#FFFDF8]/60 px-4 text-center text-[9px] text-[#6B766F] backdrop-blur-lg">
-        दर्ज करें
+        {t("दर्ज करें")}
         <strong className="text-[#176B4D]">→</strong>
-        ट्रैक करें
+        {t("ट्रैक करें")}
         <strong className="text-[#176B4D]">→</strong>
-        समाधान देखें
+        {t("समाधान देखें")}
         <strong className="text-[#176B4D]">→</strong>
-        जनता के सामने
+        {t("जनता के सामने")}
       </div>
     </section>
   );

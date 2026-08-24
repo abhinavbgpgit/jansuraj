@@ -16,20 +16,18 @@ import MembershipCardPage from "./pages/MembershipCardPage";
 import Issues from "./pages/Issues";
 import ReportIssue from "./pages/ReportIssue";
 import IssueDetails from "./pages/IssueDetails";
-import BiharDashboard from "./pages/BiharDashboard";
 import WardDashboard from "./pages/WardDashboard";
 import VolunteerDashboard from "./pages/VolunteerDashboard";
-import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import TransparencyDashboard from "./pages/TransparencyDashboard";
-import SearchPage from "./pages/SearchPage";
 import Events from "./pages/Events";
 import News from "./pages/News";
 import Purpose from "./pages/Purpose";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import ProtectedRoute from "./ProtectedRoutes/ProtectedRoute";
+import { LanguageProvider } from "./i18n";
 
 function Layout() {
   const location = useLocation();
@@ -54,8 +52,9 @@ function Layout() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <LanguageProvider>
+      <BrowserRouter>
+        <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Landing />} />
           <Route path="join" element={<Join />} />
@@ -71,26 +70,14 @@ function App() {
             <Route path="report" element={<ReportIssue />} />
             <Route path="issues/:id" element={<IssueDetails />} />
           </Route>
-          //=================PROTECTED_ROUTE================//
-          <Route element={<ProtectedRoute />}>
-            <Route path="bihar-dashboard" element={<BiharDashboard />} />
-          </Route>
           <Route path="ward-dashboard" element={<WardDashboard />} />
           <Route path="volunteer" element={<VolunteerDashboard />} />
-          //=================PROTECTED_ROUTE============//
-          <Route element={<ProtectedRoute />}>
-            <Route path="notifications" element={<Notifications />} />
-          </Route>
           //==============PROTECTED_ROUTE================//
           <Route element={<ProtectedRoute />}>
             <Route path="profile" element={<Profile />} />
           </Route>
           <Route path="admin" element={<AdminDashboard />} />
           <Route path="transparency" element={<TransparencyDashboard />} />
-          //===============PROTECTED_ROUTE============//
-          <Route element={<ProtectedRoute />}>
-            <Route path="search" element={<SearchPage />} />
-          </Route>
           <Route path="events" element={<Events />} />
           <Route path="news" element={<News />} />
           //===============PROTECTED_ROUTE===============//
@@ -98,8 +85,9 @@ function App() {
             <Route path="purpose" element={<Purpose />} />
           </Route>
         </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </LanguageProvider>
   );
 }
 

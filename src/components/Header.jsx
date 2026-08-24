@@ -4,11 +4,13 @@ import axios from "axios";
 
 import logo from "../assets/jansuraj_logo.png";
 import userFemale from "../assets/user_female.jpg";
+import { useLanguage } from "../i18n";
 
 export default function Header() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   const navigate = useNavigate();
   const menuRef = useRef(null);
@@ -173,42 +175,21 @@ export default function Header() {
             to="/home"
             className="text-sm text-slate-600 hover:text-slate-900"
           >
-            Home
+              {t("Dashboard")}
           </Link>
 
           <Link
             to="/purpose"
             className="text-sm text-slate-600 hover:text-slate-900"
           >
-            Purpose
+            {t("Purpose")}
           </Link>
 
           <Link
             to="/issues"
             className="text-sm text-slate-600 hover:text-slate-900"
           >
-            Issues
-          </Link>
-
-          <Link
-            to="/notifications"
-            className="text-sm text-slate-600 hover:text-slate-900"
-          >
-            Alerts
-          </Link>
-
-          <Link
-            to="/bihar-dashboard"
-            className="text-sm text-slate-600 hover:text-slate-900"
-          >
-            Dashboard
-          </Link>
-
-          <Link
-            to="/search"
-            className="text-sm text-slate-600 hover:text-slate-900"
-          >
-            Search
+            {t("Issues")}
           </Link>
 
         </nav>
@@ -227,7 +208,7 @@ export default function Header() {
               to="/login"
               className="rounded-full border border-slate-200/60 bg-white px-3 py-1 text-sm text-slate-700 transition hover:border-slate-300"
             >
-              Login
+              {t("Login")}
             </Link>
 
           ) : (
@@ -251,7 +232,7 @@ export default function Header() {
                     alt={
                       user?.name
                         ? `${user.name} avatar`
-                        : "User avatar"
+                        : t("User avatar")
                     }
                     className="h-full w-full object-cover"
                   />
@@ -260,7 +241,7 @@ export default function Header() {
 
                 {/* NAME */}
                 <span className="hidden pr-4 text-sm font-medium text-slate-700 md:inline-block">
-                  {user?.name || "User"}
+                  {user?.name || t("User")}
                 </span>
 
                 {/* THREE DOTS */}
@@ -292,27 +273,7 @@ export default function Header() {
                   }
                   className="block px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
                 >
-                  Profile
-                </Link>
-
-                <Link
-                  to="/notifications"
-                  onClick={() =>
-                    setMenuOpen(false)
-                  }
-                  className="block px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
-                >
-                  Notifications
-                </Link>
-
-                <Link
-                  to="/bihar-dashboard"
-                  onClick={() =>
-                    setMenuOpen(false)
-                  }
-                  className="block px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
-                >
-                  Dashboard
+                  {t("Profile")}
                 </Link>
 
                 <button
@@ -320,7 +281,7 @@ export default function Header() {
                   onClick={handleLogout}
                   className="w-full px-4 py-3 text-left text-sm text-rose-600 transition hover:bg-slate-50"
                 >
-                  Logout
+                  {t("Logout")}
                 </button>
 
               </div>
@@ -328,6 +289,14 @@ export default function Header() {
             </div>
           )}
 
+          <button
+            type="button"
+            onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+            aria-label={language === "en" ? "हिंदी में बदलें" : "Switch to English"}
+            className="rounded-full border border-slate-200/60 bg-white px-3 py-1 text-sm font-medium text-slate-700 transition hover:border-slate-300"
+          >
+            {language === "en" ? "हिंदी" : "English"}
+          </button>
         </div>
       </div>
     </header>

@@ -5,6 +5,7 @@ import areaData from "../data/area.json";
 import districts from "../data/districts.json";
 import axios from "axios";
 import AddressConfirmModal from "../popups/AddressConfirmModal";
+import { useLanguage } from "../i18n";
 
 function LocationPicker({
   districtId,
@@ -186,6 +187,7 @@ function WardPicker({ value, onChange }) {
 }
 
 export default function Join() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
@@ -713,7 +715,7 @@ export default function Join() {
   return (
     <div className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-slate-50 px-4 py-8 font-sans">
       <div className="w-full max-w-3xl rounded-2xl border bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold">Join Jansuraaj</h1>
+        <h1 className="text-xl font-semibold">{t("Join Jansuraaj")}</h1>
         <p className="mt-1 text-sm font-normal text-slate-600">
           Create your member profile and verify your phone for login.
         </p>
@@ -1261,7 +1263,7 @@ export default function Join() {
 
           {/* {step === 4 && (
             <div>
-              <h3 className="block text-sm font-semibold">Verify your phone</h3>
+              <h3 className="block text-sm font-semibold">{t("Verify your phone")}</h3>
               <p className="mt-2 text-sm text-slate-600">
                 यह नंबर आपके लॉगिन और OTP verification के लिए उपयोग होगा।
               </p>
@@ -1354,7 +1356,7 @@ export default function Join() {
           )} */}
           {step === 4 && (
             <div>
-              <h3 className="block text-sm font-semibold">Verify your phone</h3>
+              <h3 className="block text-sm font-semibold">{t("Verify your phone")}</h3>
 
               <p className="mt-2 text-sm text-slate-600">
                 यह मोबाइल नंबर आपके लॉगिन के लिए उपयोग होगा।
