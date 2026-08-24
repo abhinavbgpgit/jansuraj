@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import IssueSuccessModal from "../popups/IssueSuccessModal";
+import VideoLinksInput from "../components/VideoLinksInput";
 // import MapPicker from "../components/MapPicker";
 
 export default function ReportIssue() {
@@ -8,7 +9,7 @@ export default function ReportIssue() {
   const [description, setDescription] = useState("");
 
   const [images, setImages] = useState([]);
-  const [videos, setVideos] = useState([]);
+  const [videoLinks, setVideoLinks] = useState([""]);
 
   // const [location, setLocation] = useState(null);
 
@@ -103,12 +104,17 @@ export default function ReportIssue() {
       });
 
       // ==========================================
-      // VIDEOS
-      // ==========================================
+// VIDEO LINKS
+// ==========================================
 
-      videos.forEach((file) => {
-        formData.append("videos", file);
-      });
+const cleanVideoLinks = videoLinks
+  .map((link) => link.trim())
+  .filter(Boolean);
+
+formData.append(
+  "videoLinks",
+  JSON.stringify(cleanVideoLinks)
+);
 
       // ==========================================
       // DEBUG
@@ -120,7 +126,7 @@ export default function ReportIssue() {
         // latitude: location.latitude,
         // longitude: location.longitude,
         images: images.length,
-        videos: videos.length,
+        videoLinks: cleanVideoLinks,
       });
 
       // ==========================================
@@ -148,22 +154,15 @@ export default function ReportIssue() {
         setCategory("");
         setDescription("");
         setImages([]);
-        setVideos([]);
+       setVideoLinks([""]);
         // setLocation(null);
 
         // Reset image input
         const imageInput = document.getElementById("problem-images");
-
-        // Reset video input
-        const videoInput = document.getElementById("problem-videos");
-
-        if (imageInput) {
+if (imageInput) {
           imageInput.value = "";
         }
-
-        if (videoInput) {
-          videoInput.value = "";
-        }
+        
       } else {
         setError(response.data?.message || "Failed to report problem.");
       }
@@ -197,15 +196,7 @@ export default function ReportIssue() {
     setImages(files);
   };
 
-  // ==========================================
-  // VIDEO SELECT
-  // ==========================================
-
-  const handleVideoChange = (e) => {
-    const files = Array.from(e.target.files || []);
-
-    setVideos(files);
-  };
+  
 
   // ==========================================
   // UI
@@ -220,7 +211,7 @@ export default function ReportIssue() {
       <h1 className="text-xl font-semibold">Report an Issue</h1>
 
       <p className="mt-1 text-sm text-slate-600">
-        Upload photos/videos and submit your issue.
+        Upload photos, add video links, and submit your issue.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
@@ -249,30 +240,14 @@ export default function ReportIssue() {
           )}
         </div>
 
-        {/* ====================================
-            VIDEOS
-        ==================================== */}
+       {/* ====================================
+    VIDEO LINKS
+==================================== */}
 
-        <div className="rounded-xl border p-4">
-          <label htmlFor="problem-videos" className="block text-sm font-medium">
-            Upload Videos
-          </label>
-
-          <input
-            id="problem-videos"
-            type="file"
-            accept="video/mp4,video/webm,video/quicktime"
-            multiple
-            className="mt-2"
-            onChange={handleVideoChange}
-          />
-
-          {videos.length > 0 && (
-            <p className="mt-2 text-xs text-slate-500">
-              {videos.length} video(s) selected
-            </p>
-          )}
-        </div>
+<VideoLinksInput
+  value={videoLinks}
+  onChange={setVideoLinks}
+/>
 
         {/* ====================================
             LOCATION
