@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
+import logo from "../assets/jansuraj_logo1.png";
 import userFemale from "../assets/user_female.jpg";
 import { useLanguage } from "../i18n";
 
@@ -149,12 +150,14 @@ export default function Header() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3.5">
 
           {/* ==========================================
-              BRAND NAME (no logo)
+              BRAND LOGO
           ========================================== */}
           <Link to="/" className="group flex items-center gap-2">
-            <span className="text-[17px] font-bold tracking-tight text-slate-900 transition-colors group-hover:text-indigo-600">
-              Jansuraj Bhagalpur
-            </span>
+            <img
+              src={logo}
+              alt="Jansuraj Bhagalpur"
+              className="h-11 w-auto object-contain"
+            />
           </Link>
 
           {/* ==========================================
