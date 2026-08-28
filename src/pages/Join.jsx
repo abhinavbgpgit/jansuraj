@@ -22,7 +22,7 @@ function LocationPicker({
 
   const locations =
     type === "district"
-      ? districts
+      ? districts.filter((d) => d.id === "BHAGALPUR") // only Bhagalpur enabled for now; rest disabled
       : areaType === "rural"
       ? district?.rural?.panchayats || []
       : district?.urban?.local_bodies || [];
