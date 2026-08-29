@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import VideoPreview from "../components/VideoPreview";
 import { useLanguage } from "../i18n";
+import PhotoPreview from "../components/PhotoPreview";
 
 export default function Issues() {
   const { t } = useLanguage();
@@ -137,7 +138,9 @@ export default function Issues() {
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">{t("All Issues")}</h1>
+          <h1 className="text-3xl font-bold text-slate-900">
+            {t("All Issues")}
+          </h1>
 
           <p className="mt-2 text-sm text-slate-600">
             {t("Here you will see all issues in your area.")}
@@ -231,6 +234,15 @@ export default function Issues() {
                 {issue.description || "समस्या का विवरण उपलब्ध नहीं है।"}
               </p>
 
+              {/* =================================
+    PHOTO PREVIEWS
+================================= */}
+
+              {/* =================================
+    PHOTO PREVIEWS
+================================= */}
+
+              <PhotoPreview photos={issue.photos} />
               {/* =================================
     VIDEO PREVIEWS
 ================================= */}

@@ -31,8 +31,8 @@ function VideoLinksInput({ value = [""], onChange }) {
       </label>
 
       <p className="mt-1 text-xs leading-5 text-slate-400">
-        अगर आप वीडियो डालना चाहते हैं तो पहले वीडियो को YouTube या Facebook
-        पर अपलोड करें और उसका लिंक यहां पेस्ट करें।
+        अगर आप वीडियो डालना चाहते हैं तो पहले वीडियो को YouTube या Facebook पर
+        अपलोड करें और उसका लिंक यहां पेस्ट करें।
       </p>
 
       <div className="mt-4 space-y-3">

@@ -189,11 +189,23 @@ if (imageInput) {
   // IMAGE SELECT
   // ==========================================
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files || []);
+ const handleImageChange = (e) => {
+  const files = Array.from(e.target.files || []);
 
-    setImages(files);
-  };
+  setImages((prev) => {
+    const combined = [...prev, ...files];
+
+    if (combined.length > 5) {
+      setError("Maximum 5 images can be uploaded.");
+      return combined.slice(0, 5);
+    }
+
+    setError("");
+    return combined;
+  });
+
+  e.target.value = "";
+};
 
   
 
