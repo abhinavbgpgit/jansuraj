@@ -14,6 +14,7 @@ function LocationPicker({
   onChange,
   type = "localBody",
 }) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -44,17 +45,17 @@ function LocationPicker({
 
   const title =
     type === "district"
-      ? "जिला"
+      ? t("District")
       : areaType === "rural"
-      ? "ग्राम पंचायत"
-      : "नगर निकाय";
+      ? t("Gram panchayat")
+      : t("Urban local body");
 
   const placeholder =
     type === "district"
-      ? "जिला खोजें / Search district"
+      ? t("Search district")
       : areaType === "rural"
-      ? "ग्राम पंचायत खोजें..."
-      : "नगर निकाय खोजें...";
+      ? t("Search gram panchayat...")
+      : t("Search urban local body...");
 
   return (
     <div className="mt-4">
@@ -135,10 +136,10 @@ function LocationPicker({
                 <div className="px-4 py-6 text-center">
                   <div className="text-2xl">🔎</div>
                   <p className="mt-2 text-sm font-medium text-slate-600">
-                    कोई परिणाम नहीं मिला
+                    {t("No results found")}
                   </p>
                   <p className="mt-1 text-xs text-slate-400">
-                    नाम दोबारा जाँचकर लिखें।
+                    {t("Please check the spelling and try again.")}
                   </p>
                 </div>
               )}
@@ -148,23 +149,25 @@ function LocationPicker({
       </div>
 
       <p className="mt-1.5 text-xs text-slate-400">
-        नाम लिखकर खोजें या सूची में से चुनें।
+        {t("Type a name to search or choose from the list.")}
       </p>
     </div>
   );
 }
 
 function WardPicker({ value, onChange }) {
+  const { t } = useLanguage();
+
   return (
     <div className="mt-4">
       <label className="mb-2 block text-sm font-semibold text-slate-700">
-        वार्ड <span className="text-red-500">*</span>
+        {t("Ward")} <span className="text-red-500">*</span>
       </label>
 
       <div className="relative">
-        {/* Permanent "वार्ड" text */}
+        {/* Permanent ward-label text */}
         <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
-          वार्ड
+          {t("Ward")}
         </span>
 
         <input
@@ -172,16 +175,16 @@ function WardPicker({ value, onChange }) {
           inputMode="numeric"
           value={value || ""}
           onChange={(e) => {
-            // केवल number allow होगा
+            // Only digits allowed
             const wardNumber = e.target.value.replace(/\D/g, "");
             onChange(wardNumber);
           }}
-          placeholder="नंबर लिखें"
+          placeholder={t("Enter number")}
           className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-16 pr-4 text-sm text-slate-700 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
         />
       </div>
 
-      <p className="mt-2 text-xs text-slate-400">अपना वार्ड नंबर लिखें</p>
+      <p className="mt-2 text-xs text-slate-400">{t("Enter your ward number")}</p>
     </div>
   );
 }
@@ -310,7 +313,7 @@ export default function Join() {
     if (!allowedTypes.includes(file.type)) {
       setErrors((prev) => ({
         ...prev,
-        photo: "Sirf JPG, PNG ya WEBP image upload karein.",
+        photo: t("Please upload only JPG, PNG or WEBP images."),
       }));
 
       e.target.value = "";
@@ -326,7 +329,9 @@ export default function Join() {
 
       setErrors((prev) => ({
         ...prev,
-        photo: `Image ${sizeMB} MB ki hai. Maximum 5 MB allowed hai.`,
+        photo: t("Image size is {size} MB. Maximum 5 MB allowed.", {
+          size: sizeMB,
+        }),
       }));
 
       setForm((prev) => ({
@@ -358,7 +363,7 @@ export default function Join() {
 
       setErrors((prev) => ({
         ...prev,
-        photo: "Image process nahi ho payi. Dusri image try karein.",
+        photo: t("Failed to process image. Please try another one."),
       }));
 
       setForm((prev) => ({
@@ -377,9 +382,10 @@ export default function Join() {
     }
     if (s === 2) {
       if (!form.firstName?.trim())
-        nextErrors.firstName = "First name is required";
-      if (!form.education) nextErrors.education = "Please select education";
-      if (!form.profession) nextErrors.profession = "Please select profession";
+        nextErrors.firstName = t("First name is required");
+      if (!form.education) nextErrors.education = t("Please select education");
+      if (!form.profession)
+        nextErrors.profession = t("Please select profession");
       // if (!form.aadhaar || form.aadhaar.length !== 12)
       //   nextErrors.aadhaar = "Aadhaar number must be 12 digits";
     }
@@ -388,20 +394,20 @@ export default function Join() {
       //   nextErrors.areaType = "Please select rural or urban area";
       // if (!form.localBody) nextErrors.localBody = "Please select a local body";
       // if (!form.ward) nextErrors.ward = "Please select a ward";
-      if (!form.district) nextErrors.district = "कृपया अपना जिला चुनें";
+      if (!form.district) nextErrors.district = t("कृपया अपना जिला चुनें");
 
       if (!form.areaType)
-        nextErrors.areaType = "कृपया ग्रामीण या शहरी क्षेत्र चुनें";
+        nextErrors.areaType = t("कृपया ग्रामीण या शहरी क्षेत्र चुनें");
 
       if (!form.localBody)
-        nextErrors.localBody = "कृपया ग्राम पंचायत / नगर निकाय चुनें";
+        nextErrors.localBody = t("कृपया ग्राम पंचायत / नगर निकाय चुनें");
 
-      if (!form.ward) nextErrors.ward = "कृपया अपना वार्ड नंबर लिखें";
+      if (!form.ward) nextErrors.ward = t("कृपया अपना वार्ड नंबर लिखें");
     }
     if (s === 4) {
       const normalized = form.phone.replace(/\D/g, "");
       if (normalized.length !== 10)
-        nextErrors.phone = "Please enter a valid 10-digit phone number.";
+        nextErrors.phone = t("Please enter a valid 10-digit phone number.");
     }
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -717,7 +723,7 @@ export default function Join() {
       <div className="w-full max-w-3xl rounded-2xl border bg-white p-6 shadow-sm">
         <h1 className="text-xl font-semibold">{t("Join Jansuraaj")}</h1>
         <p className="mt-1 text-sm font-normal text-slate-600">
-          Create your member profile and verify your phone for login.
+          {t("Create your member profile and verify your phone for login.")}
         </p>
         <div className="mt-4">
           <ProgressStepper step={step} max={4} />
@@ -727,9 +733,9 @@ export default function Join() {
           {step === 1 && (
             <div>
               <label className="block text-sm font-semibold text-slate-700">
-                Profile Photo
+                {t("Profile Photo")}
                 <span className="ml-1 text-xs font-normal text-slate-400">
-                  (optional)
+                  {t("(optional)")}
                 </span>
               </label>
 
@@ -767,7 +773,7 @@ export default function Join() {
                   <label
                     htmlFor="profile-photo"
                     className="absolute bottom-0 right-0 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-blue-600 text-white shadow-md transition hover:bg-blue-700"
-                    title="Change photo"
+                    title={t("Change Photo")}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -812,7 +818,7 @@ export default function Join() {
                       />
                     </svg>
 
-                    {form.photo ? "Change Photo" : "Upload Photo"}
+                    {form.photo ? t("Change Photo") : t("Upload Photo")}
                   </label>
 
                   <input
@@ -824,7 +830,7 @@ export default function Join() {
                   />
 
                   <p className="mt-2 text-xs text-slate-400">
-                    JPG, PNG or WEBP · Max 5MB
+                    {t("JPG, PNG or WEBP · Max 5MB")}
                   </p>
                   {errors.photo && (
                     <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
@@ -840,16 +846,16 @@ export default function Join() {
 
           {step === 2 && (
             <div className="space-y-5">
-              {/* नाम */}
+              {/* Name */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  नाम <span className="text-red-500">*</span>
+                  {t("Name")} <span className="text-red-500">*</span>
                 </label>
 
                 <div className="grid gap-3 sm:grid-cols-3">
                   <input
                     type="text"
-                    placeholder="पहला नाम"
+                    placeholder={t("First name")}
                     value={form.firstName || ""}
                     onChange={(e) => update("firstName", e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
@@ -857,7 +863,7 @@ export default function Join() {
 
                   <input
                     type="text"
-                    placeholder="मध्य नाम"
+                    placeholder={t("Middle name")}
                     value={form.middleName || ""}
                     onChange={(e) => update("middleName", e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
@@ -865,7 +871,7 @@ export default function Join() {
 
                   <input
                     type="text"
-                    placeholder="अंतिम नाम"
+                    placeholder={t("Last name")}
                     value={form.lastName || ""}
                     onChange={(e) => update("lastName", e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-100"
@@ -878,17 +884,17 @@ export default function Join() {
                   </p>
                 ) : (
                   <p className="mt-1.5 text-xs text-slate-400">
-                    पहला नाम भरना आवश्यक है।
+                    {t("First name is required.")}
                   </p>
                 )}
               </div>
 
-              {/* शिक्षा और पेशा */}
+              {/* Education & profession */}
               <div className="grid gap-4 sm:grid-cols-2">
-                {/* शिक्षा */}
+                {/* Education */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    शिक्षा <span className="text-red-500">*</span>
+                    {t("Education")} <span className="text-red-500">*</span>
                   </label>
 
                   <select
@@ -896,16 +902,16 @@ export default function Join() {
                     onChange={(e) => update("education", e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
                   >
-                    <option value="">शिक्षा चुनें</option>
-                    <option value="Below Matric">मैट्रिक से कम</option>
-                    <option value="Matric Pass">मैट्रिक पास (10वीं)</option>
-                    <option value="12th Pass">12वीं पास</option>
-                    <option value="Diploma / ITI">डिप्लोमा / आईटीआई</option>
-                    <option value="Graduate">स्नातक</option>
+                    <option value="">{t("Select education")}</option>
+                    <option value="Below Matric">{t("Below Matric")}</option>
+                    <option value="Matric Pass">{t("Matric Pass")}</option>
+                    <option value="12th Pass">{t("12th Pass")}</option>
+                    <option value="Diploma / ITI">{t("Diploma / ITI")}</option>
+                    <option value="Graduate">{t("Graduate")}</option>
                     <option value="Post Graduate / Masters">
-                      स्नातकोत्तर / मास्टर्स
+                      {t("Post Graduate / Masters")}
                     </option>
-                    <option value="Other">अन्य</option>
+                    <option value="Other">{t("Other")}</option>
                   </select>
                   {errors.education ? (
                     <p className="mt-1.5 text-xs font-medium text-red-500">
@@ -914,10 +920,10 @@ export default function Join() {
                   ) : null}
                 </div>
 
-                {/* पेशा */}
+                {/* Profession */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    पेशा <span className="text-red-500">*</span>
+                    {t("Profession")} <span className="text-red-500">*</span>
                   </label>
 
                   <select
@@ -925,63 +931,75 @@ export default function Join() {
                     onChange={(e) => update("profession", e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-green-500 focus:ring-4 focus:ring-green-100"
                   >
-                    <option value="">अपना पेशा चुनें</option>
+                    <option value="">{t("Select your profession")}</option>
 
-                    <option value="Farmer / Agriculture">किसान / कृषि</option>
-
-                    <option value="Agricultural Labourer">कृषि मजदूर</option>
-
-                    <option value="Student">विद्यार्थी</option>
-
-                    <option value="Teacher / Professor">
-                      शिक्षक / प्रोफेसर
+                    <option value="Farmer / Agriculture">
+                      {t("Farmer / Agriculture")}
                     </option>
 
-                    <option value="Government Employee">सरकारी कर्मचारी</option>
+                    <option value="Agricultural Labourer">
+                      {t("Agricultural Labourer")}
+                    </option>
 
-                    <option value="Private Employee">निजी कर्मचारी</option>
+                    <option value="Student">{t("Student")}</option>
+
+                    <option value="Teacher / Professor">
+                      {t("Teacher / Professor")}
+                    </option>
+
+                    <option value="Government Employee">
+                      {t("Government Employee")}
+                    </option>
+
+                    <option value="Private Employee">
+                      {t("Private Employee")}
+                    </option>
 
                     <option value="Business / Entrepreneur">
-                      व्यवसायी / उद्यमी
+                      {t("Business / Entrepreneur")}
                     </option>
 
                     <option value="Shopkeeper / Trader">
-                      दुकानदार / व्यापारी
+                      {t("Shopkeeper / Trader")}
                     </option>
 
-                    <option value="Self Employed">स्वरोजगार</option>
+                    <option value="Self Employed">{t("Self Employed")}</option>
 
                     <option value="Doctor / Healthcare">
-                      डॉक्टर / स्वास्थ्य सेवा
+                      {t("Doctor / Healthcare")}
                     </option>
 
                     <option value="Engineer / IT Professional">
-                      इंजीनियर / आईटी
+                      {t("Engineer / IT Professional")}
                     </option>
 
                     <option value="Lawyer / Legal Professional">
-                      वकील / कानूनी सेवा
+                      {t("Lawyer / Legal Professional")}
                     </option>
 
                     <option value="Construction / Skilled Worker">
-                      निर्माण कार्य / कुशल कारीगर
+                      {t("Construction / Skilled Worker")}
                     </option>
 
-                    <option value="Driver / Transport">चालक / परिवहन</option>
+                    <option value="Driver / Transport">
+                      {t("Driver / Transport")}
+                    </option>
 
-                    <option value="Homemaker">गृहिणी / गृहस्थ</option>
+                    <option value="Homemaker">{t("Homemaker")}</option>
 
-                    <option value="Retired">सेवानिवृत्त</option>
+                    <option value="Retired">{t("Retired")}</option>
 
-                    <option value="Daily Wage Worker">दैनिक मजदूर</option>
+                    <option value="Daily Wage Worker">
+                      {t("Daily Wage Worker")}
+                    </option>
 
-                    <option value="Social Worker">सामाजिक कार्यकर्ता</option>
+                    <option value="Social Worker">{t("Social Worker")}</option>
 
                     <option value="Journalist / Media">
-                      पत्रकारिता / मीडिया
+                      {t("Journalist / Media")}
                     </option>
 
-                    <option value="Other">अन्य</option>
+                    <option value="Other">{t("Other")}</option>
                   </select>
                   {errors.profession ? (
                     <p className="mt-1.5 text-xs font-medium text-red-500">
@@ -991,16 +1009,17 @@ export default function Join() {
                 </div>
               </div>
 
-              {/* कौशल */}
+              {/* Skills */}
               <div>
                 <div className="mb-3">
                   <label className="block text-sm font-semibold text-slate-700">
-                    आपकी विशेषताएँ / कौशल
+                    {t("Your skills / expertise")}
                   </label>
 
                   <p className="mt-1 text-xs leading-5 text-slate-500">
-                    आप जिस चीज़ में बढ़िया हैं, उसे चुनिए। इससे जनसुराज में आपकी
-                    महत्ता और आपकी उपयोगिता बढ़ेगी।
+                    {t(
+                      "Choose what you're good at. It increases your value and usefulness within Jansuraaj."
+                    )}
                   </p>
                 </div>
 
@@ -1052,7 +1071,7 @@ export default function Join() {
                       >
                         {selected && <span className="mr-1.5">✓</span>}
 
-                        {skill}
+                        {t(skill)}
                       </button>
                     );
                   })}
@@ -1110,11 +1129,13 @@ export default function Join() {
               <div className="mb-6">
                 <div className="mb-3">
                   <h3 className="text-base font-semibold text-slate-800">
-                    सबसे पहले अपना जिला चुनें
+                    {t("Select your district first")}
                   </h3>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    अपना जिला चुनने के बाद ही आगे का क्षेत्र दिखाई देगा।
+                    {t(
+                      "The next area will be shown only after you select your district."
+                    )}
                   </p>
                 </div>
 
@@ -1141,11 +1162,11 @@ export default function Join() {
                 <>
                   <div className="mb-5">
                     <h3 className="text-base font-semibold text-slate-800">
-                      आप कहाँ रहते हैं?
+                      {t("Where do you live?")}
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      अपना क्षेत्र चुनें, फिर स्थानीय निकाय और वार्ड चुनें।
+                      {t("Choose your area, then select the local body and ward.")}
                     </p>
                   </div>
 
@@ -1175,11 +1196,11 @@ export default function Join() {
                       </div>
 
                       <p className="text-sm font-semibold text-slate-800">
-                        ग्रामीण क्षेत्र
+                        {t("Rural area")}
                       </p>
 
                       <p className="mt-1 text-xs text-slate-500">
-                        गाँव / ग्राम पंचायत
+                        {t("Village / gram panchayat")}
                       </p>
                     </button>
 
@@ -1208,10 +1229,12 @@ export default function Join() {
                       </div>
 
                       <p className="text-sm font-semibold text-slate-800">
-                        शहरी क्षेत्र
+                        {t("Urban area")}
                       </p>
 
-                      <p className="mt-1 text-xs text-slate-500">नगर निकाय</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {t("Urban local body")}
+                      </p>
                     </button>
                   </div>
 
@@ -1359,12 +1382,12 @@ export default function Join() {
               <h3 className="block text-sm font-semibold">{t("Verify your phone")}</h3>
 
               <p className="mt-2 text-sm text-slate-600">
-                यह मोबाइल नंबर आपके लॉगिन के लिए उपयोग होगा।
+                {t("यह मोबाइल नंबर आपके लॉगिन के लिए उपयोग होगा।")}
               </p>
 
               <div className="mt-5 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
                 <label className="block text-sm font-medium text-slate-700">
-                  Phone number
+                  {t("Phone number")}
                 </label>
 
                 <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
@@ -1402,7 +1425,7 @@ export default function Join() {
 
         <div className="mt-6 flex items-center gap-3">
           <button onClick={prev} className="rounded-full border px-4 py-2">
-            Back
+            {t("Back")}
           </button>
           {step < 4 ? (
             <button
@@ -1410,7 +1433,7 @@ export default function Join() {
               disabled={loading}
               className="rounded-full bg-sky-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Please wait..." : "Next"}
+              {loading ? t("Please wait...") : t("Next")}
             </button>
           ) : (
             // <button
@@ -1429,7 +1452,7 @@ export default function Join() {
               disabled={loading}
               className="rounded-full bg-emerald-600 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Joining..." : "Join Jansuraaj"}
+              {loading ? t("Joining...") : t("Join Jansuraaj")}
             </button>
           )}
         </div>

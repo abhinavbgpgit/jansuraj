@@ -22,6 +22,38 @@ const translations = {
     "ट्रैक करें": "Track",
     "समाधान देखें": "See resolution",
     "जनता के सामने": "Publicly visible",
+
+    // Join page: skill capsules (canonical value stays Hindi, English shown on toggle)
+    "शिक्षण एवं प्रशिक्षण": "Teaching & training",
+    "कृषि": "Agriculture",
+    "पशुपालन": "Animal husbandry",
+    "स्वास्थ्य सेवा": "Healthcare",
+    "आईटी एवं तकनीक": "IT & technology",
+    "कानूनी जानकारी": "Legal knowledge",
+    "लेखा एवं वित्त": "Accounting & finance",
+    "सामाजिक कार्य": "Social work",
+    "जनसंपर्क": "Public relations",
+    "भाषण एवं वक्तृत्व": "Public speaking",
+    "लेखन": "Writing",
+    "फोटोग्राफी": "Photography",
+    "वीडियो निर्माण": "Video production",
+    "सोशल मीडिया": "Social media",
+    "कार्यक्रम प्रबंधन": "Event management",
+    "युवा कार्य": "Youth work",
+    "महिला एवं सामुदायिक कार्य": "Women & community work",
+    "आपदा राहत": "Disaster relief",
+    "अनुसंधान एवं डेटा": "Research & data",
+    "व्यवसाय एवं उद्यमिता": "Business & entrepreneurship",
+    "अन्य": "Other",
+
+    // Join page: step 3 error messages
+    "कृपया अपना जिला चुनें": "Please select your district",
+    "कृपया ग्रामीण या शहरी क्षेत्र चुनें": "Please select rural or urban area",
+    "कृपया ग्राम पंचायत / नगर निकाय चुनें": "Please select a gram panchayat / urban local body",
+    "कृपया अपना वार्ड नंबर लिखें": "Please enter your ward number",
+
+    // Join page: step 4 note
+    "यह मोबाइल नंबर आपके लॉगिन के लिए उपयोग होगा।": "This mobile number will be used for your login.",
   },
   hi: {
     Dashboard: "डैशबोर्ड",
@@ -130,6 +162,83 @@ const translations = {
     Ward: "वार्ड",
     "Is this information correct?": "क्या यह जानकारी सही है?",
     "Go back and edit": "वापस बदलें",
+
+    // Join page: LocationPicker
+    "Search district": "जिला खोजें",
+    "Search gram panchayat...": "ग्राम पंचायत खोजें...",
+    "Search urban local body...": "नगर निकाय खोजें...",
+    "No results found": "कोई परिणाम नहीं मिला",
+    "Please check the spelling and try again.": "नाम दोबारा जाँचकर लिखें।",
+    "Type a name to search or choose from the list.": "नाम लिखकर खोजें या सूची में से चुनें।",
+
+    // Join page: WardPicker
+    "Enter number": "नंबर लिखें",
+    "Enter your ward number": "अपना वार्ड नंबर लिखें",
+
+    // Join page: step 1 (photo)
+    "Profile Photo": "प्रोफ़ाइल फोटो",
+    "(optional)": "(वैकल्पिक)",
+    "Change Photo": "फोटो बदलें",
+    "Upload Photo": "फ़ोटो अपलोड करें",
+    "JPG, PNG or WEBP · Max 5MB": "JPG, PNG या WEBP · अधिकतम 5MB",
+    "Please upload only JPG, PNG or WEBP images.": "सिर्फ़ JPG, PNG या WEBP इमेज अपलोड करें।",
+    "Image size is {size} MB. Maximum 5 MB allowed.": "इमेज {size} MB की है। अधिकतम 5 MB स्वीकृत है।",
+    "Failed to process image. Please try another one.": "इमेज प्रोसेस नहीं हो पाई। कृपया दूसरी इमेज आज़माएं।",
+
+    // Join page: step 2 (profile)
+    "Name": "नाम",
+    "First name": "पहला नाम",
+    "Middle name": "मध्य नाम",
+    "Last name": "अंतिम नाम",
+    "First name is required.": "पहला नाम भरना आवश्यक है।",
+    "First name is required": "पहला नाम भरना आवश्यक है",
+    "Please select education": "कृपया शिक्षा चुनें",
+    "Please select profession": "कृपया पेशा चुनें",
+    "Select education": "शिक्षा चुनें",
+    "Below Matric": "मैट्रिक से कम",
+    "Matric Pass": "मैट्रिक पास (10वीं)",
+    "12th Pass": "12वीं पास",
+    "Diploma / ITI": "डिप्लोमा / आईटीआई",
+    "Graduate": "स्नातक",
+    "Post Graduate / Masters": "स्नातकोत्तर / मास्टर्स",
+    "Profession": "पेशा",
+    "Select your profession": "अपना पेशा चुनें",
+    "Farmer / Agriculture": "किसान / कृषि",
+    "Agricultural Labourer": "कृषि मजदूर",
+    "Student": "विद्यार्थी",
+    "Teacher / Professor": "शिक्षक / प्रोफेसर",
+    "Government Employee": "सरकारी कर्मचारी",
+    "Private Employee": "निजी कर्मचारी",
+    "Business / Entrepreneur": "व्यवसायी / उद्यमी",
+    "Shopkeeper / Trader": "दुकानदार / व्यापारी",
+    "Self Employed": "स्वरोजगार",
+    "Doctor / Healthcare": "डॉक्टर / स्वास्थ्य सेवा",
+    "Engineer / IT Professional": "इंजीनियर / आईटी",
+    "Lawyer / Legal Professional": "वकील / कानूनी सेवा",
+    "Construction / Skilled Worker": "निर्माण कार्य / कुशल कारीगर",
+    "Driver / Transport": "चालक / परिवहन",
+    "Homemaker": "गृहिणी / गृहस्थ",
+    "Retired": "सेवानिवृत्त",
+    "Daily Wage Worker": "दैनिक मजदूर",
+    "Social Worker": "सामाजिक कार्यकर्ता",
+    "Journalist / Media": "पत्रकारिता / मीडिया",
+    "Your skills / expertise": "आपकी विशेषताएँ / कौशल",
+    "Choose what you're good at. It increases your value and usefulness within Jansuraaj.":
+      "आप जिस चीज़ में बढ़िया हैं, उसे चुनिए। इससे जनसुराज में आपकी महत्ता और आपकी उपयोगिता बढ़ेगी।",
+
+    // Join page: step 3 (location)
+    "Select your district first": "सबसे पहले अपना जिला चुनें",
+    "The next area will be shown only after you select your district.":
+      "अपना जिला चुनने के बाद ही आगे का क्षेत्र दिखाई देगा।",
+    "Where do you live?": "आप कहाँ रहते हैं?",
+    "Choose your area, then select the local body and ward.":
+      "अपना क्षेत्र चुनें, फिर स्थानीय निकाय और वार्ड चुनें।",
+    "Village / gram panchayat": "गाँव / ग्राम पंचायत",
+
+    // Join page: navigation buttons
+    "Back": "वापस",
+    "Next": "अगला",
+    "Joining...": "जुड़ रहे हैं...",
   },
 };
 

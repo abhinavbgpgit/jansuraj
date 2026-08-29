@@ -4,6 +4,7 @@ import axios from "axios";
 
 import logo from "../assets/jansuraj_logo1.png";
 import userFemale from "../assets/user_female.jpg";
+import LanguageToggle from "./LanguageToggle";
 import { useLanguage } from "../i18n";
 
 export default function Header() {
@@ -12,7 +13,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -186,32 +187,7 @@ export default function Header() {
 
             {/* MODERN LANGUAGE TOGGLE (Desktop) */}
             <div className="hidden lg:block">
-              <div className="relative flex h-9 items-center rounded-full border border-slate-200 bg-slate-50 p-0.5">
-                {/* Sliding indicator */}
-                <span
-                  className={`absolute top-0.5 h-8 w-[4.25rem] rounded-full bg-white shadow-sm shadow-slate-200/80 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                    language === "en" ? "left-0.5" : "left-[4.45rem]"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setLanguage("en")}
-                  className={`relative z-10 w-[4.25rem] text-sm font-medium transition-colors duration-200 ${
-                    language === "en" ? "text-indigo-600" : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  EN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguage("hi")}
-                  className={`relative z-10 w-[4.25rem] text-sm font-medium transition-colors duration-200 ${
-                    language === "hi" ? "text-indigo-600" : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  हिं
-                </button>
-              </div>
+              <LanguageToggle />
             </div>
 
             {/* DESKTOP LOGIN BUTTON */}
@@ -363,31 +339,7 @@ export default function Header() {
                 )}
 
                 {/* MOBILE LANGUAGE TOGGLE */}
-                <div className="relative flex h-10 items-center rounded-full border border-slate-200 bg-slate-50 p-0.5">
-                  <span
-                    className={`absolute top-0.5 h-9 w-16 rounded-full bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      language === "en" ? "left-0.5" : "left-[4.15rem]"
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setLanguage("en")}
-                    className={`relative z-10 w-16 text-sm font-medium ${
-                      language === "en" ? "text-indigo-600" : "text-slate-500"
-                    }`}
-                  >
-                    EN
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLanguage("hi")}
-                    className={`relative z-10 w-16 text-sm font-medium ${
-                      language === "hi" ? "text-indigo-600" : "text-slate-500"
-                    }`}
-                  >
-                    हिं
-                  </button>
-                </div>
+                <LanguageToggle />
               </div>
             </nav>
           </div>

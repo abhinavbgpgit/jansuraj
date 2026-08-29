@@ -80,7 +80,7 @@ const AddressConfirmModal = ({
             </span>
 
             <span className="text-right text-sm font-medium text-slate-800">
-              वार्ड {form.ward || "-"}
+              {form.ward ? `${t("Ward")} ${form.ward}` : "-"}
             </span>
           </div>
 
