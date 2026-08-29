@@ -4,6 +4,7 @@ import axios from "axios";
 import VideoPreview from "../components/VideoPreview";
 import { useLanguage } from "../i18n";
 import PhotoPreview from "../components/PhotoPreview";
+import SupportButton from "../components/SupportButton";
 
 export default function Issues() {
   const { t } = useLanguage();
@@ -261,6 +262,11 @@ export default function Issues() {
               <div className="mt-4 text-xs text-slate-500">
                 {issue.reportCount || 1} लोगों ने इस समस्या को रिपोर्ट किया
               </div>
+
+              <SupportButton
+                problemId={issue._id}
+                initialCount={issue.reportCount || 1}
+              />
 
               {/* =================================
                   DETAILS
