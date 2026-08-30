@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -10,6 +10,7 @@ import {
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MobileBottomNav from "./components/MobileBottomNav";
+import SplashScreen from "./components/SplashScreen";
 import Landing from "./pages/Landing";
 import Join from "./pages/Join";
 import MembershipCardPage from "./pages/MembershipCardPage";
@@ -41,7 +42,7 @@ function Layout() {
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {!hideShell && <Header />}
-      <main className="pb-24">
+      <main className={hideShell ? "" : "pb-24"}>
         <Outlet />
       </main>
       {!hideShell && <Footer />}
@@ -51,9 +52,12 @@ function Layout() {
 }
 
 function App() {
+  const [booting, setBooting] = useState(true);
+
   return (
     <LanguageProvider>
       <BrowserRouter>
+        {booting && <SplashScreen onDone={() => setBooting(false)} />}
         <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Landing />} />

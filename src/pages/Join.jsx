@@ -719,7 +719,7 @@ export default function Join() {
   // }
 
   return (
-    <div className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-slate-50 px-4 py-8 font-sans">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8 font-sans">
       <div className="w-full max-w-3xl rounded-2xl border bg-white p-6 shadow-sm">
         <h1 className="text-xl font-semibold">{t("Join Jansuraaj")}</h1>
         <p className="mt-1 text-sm font-normal text-slate-600">
@@ -731,7 +731,7 @@ export default function Join() {
 
         <div className="mt-4 space-y-4">
           {step === 1 && (
-            <div>
+            <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5 pb-3 sm:p-6 sm:pb-4">
               <label className="block text-sm font-semibold text-slate-700">
                 {t("Profile Photo")}
                 <span className="ml-1 text-xs font-normal text-slate-400">
@@ -739,10 +739,10 @@ export default function Join() {
                 </span>
               </label>
 
-              <div className="mt-3 flex items-center gap-5 rounded-xl border border-slate-200 bg-white p-4">
+              <div className="mt-3 flex flex-col items-center gap-5 sm:flex-row sm:items-start">
                 {/* Profile Preview */}
                 <div className="relative shrink-0">
-                  <div className="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow-md ring-1 ring-slate-200">
+                  <div className="h-32 w-32 overflow-hidden rounded-2xl border-4 border-white bg-slate-100 shadow-md ring-1 ring-slate-200">
                     {form.photo ? (
                       <img
                         src={form.photo}
@@ -753,7 +753,7 @@ export default function Join() {
                       <div className="flex h-full w-full items-center justify-center text-slate-400">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-8 w-8"
+                          className="h-10 w-10"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -772,7 +772,7 @@ export default function Join() {
                   {/* Camera badge */}
                   <label
                     htmlFor="profile-photo"
-                    className="absolute bottom-0 right-0 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-blue-600 text-white shadow-md transition hover:bg-blue-700"
+                    className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-blue-600 text-white shadow-md transition hover:bg-blue-700"
                     title={t("Change Photo")}
                   >
                     <svg
@@ -798,7 +798,7 @@ export default function Join() {
                 </div>
 
                 {/* Upload Area */}
-                <div className="min-w-0">
+                <div className="min-w-0 text-center sm:text-left">
                   <label
                     htmlFor="profile-photo"
                     className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
@@ -845,7 +845,7 @@ export default function Join() {
           )}
 
           {step === 2 && (
-            <div className="space-y-5">
+            <div className="space-y-5 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5 pb-3 sm:p-6 sm:pb-4">
               {/* Name */}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -1124,7 +1124,7 @@ export default function Join() {
           )}
 
           {step === 3 && (
-            <div className="mt-6">
+            <div className="mt-6 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5 pb-3 sm:p-6 sm:pb-4">
               {/* ================= DISTRICT ================= */}
               <div className="mb-6">
                 <div className="mb-3">
@@ -1378,7 +1378,7 @@ export default function Join() {
             </div>
           )} */}
           {step === 4 && (
-            <div>
+            <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5 pb-3 sm:p-6 sm:pb-4">
               <h3 className="block text-sm font-semibold">{t("Verify your phone")}</h3>
 
               <p className="mt-2 text-sm text-slate-600">
@@ -1423,7 +1423,7 @@ export default function Join() {
           )}
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-4 flex items-center gap-3">
           <button onClick={prev} className="rounded-full border px-4 py-2">
             {t("Back")}
           </button>
