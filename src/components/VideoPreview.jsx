@@ -145,15 +145,6 @@ function VideoPreview({ videos = [] }) {
   }
 
   // ==========================================
-  // OPEN MODAL
-  // ==========================================
-
-  const openModal = () => {
-    setSelectedIndex(0);
-    setIsOpen(true);
-  };
-
-  // ==========================================
   // CLOSE MODAL
   // ==========================================
 
@@ -161,23 +152,65 @@ function VideoPreview({ videos = [] }) {
     setIsOpen(false);
   };
 
+  // ==========================================
+  // OPEN MODAL AT INDEX
+  // ==========================================
+
+  const openModalAt = (index) => {
+    setSelectedIndex(index);
+    setIsOpen(true);
+  };
+
   return (
     <>
       {/* ==========================================
-          SINGLE VIDEO BUTTON
+          INLINE PREVIEWS
       ========================================== */}
 
-      <button
-        type="button"
-        onClick={openModal}
-        className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-100 hover:text-sky-700 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-sky-100"
+      <div
+        className={`grid gap-3 ${
+          cleanVideos.length > 1 ? "sm:grid-cols-2" : "grid-cols-1"
+        }`}
       >
-        <span className="text-sm">▶</span>
+        {cleanVideos.map((video, index) => {
+          const info = getVideoInfo(video);
 
-        <span>{cleanVideos.length} वीडियो देखें</span>
+          return (
+            <div
+              key={`${video}-${index}`}
+              className="overflow-hidden rounded-xl border border-slate-200 bg-black shadow-sm"
+            >
+              <div className="aspect-video w-full">
+                {info ? (
+                  <iframe
+                    src={info.embedUrl}
+                    title={`${info.type} वीडियो ${index + 1}`}
+                    className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-slate-800 px-4 text-center text-xs text-slate-300">
+                    यह वीडियो लिंक उपलब्ध नहीं है।
+                  </div>
+                )}
+              </div>
 
-        <span className="text-xs">→</span>
-      </button>
+              <button
+                type="button"
+                onClick={() => openModalAt(index)}
+                className="flex w-full items-center justify-between bg-slate-900 px-3 py-2 text-left transition hover:bg-slate-800"
+              >
+                <span className="text-xs font-medium text-slate-300">
+                  {info?.type || "वीडियो"} {index + 1}
+                </span>
+
+                <span className="text-xs text-sky-400">बड़ा देखें ⤢</span>
+              </button>
+            </div>
+          );
+        })}
+      </div>
 
       {/* ==========================================
           VIDEO MODAL
