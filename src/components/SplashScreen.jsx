@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 
-const TOTAL_DURATION = 3000;
+const TOTAL_DURATION = 5000;
 const BRAND_LETTERS = "Jansuraj".split("");
 
 export default function SplashScreen({ onDone }) {

@@ -6,6 +6,8 @@ import districts from "../data/districts.json";
 import axios from "axios";
 import AddressConfirmModal from "../popups/AddressConfirmModal";
 import { useLanguage } from "../i18n";
+import villageImg from "../assets/village.avif";
+import townImg from "../assets/town.jpg";
 
 function LocationPicker({
   districtId,
@@ -1170,7 +1172,7 @@ export default function Join() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                     {/* RURAL */}
                     <button
                       type="button"
@@ -1179,29 +1181,27 @@ export default function Join() {
                         update("localBody", "");
                         update("ward", "");
                       }}
-                      className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
+                      className={`group flex items-center gap-4 rounded-2xl border p-1 text-left transition-all duration-200 ${
                         form.areaType === "rural"
                           ? "border-green-500 bg-green-50 ring-2 ring-green-100"
                           : "border-slate-200 bg-white hover:border-green-300 hover:bg-green-50/50"
                       }`}
                     >
-                      <div
-                        className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
-                          form.areaType === "rural"
-                            ? "bg-green-600"
-                            : "bg-green-50"
-                        }`}
-                      >
-                        🌾
+                      <img
+                        src={villageImg}
+                        alt=""
+                        className="h-16 w-auto shrink-0 rounded-lg"
+                      />
+
+                      <div className="min-w-0 pr-3">
+                        <p className="text-sm font-semibold text-slate-800">
+                          {t("Rural area")}
+                        </p>
+
+                        <p className="mt-1 text-xs text-slate-500">
+                          {t("Village / gram panchayat")}
+                        </p>
                       </div>
-
-                      <p className="text-sm font-semibold text-slate-800">
-                        {t("Rural area")}
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        {t("Village / gram panchayat")}
-                      </p>
                     </button>
 
                     {/* URBAN */}
@@ -1212,29 +1212,27 @@ export default function Join() {
                         update("localBody", "");
                         update("ward", "");
                       }}
-                      className={`group rounded-2xl border p-4 text-left transition-all duration-200 ${
+                      className={`group flex items-center gap-4 rounded-2xl border p-1 text-left transition-all duration-200 ${
                         form.areaType === "urban"
                           ? "border-blue-500 bg-blue-50 ring-2 ring-blue-100"
                           : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/50"
                       }`}
                     >
-                      <div
-                        className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl text-xl ${
-                          form.areaType === "urban"
-                            ? "bg-blue-600"
-                            : "bg-blue-50"
-                        }`}
-                      >
-                        🏙️
+                      <img
+                        src={townImg}
+                        alt=""
+                        className="h-16 w-auto shrink-0 rounded-lg"
+                      />
+
+                      <div className="min-w-0 pr-3">
+                        <p className="text-sm font-semibold text-slate-800">
+                          {t("Urban area")}
+                        </p>
+
+                        <p className="mt-1 text-xs text-slate-500">
+                          {t("Urban local body")}
+                        </p>
                       </div>
-
-                      <p className="text-sm font-semibold text-slate-800">
-                        {t("Urban area")}
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        {t("Urban local body")}
-                      </p>
                     </button>
                   </div>
 

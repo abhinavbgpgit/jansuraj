@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import IssueSuccessModal from "../popups/IssueSuccessModal";
 import VideoLinksInput from "../components/VideoLinksInput";
@@ -11,6 +11,7 @@ export default function ReportIssue() {
   const [description, setDescription] = useState("");
 
   const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [videoLinks, setVideoLinks] = useState([""]);
 
   // const [location, setLocation] = useState(null);
@@ -19,6 +20,18 @@ export default function ReportIssue() {
   const [error, setError] = useState("");
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  // ==========================================
+  // IMAGE PREVIEW URLS
+  // ==========================================
+  useEffect(() => {
+    const urls = images.map((file) => URL.createObjectURL(file));
+    setImagePreviews(urls);
+
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [images]);
 
   // ==========================================
   // SUBMIT PROBLEM
@@ -104,17 +117,14 @@ export default function ReportIssue() {
       });
 
       // ==========================================
-// VIDEO LINKS
-// ==========================================
+      // VIDEO LINKS
+      // ==========================================
 
-const cleanVideoLinks = videoLinks
-  .map((link) => link.trim())
-  .filter(Boolean);
+      const cleanVideoLinks = videoLinks
+        .map((link) => link.trim())
+        .filter(Boolean);
 
-formData.append(
-  "videoLinks",
-  JSON.stringify(cleanVideoLinks)
-);
+      formData.append("videoLinks", JSON.stringify(cleanVideoLinks));
 
       // ==========================================
       // DEBUG
@@ -153,15 +163,14 @@ formData.append(
         setCategory("");
         setDescription("");
         setImages([]);
-       setVideoLinks([""]);
+        setVideoLinks([""]);
         // setLocation(null);
 
         // Reset image input
         const imageInput = document.getElementById("problem-images");
-if (imageInput) {
+        if (imageInput) {
           imageInput.value = "";
         }
-        
       } else {
         setError(response.data?.message || "Failed to report problem.");
       }
@@ -189,199 +198,240 @@ if (imageInput) {
   // IMAGE SELECT
   // ==========================================
 
- const handleImageChange = (e) => {
-  const files = Array.from(e.target.files || []);
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files || []);
 
-  setImages((prev) => {
-    const combined = [...prev, ...files];
+    setImages((prev) => {
+      const combined = [...prev, ...files];
 
-    if (combined.length > 5) {
-      setError("Maximum 5 images can be uploaded.");
-      return combined.slice(0, 5);
-    }
+      if (combined.length > 5) {
+        setError(t("Maximum 5 images can be uploaded."));
+        return combined.slice(0, 5);
+      }
 
-    setError("");
-    return combined;
-  });
+      setError("");
+      return combined;
+    });
 
-  e.target.value = "";
-};
+    e.target.value = "";
+  };
 
-  
+  const removeImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // ==========================================
   // UI
   // ==========================================
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      {/* ======================================
-          HEADER
-      ====================================== */}
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white px-4 py-8">
+      <div className="mx-auto max-w-3xl">
+        {/* ======================================
+            HEADER
+        ====================================== */}
 
-      <h1 className="text-xl font-semibold">{t("Report an Issue")}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+          {t("Report an Issue")}
+        </h1>
 
-      <p className="mt-1 text-sm text-slate-600">
-        {t("Upload photos, add video links, and submit your issue.")}
-      </p>
+        <p className="mt-1 text-sm text-slate-600">
+          {t("Upload photos, add video links, and submit your issue.")}
+        </p>
 
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        {/* ====================================
-            IMAGES
-        ==================================== */}
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          {/* ====================================
+              IMAGES
+          ==================================== */}
 
-        <div className="rounded-xl border p-4">
-          <label htmlFor="problem-images" className="block text-sm font-medium">
-            {t("Upload Images")}
-          </label>
+          <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5">
+            <label
+              htmlFor="problem-images"
+              className="block text-sm font-semibold text-slate-700"
+            >
+              {t("Upload Images")}
+            </label>
 
-          <input
-            id="problem-images"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            className="mt-2"
-            onChange={handleImageChange}
-          />
-
-          {images.length > 0 && (
-            <p className="mt-2 text-xs text-slate-500">
-              {images.length} image(s) selected
+            <p className="mt-1 text-xs text-slate-500">
+              {t("JPG, PNG or WEBP · Max 5MB")}
             </p>
-          )}
-        </div>
 
-       {/* ====================================
-    VIDEO LINKS
-==================================== */}
+            <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+              {imagePreviews.map((src, index) => (
+                <div
+                  key={src}
+                  className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                >
+                  <img
+                    src={src}
+                    alt={`Preview ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
 
-<VideoLinksInput
-  value={videoLinks}
-  onChange={setVideoLinks}
-/>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-sm leading-none text-white transition hover:bg-black/75"
+                    aria-label={`Remove image ${index + 1}`}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
 
-        {/* ====================================
-            LOCATION
-        ==================================== */}
+              {images.length < 5 && (
+                <label
+                  htmlFor="problem-images"
+                  className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-300 text-slate-400 transition hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-500"
+                >
+                  <span className="text-2xl leading-none">+</span>
+                  <span className="text-xs font-medium">{t("Upload Photo")}</span>
+                </label>
+              )}
+            </div>
 
-        {/* <MapPicker
-          onLocationSelect={setLocation}
-        />
+            <input
+              id="problem-images"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              onChange={handleImageChange}
+            />
 
-        {location && (
-          <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
-            <span>
-              Location selected:
-            </span>
-
-            <span className="ml-1 font-medium">
-              {location.latitude.toFixed(6)},{" "}
-              {location.longitude.toFixed(6)}
-            </span>
+            {images.length > 0 && (
+              <p className="mt-3 text-xs text-slate-500">
+                {images.length}/5 {t("selected")}
+              </p>
+            )}
           </div>
-        )} */}
 
-        {/* ====================================
-            CATEGORY
-        ==================================== */}
+          {/* ====================================
+              VIDEO LINKS
+          ==================================== */}
 
-        <div className="rounded-xl border p-4">
-          <label htmlFor="category" className="block text-sm font-medium">
-            {t("Category")}
-          </label>
+          <VideoLinksInput value={videoLinks} onChange={setVideoLinks} />
 
-          <select
-            id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="mt-2 w-full rounded border p-2"
-          >
-            <option value="">{t("Select category")}</option>
+          {/* ====================================
+              LOCATION
+          ==================================== */}
 
-            <option value="road">{t("Road")}</option>
-
-            <option value="sanitation">{t("Sanitation")}</option>
-
-            <option value="health">{t("Health")}</option>
-
-            <option value="electricity">{t("Electricity")}</option>
-
-            <option value="water">{t("Water")}</option>
-
-            <option value="education">{t("Education")}</option>
-
-            <option value="other">{t("Other")}</option>
-          </select>
-        </div>
-
-        {/* ====================================
-            DESCRIPTION
-        ==================================== */}
-
-        <div className="rounded-xl border p-4">
-          <label htmlFor="description" className="block text-sm font-medium">
-            {t("Description")}
-          </label>
-
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="mt-2 w-full rounded border p-2"
-            rows={4}
-            maxLength={2000}
-            placeholder={t("Describe the problem...")}
+          {/* <MapPicker
+            onLocationSelect={setLocation}
           />
 
-          <p className="mt-1 text-right text-xs text-slate-400">
-            {description.length}/2000
-          </p>
-        </div>
+          {location && (
+            <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+              <span>
+                Location selected:
+              </span>
 
-        {/* ====================================
-            ERROR
-        ==================================== */}
+              <span className="ml-1 font-medium">
+                {location.latitude.toFixed(6)},{" "}
+                {location.longitude.toFixed(6)}
+              </span>
+            </div>
+          )} */}
 
-        {error && (
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {error}
+          {/* ====================================
+              CATEGORY
+          ==================================== */}
+
+          <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5">
+            <label
+              htmlFor="category"
+              className="block text-sm font-semibold text-slate-700"
+            >
+              {t("Category")} <span className="text-red-500">*</span>
+            </label>
+
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+            >
+              <option value="">{t("Select category")}</option>
+
+              <option value="road">{t("Road")}</option>
+
+              <option value="sanitation">{t("Sanitation")}</option>
+
+              <option value="health">{t("Health")}</option>
+
+              <option value="electricity">{t("Electricity")}</option>
+
+              <option value="water">{t("Water")}</option>
+
+              <option value="education">{t("Education")}</option>
+
+              <option value="other">{t("Other")}</option>
+            </select>
           </div>
+
+          {/* ====================================
+              DESCRIPTION
+          ==================================== */}
+
+          <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5">
+            <label
+              htmlFor="description"
+              className="block text-sm font-semibold text-slate-700"
+            >
+              {t("Description")} <span className="text-red-500">*</span>
+            </label>
+
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+              rows={4}
+              maxLength={2000}
+              placeholder={t("Describe the problem...")}
+            />
+
+            <p className="mt-1 text-right text-xs text-slate-400">
+              {description.length}/2000
+            </p>
+          </div>
+
+          {/* ====================================
+              ERROR
+          ==================================== */}
+
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              ⚠️ {error}
+            </div>
+          )}
+
+          {/* ====================================
+              SUBMIT
+          ==================================== */}
+
+          <div className="flex items-center justify-end pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-full bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? t("Submitting...") : t("Submit")}
+            </button>
+          </div>
+        </form>
+
+        {showSuccessModal && (
+          <IssueSuccessModal
+            onReportAnother={() => {
+              setShowSuccessModal(false);
+            }}
+            onDashboard={() => {
+              window.location.href = "/home";
+            }}
+          />
         )}
-
-        {/* ====================================
-            SUCCESS
-        ==================================== */}
-
-        {/* {success && (
-          <div className="rounded-lg bg-green-50 p-3 text-sm text-green-600">
-            {success}
-          </div>
-        )} */}
-
-        {/* ====================================
-            SUBMIT
-        ==================================== */}
-
-        <div className="flex items-center justify-end">
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-full bg-sky-600 px-5 py-2 text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {loading ? t("Submitting...") : t("Submit")}
-          </button>
-        </div>
-      </form>
-      {showSuccessModal && (
-        <IssueSuccessModal
-          onReportAnother={() => {
-            setShowSuccessModal(false);
-          }}
-          onDashboard={() => {
-            window.location.href = "/home";
-          }}
-        />
-      )}
+      </div>
     </div>
   );
 }

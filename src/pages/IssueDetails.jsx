@@ -2,6 +2,73 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { useLanguage } from "../i18n";
+import PhotoPreview from "../components/PhotoPreview";
+import VideoPreview from "../components/VideoPreview";
+
+// ==========================================
+// Backend se aane wale raw slug values
+// (jaise "bhagalpur_municipal_corporation")
+// ko readable text me badalta hai.
+// ==========================================
+function formatLabel(value) {
+  if (value === null || value === undefined) return "";
+
+  return String(value)
+    .replace(/_/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b[a-zA-Z]/g, (char) => char.toUpperCase());
+}
+
+// ==========================================
+// STATUS STEPPER
+// ==========================================
+function StatusStepper({ status }) {
+  const order = ["pending", "in-progress", "resolved"];
+  const steps = [
+    { key: "pending", label: "दर्ज हुई" },
+    { key: "in-progress", label: "कार्रवाई जारी" },
+    { key: "resolved", label: "समाधान" },
+  ];
+
+  const currentIndex = Math.max(0, order.indexOf(status || "pending"));
+
+  return (
+    <div className="flex items-center">
+      {steps.map((step, index) => (
+        <React.Fragment key={step.key}>
+          <div className="flex flex-col items-center gap-1.5">
+            <div
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                index <= currentIndex
+                  ? "bg-sky-600 text-white"
+                  : "bg-slate-100 text-slate-400"
+              }`}
+            >
+              {index < currentIndex ? "✓" : index + 1}
+            </div>
+
+            <span
+              className={`whitespace-nowrap text-xs font-medium ${
+                index <= currentIndex ? "text-slate-900" : "text-slate-400"
+              }`}
+            >
+              {step.label}
+            </span>
+          </div>
+
+          {index < steps.length - 1 && (
+            <div
+              className={`mx-2 h-0.5 flex-1 rounded-full transition-colors ${
+                index < currentIndex ? "bg-sky-600" : "bg-slate-200"
+              }`}
+            />
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
 
 export default function IssueDetails() {
   const { t } = useLanguage();
@@ -105,7 +172,7 @@ export default function IssueDetails() {
   // ==========================================
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 text-center">
+      <div className="flex min-h-[70vh] items-center justify-center px-4 text-center">
         <p className="text-slate-600">
           समस्या लोड हो रही है...
         </p>
@@ -154,7 +221,7 @@ export default function IssueDetails() {
   const areaParts = [];
 
   if (issue.district) {
-    areaParts.push(`जिला: ${issue.district}`);
+    areaParts.push(`जिला: ${formatLabel(issue.district)}`);
   }
 
   if (
@@ -162,7 +229,7 @@ export default function IssueDetails() {
     issue.localBody
   ) {
     areaParts.push(
-      `नगर निकाय: ${issue.localBody}`
+      `नगर निकाय: ${formatLabel(issue.localBody)}`
     );
   }
 
@@ -171,13 +238,17 @@ export default function IssueDetails() {
   }
 
   if (issue.ward) {
-    areaParts.push(`वार्ड: ${issue.ward}`);
+    areaParts.push(`वार्ड: ${formatLabel(issue.ward)}`);
   }
 
   const areaText =
     areaParts.length > 0
       ? areaParts.join(" • ")
       : "क्षेत्र की जानकारी उपलब्ध नहीं है";
+
+  const hasVideos =
+    Array.isArray(issue.videoLinks) &&
+    issue.videoLinks.filter(Boolean).length > 0;
 
   // ==========================================
   // STATUS TEXT
@@ -224,7 +295,7 @@ export default function IssueDetails() {
 
         <div>
           <h1 className="text-3xl font-bold text-slate-900">
-            {issue.category || "समस्या"}
+            {formatLabel(issue.category) || "समस्या"}
           </h1>
 
           <p className="mt-2 text-sm text-slate-600">
@@ -249,6 +320,13 @@ export default function IssueDetails() {
             LEFT CONTENT
         ========================================== */}
         <div className="space-y-6 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+
+          {/* ==========================================
+              STATUS PROGRESS
+          ========================================== */}
+          <div className="rounded-3xl bg-slate-50 p-5">
+            <StatusStepper status={issue.status} />
+          </div>
 
           {/* STATUS + DATE + REPORT COUNT */}
           <div className="flex flex-wrap items-center gap-3">
@@ -290,6 +368,28 @@ export default function IssueDetails() {
           </div>
 
           {/* ==========================================
+              PHOTOS
+          ========================================== */}
+          {Array.isArray(issue.photos) && issue.photos.filter(Boolean).length > 0 && (
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <PhotoPreview photos={issue.photos} />
+            </div>
+          )}
+
+          {/* ==========================================
+              VIDEOS
+          ========================================== */}
+          {hasVideos && (
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <h3 className="mb-3 font-semibold text-slate-900">
+                वीडियो
+              </h3>
+
+              <VideoPreview videos={issue.videoLinks.filter(Boolean)} />
+            </div>
+          )}
+
+          {/* ==========================================
               AREA + CATEGORY
           ========================================== */}
           <div className="grid gap-4 md:grid-cols-2">
@@ -308,7 +408,7 @@ export default function IssueDetails() {
                     <span className="font-medium text-slate-900">
                       जिला:
                     </span>{" "}
-                    {issue.district}
+                    {formatLabel(issue.district)}
                   </p>
                 )}
 
@@ -318,7 +418,7 @@ export default function IssueDetails() {
                       <span className="font-medium text-slate-900">
                         नगर निकाय:
                       </span>{" "}
-                      {issue.localBody}
+                      {formatLabel(issue.localBody)}
                     </p>
                   )}
 
@@ -336,7 +436,7 @@ export default function IssueDetails() {
                     <span className="font-medium text-slate-900">
                       वार्ड:
                     </span>{" "}
-                    {issue.ward}
+                    {formatLabel(issue.ward)}
                   </p>
                 )}
 
@@ -351,7 +451,7 @@ export default function IssueDetails() {
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
-                {issue.category ||
+                {formatLabel(issue.category) ||
                   "Not available"}
               </p>
             </div>
@@ -368,7 +468,7 @@ export default function IssueDetails() {
               </h3>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                {issue.address}
+                {formatLabel(issue.address)}
               </p>
             </div>
           )}
@@ -390,6 +490,15 @@ export default function IssueDetails() {
                   {issue.latitude},{" "}
                   {issue.longitude}
                 </p>
+
+                <a
+                  href={`https://www.google.com/maps?q=${issue.latitude},${issue.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-sky-600 hover:text-sky-700 hover:underline"
+                >
+                  📍 Google Maps पर देखें →
+                </a>
               </div>
             )}
         </div>
@@ -450,6 +559,26 @@ export default function IssueDetails() {
               विभाग इस समस्या पर काम कर रहा है और
               जल्द ही अपडेट साझा किया जाएगा।
             </p>
+          </div>
+
+          {/* ==========================================
+              SAME ISSUE CTA
+          ========================================== */}
+          <div className="rounded-3xl border border-sky-100 bg-sky-50 p-5">
+            <h3 className="text-sm font-semibold text-sky-900">
+              क्या आपके इलाके में भी यही समस्या है?
+            </h3>
+
+            <p className="mt-1 text-xs leading-5 text-sky-700">
+              अपनी समस्या दर्ज करें ताकि इसे ज़्यादा प्राथमिकता मिल सके।
+            </p>
+
+            <Link
+              to="/report"
+              className="mt-3 inline-flex items-center gap-1 rounded-full bg-sky-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-700"
+            >
+              समस्या दर्ज करें →
+            </Link>
           </div>
 
         </aside>

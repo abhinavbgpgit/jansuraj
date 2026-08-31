@@ -8,7 +8,6 @@ import {
   useLocation,
 } from "react-router-dom";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 import MobileBottomNav from "./components/MobileBottomNav";
 import SplashScreen from "./components/SplashScreen";
 import Landing from "./pages/Landing";
@@ -45,7 +44,6 @@ function Layout() {
       <main className={hideShell ? "" : "pb-24"}>
         <Outlet />
       </main>
-      {!hideShell && <Footer />}
       {!hideShell && <MobileBottomNav />}
     </div>
   );

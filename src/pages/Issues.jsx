@@ -109,7 +109,7 @@ export default function Issues() {
   // ==========================================
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-10 text-center">
+      <div className="flex min-h-[70vh] items-center justify-center px-4 text-center">
         <p className="text-slate-600">समस्याएँ लोड हो रही हैं...</p>
       </div>
     );
@@ -161,7 +161,7 @@ export default function Issues() {
       ====================================== */}
 
       {issues.length === 0 ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center">
+        <div className="flex min-h-[60vh] flex-col items-center justify-center rounded-3xl border border-slate-200 bg-white p-8 text-center">
           <p className="text-slate-600">
             {t("No issues have been reported in your area yet.")}
           </p>
