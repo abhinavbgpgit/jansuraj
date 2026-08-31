@@ -25,10 +25,14 @@ function LocationPicker({
 
   const locations =
     type === "district"
-      ? districts.filter((d) => d.id === "BHAGALPUR") // only Bhagalpur enabled for now; rest disabled
-      : areaType === "rural"
+      ? districts.filter((d) => d.id === "BHAGALPUR")
+      : type === "block"
+      ? district?.rural?.blocks || []
+      : type === "panchayat"
       ? district?.rural?.panchayats || []
-      : district?.urban?.local_bodies || [];
+      : type === "localBody"
+      ? district?.urban?.local_bodies || []
+      : [];
 
   const selected = locations.find((item) => item.id === value);
   const normalizedSearch = search.trim().toLowerCase();
@@ -48,14 +52,18 @@ function LocationPicker({
   const title =
     type === "district"
       ? t("District")
-      : areaType === "rural"
+      : type === "block"
+      ? t("Block")
+      : type === "panchayat"
       ? t("Gram panchayat")
       : t("Urban local body");
 
   const placeholder =
     type === "district"
       ? t("Search district")
-      : areaType === "rural"
+      : type === "block"
+      ? t("Search block...")
+      : type === "panchayat"
       ? t("Search gram panchayat...")
       : t("Search urban local body...");
 
@@ -186,7 +194,9 @@ function WardPicker({ value, onChange }) {
         />
       </div>
 
-      <p className="mt-2 text-xs text-slate-400">{t("Enter your ward number")}</p>
+      <p className="mt-2 text-xs text-slate-400">
+        {t("Enter your ward number")}
+      </p>
     </div>
   );
 }
@@ -396,15 +406,49 @@ export default function Join() {
       //   nextErrors.areaType = "Please select rural or urban area";
       // if (!form.localBody) nextErrors.localBody = "Please select a local body";
       // if (!form.ward) nextErrors.ward = "Please select a ward";
-      if (!form.district) nextErrors.district = t("कृपया अपना जिला चुनें");
 
-      if (!form.areaType)
+      // ===============================
+      // DISTRICT VALIDATION
+      // ===============================
+      if (!form.district) {
+        nextErrors.district = t("कृपया अपना जिला चुनें");
+      }
+
+      // ===============================
+      // AREA TYPE VALIDATION
+      // ===============================
+      if (!form.areaType) {
         nextErrors.areaType = t("कृपया ग्रामीण या शहरी क्षेत्र चुनें");
+      }
 
-      if (!form.localBody)
-        nextErrors.localBody = t("कृपया ग्राम पंचायत / नगर निकाय चुनें");
+      // ===============================
+      // RURAL VALIDATION
+      // ===============================
+      if (form.areaType === "rural") {
+        if (!form.block) {
+          nextErrors.block = t("कृपया अपना ब्लॉक चुनें");
+        }
 
-      if (!form.ward) nextErrors.ward = t("कृपया अपना वार्ड नंबर लिखें");
+        if (!form.panchayat) {
+          nextErrors.panchayat = t("कृपया अपनी ग्राम पंचायत चुनें");
+        }
+      }
+
+      // ===============================
+      // URBAN VALIDATION
+      // ===============================
+      if (form.areaType === "urban") {
+        if (!form.localBody) {
+          nextErrors.localBody = t("कृपया अपना नगर निकाय चुनें");
+        }
+      }
+
+      // ===============================
+      // WARD VALIDATION
+      // ===============================
+      if (!form.ward) {
+        nextErrors.ward = t("कृपया अपना वार्ड नंबर लिखें");
+      }
     }
     if (s === 4) {
       const normalized = form.phone.replace(/\D/g, "");
@@ -483,7 +527,13 @@ export default function Join() {
           {
             district: form.district,
             areaType: form.areaType,
-            localBody: form.localBody,
+
+            block: form.areaType === "rural" ? form.block : "",
+
+            panchayat: form.areaType === "rural" ? form.panchayat : "",
+
+            localBody: form.areaType === "urban" ? form.localBody : "",
+
             ward: form.ward,
           }
         );
@@ -1147,6 +1197,8 @@ export default function Join() {
                   onChange={(value) => {
                     update("district", value);
                     update("areaType", "");
+                    update("block", "");
+                    update("panchayat", "");
                     update("localBody", "");
                     update("ward", "");
                   }}
@@ -1168,7 +1220,9 @@ export default function Join() {
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      {t("Choose your area, then select the local body and ward.")}
+                      {t(
+                        "Choose your area, then select the local body and ward."
+                      )}
                     </p>
                   </div>
 
@@ -1178,6 +1232,8 @@ export default function Join() {
                       type="button"
                       onClick={() => {
                         update("areaType", "rural");
+                        update("block", "");
+                        update("panchayat", "");
                         update("localBody", "");
                         update("ward", "");
                       }}
@@ -1209,6 +1265,8 @@ export default function Join() {
                       type="button"
                       onClick={() => {
                         update("areaType", "urban");
+                        update("block", "");
+                        update("panchayat", "");
                         update("localBody", "");
                         update("ward", "");
                       }}
@@ -1242,8 +1300,75 @@ export default function Join() {
                     </div>
                   ) : null}
 
+                  {/* ================= BLOCK ================= */}
+                  {form.areaType === "rural" && (
+                    <div className="mt-4">
+                      <LocationPicker
+                        type="block"
+                        districtId={form.district}
+                        areaType={form.areaType}
+                        value={form.block}
+                        onChange={(value) => {
+                          update("block", value);
+                          // update("localBody", "");
+                          update("panchayat", "");
+                          update("ward", "");
+                        }}
+                      />
+
+                      {errors.block ? (
+                        <div className="mt-2 text-xs text-rose-600">
+                          {errors.block}
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
+
                   {/* ================= LOCAL BODY ================= */}
-                  {form.areaType && (
+                  {/* ================= PANCHAYAT ================= */}
+                  {form.areaType === "rural" && form.block && (
+                    <>
+                      <LocationPicker
+                        type="panchayat"
+                        districtId={form.district}
+                        areaType={form.areaType}
+                        value={form.panchayat}
+                        onChange={(value) => {
+                          update("panchayat", value);
+                          update("ward", "");
+                        }}
+                      />
+
+                      {errors.panchayat ? (
+                        <div className="mt-2 text-xs text-rose-600">
+                          {errors.panchayat}
+                        </div>
+                      ) : null}
+                    </>
+                  )}
+
+                  {/* ================= LOCAL BODY ================= */}
+                  {form.areaType === "urban" && (
+                    <>
+                      <LocationPicker
+                        type="localBody"
+                        districtId={form.district}
+                        areaType={form.areaType}
+                        value={form.localBody}
+                        onChange={(value) => {
+                          update("localBody", value);
+                          update("ward", "");
+                        }}
+                      />
+
+                      {errors.localBody ? (
+                        <div className="mt-2 text-xs text-rose-600">
+                          {errors.localBody}
+                        </div>
+                      ) : null}
+                    </>
+                  )}
+                  {/* {form.areaType && (
                     <LocationPicker
                       districtId={form.district}
                       areaType={form.areaType}
@@ -1253,14 +1378,16 @@ export default function Join() {
                         update("ward", "");
                       }}
                     />
-                  )}
+                  )} */}
 
                   {/* ================= WARD ================= */}
-                  {form.localBody && (
-                    <WardPicker
-                      // districtId={form.district}
+
+                  {/* // districtId={form.district}
                       //   areaType={form.areaType}
-                      //   localBodyId={form.localBody}
+                      //   localBodyId={form.localBody} */}
+                  {((form.areaType === "rural" && form.panchayat) ||
+                    (form.areaType === "urban" && form.localBody)) && (
+                    <WardPicker
                       value={form.ward}
                       onChange={(value) => update("ward", value)}
                     />
@@ -1377,7 +1504,9 @@ export default function Join() {
           )} */}
           {step === 4 && (
             <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5 pb-3 sm:p-6 sm:pb-4">
-              <h3 className="block text-sm font-semibold">{t("Verify your phone")}</h3>
+              <h3 className="block text-sm font-semibold">
+                {t("Verify your phone")}
+              </h3>
 
               <p className="mt-2 text-sm text-slate-600">
                 {t("यह मोबाइल नंबर आपके लॉगिन के लिए उपयोग होगा।")}

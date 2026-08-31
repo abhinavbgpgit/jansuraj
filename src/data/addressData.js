@@ -2,6 +2,7 @@
 // Replace with real API data when available.
 
 const addressData = {
+  
   Patna: {
     blocks: {
       'Patna Sadar': {

@@ -2,26 +2,69 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function SupportButton({ problemId, initialCount = 1 }) {
-  const [count, setCount] = useState(initialCount);
+  const [count, setCount] = useState(
+    typeof initialCount === "number" ? initialCount : 1
+  );
+
   const [loading, setLoading] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+
   const [supported, setSupported] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
+
   const [error, setError] = useState("");
+
+  // ==========================================
+  // SYNC INITIAL COUNT
+  // ==========================================
+
+  useEffect(() => {
+    if (typeof initialCount === "number") {
+      setCount(initialCount);
+    }
+  }, [initialCount]);
 
   // ==========================================
   // CHECK SUPPORT STATUS
   // ==========================================
 
   useEffect(() => {
+    let cancelled = false;
+
     const checkSupportStatus = async () => {
       try {
+        setCheckingStatus(true);
         setError("");
 
         const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-        if (!backendUrl || !problemId) {
+        // ==========================================
+        // VALIDATION
+        // ==========================================
+
+        if (!backendUrl) {
+          console.error("VITE_BACKEND_URL is not configured");
+
+          if (!cancelled) {
+            setError("Backend URL configure नहीं है।");
+          }
+
           return;
         }
+
+        if (!problemId) {
+          console.error("SupportButton problemId is missing:", problemId);
+
+          if (!cancelled) {
+            setError("Problem ID नहीं मिला।");
+          }
+
+          return;
+        }
+
+        // ==========================================
+        // STATUS API
+        // ==========================================
 
         const response = await axios.get(
           `${backendUrl}/api/support/${problemId}/status`,
@@ -30,42 +73,74 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
           }
         );
 
+        console.log("Support status response:", response.data);
+
+        if (cancelled) {
+          return;
+        }
+
+        // ==========================================
+        // SUCCESS
+        // ==========================================
+
         if (response.data?.success) {
-          // ==========================================
-          // CREATOR STATUS
-          // ==========================================
-
           setIsCreator(Boolean(response.data.isCreator));
-
-          // ==========================================
-          // SUPPORT STATUS
-          // ==========================================
 
           setSupported(Boolean(response.data.supported));
 
           // ==========================================
-          // SUPPORT COUNT
+          // COUNT
           // ==========================================
 
           if (typeof response.data.reportCount === "number") {
             setCount(response.data.reportCount);
           }
+
+          // Agar backend supportCount bhejta hai
+          else if (typeof response.data.supportCount === "number") {
+            setCount(response.data.supportCount);
+          }
+        } else {
+          console.warn("Support status API success false:", response.data);
         }
       } catch (error) {
         console.error("Support status error:", {
           message: error.message,
-          response: error.response?.data,
           status: error.response?.status,
+          response: error.response?.data,
         });
 
-        // Status check fail hone par
-        // button ko block nahi karna hai
-        setError("");
+        if (cancelled) {
+          return;
+        }
+
+        // ==========================================
+        // IMPORTANT
+        // Status API fail hone se
+        // support button disable nahi hoga
+        // ==========================================
+
+        setSupported(false);
+        setIsCreator(false);
+
+        // Login error ko status check me
+        // UI par show nahi kar rahe
+        if (error.response?.status !== 401) {
+          setError("");
+        }
+      } finally {
+        if (!cancelled) {
+          setCheckingStatus(false);
+        }
       }
     };
 
     checkSupportStatus();
-  }, [problemId, initialCount]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [problemId]);
 
   // ==========================================
   // SUPPORT PROBLEM
@@ -76,7 +151,35 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
     // SAFETY CHECK
     // ==========================================
 
-    if (loading || supported || isCreator) {
+    if (loading) {
+      return;
+    }
+
+    if (supported) {
+      return;
+    }
+
+    if (isCreator) {
+      return;
+    }
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+    // ==========================================
+    // VALIDATION
+    // ==========================================
+
+    if (!backendUrl) {
+      setError("Backend URL configure नहीं है।");
+
+      return;
+    }
+
+    if (!problemId) {
+      console.error("Support click failed. problemId:", problemId);
+
+      setError("Problem ID नहीं मिला। कृपया page refresh करें।");
+
       return;
     }
 
@@ -84,12 +187,14 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
       setLoading(true);
       setError("");
 
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      console.log("Sending support request:", {
+        problemId,
+        url: `${backendUrl}/api/support/${problemId}`,
+      });
 
-      if (!backendUrl) {
-        setError("Backend URL is not configured.");
-        return;
-      }
+      // ==========================================
+      // SUPPORT API
+      // ==========================================
 
       const response = await axios.post(
         `${backendUrl}/api/support/${problemId}`,
@@ -99,27 +204,46 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
         }
       );
 
+      console.log("Support response:", response.data);
+
       // ==========================================
-      // SUPPORT SUCCESS
+      // SUCCESS
       // ==========================================
 
       if (response.data?.success) {
+        // ==========================================
+        // UPDATE COUNT
+        // ==========================================
+
         if (typeof response.data.reportCount === "number") {
           setCount(response.data.reportCount);
+        } else if (typeof response.data.supportCount === "number") {
+          setCount(response.data.supportCount);
         } else {
           setCount((previous) => previous + 1);
         }
 
-        // Button permanently disabled
+        // ==========================================
+        // MARK AS SUPPORTED
+        // ==========================================
+
         setSupported(true);
 
         setError("");
+
+        return;
       }
+
+      // ==========================================
+      // HTTP 200 BUT SUCCESS FALSE
+      // ==========================================
+
+      setError(response.data?.message || "Support करने में समस्या हुई।");
     } catch (error) {
       console.error("Support problem error:", {
         message: error.message,
-        response: error.response?.data,
         status: error.response?.status,
+        response: error.response?.data,
       });
 
       const responseData = error.response?.data;
@@ -128,10 +252,11 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
       // CREATOR
       // ==========================================
 
-      if (responseData?.isCreator) {
+      if (responseData?.isCreator === true) {
         setIsCreator(true);
         setSupported(false);
         setError("");
+
         return;
       }
 
@@ -139,38 +264,59 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
       // ALREADY SUPPORTED
       // ==========================================
 
-      if (responseData?.alreadySupported) {
+      if (responseData?.alreadySupported === true) {
         setSupported(true);
 
         if (typeof responseData.reportCount === "number") {
           setCount(responseData.reportCount);
+        } else if (typeof responseData.supportCount === "number") {
+          setCount(responseData.supportCount);
         }
 
         setError("");
+
         return;
       }
 
       // ==========================================
-      // SAME WARD / AREA ERROR
+      // LOGIN REQUIRED
+      // ==========================================
+
+      if (error.response?.status === 401) {
+        setError("Support करने के लिए पहले login करें।");
+
+        return;
+      }
+
+      // ==========================================
+      // AREA RESTRICTION
       // ==========================================
 
       if (error.response?.status === 403) {
         setError(
           responseData?.message ||
-            "आप केवल अपने वार्ड की समस्या को ही support कर सकते हैं।"
+            "आप इस समस्या को support करने के लिए अधिकृत नहीं हैं।"
         );
 
         return;
       }
 
       // ==========================================
-      // AUTH ERROR
+      // NOT FOUND
       // ==========================================
 
-      if (error.response?.status === 401) {
-        setError(
-          "आपका login session समाप्त हो गया है। कृपया फिर से login करें।"
-        );
+      if (error.response?.status === 404) {
+        setError("यह समस्या नहीं मिली।");
+
+        return;
+      }
+
+      // ==========================================
+      // NETWORK ERROR
+      // ==========================================
+
+      if (!error.response) {
+        setError("Network error. कृपया अपना internet connection check करें।");
 
         return;
       }
@@ -190,36 +336,24 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
   // ==========================================
 
   if (isCreator) {
-    // Creator ke liye support button nahi
-    // Support received information dikhayenge
-
     const supportCount = Math.max((count || 1) - 1, 0);
 
     return (
-      <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
-        <div className="flex items-start gap-3">
-          {/* Support Icon */}
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xl text-emerald-600">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-lg text-emerald-700">
             ♥
           </div>
 
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-emerald-700">
-              समस्या को समर्थन मिल रहा है
+          <div>
+            <p className="text-sm font-semibold text-emerald-800">
+              आपकी समस्या को समर्थन मिल रहा है
             </p>
 
-            <p className="mt-1 text-sm text-slate-700">
-              <span className="font-bold text-emerald-700">{supportCount}</span>{" "}
-              लोगों ने इस समस्या को support किया है।
+            <p className="mt-1 text-xs text-emerald-700">
+              {supportCount} लोगों ने इस समस्या को support किया है।
             </p>
           </div>
-        </div>
-
-        {/* Bottom Message */}
-        <div className="mt-3 border-t border-emerald-200 pt-3">
-          <p className="text-xs leading-5 text-slate-600">
-            आपकी समस्या को क्षेत्र के लोगों का समर्थन मिल रहा है।
-          </p>
         </div>
       </div>
     );
@@ -230,53 +364,43 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
   // ==========================================
 
   return (
-    <div className="mt-4">
-      {/* ==========================================
-          SUPPORT BUTTON
-      ========================================== */}
-
+    <div>
       <button
         type="button"
         onClick={handleSupport}
-        disabled={loading || supported}
-        className={`flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
+        disabled={loading || supported || checkingStatus}
+        className={`inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
           supported
-            ? "cursor-not-allowed border-emerald-200 bg-emerald-50 text-emerald-700"
-            : loading
-            ? "cursor-wait border-sky-200 bg-sky-50 text-sky-500"
-            : "border-sky-200 bg-sky-50 text-sky-600 hover:border-sky-300 hover:bg-sky-100"
+            ? "cursor-not-allowed bg-emerald-100 text-emerald-700"
+            : loading || checkingStatus
+            ? "cursor-wait bg-slate-100 text-slate-500"
+            : "bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50"
         }`}
       >
-        {supported ? (
+        {checkingStatus ? (
           <>
-            <span className="text-base">✓</span>
-
-            <span>आपने इस समस्या को support किया</span>
+            <span>⏳</span>
+            <span>जाँच हो रही है...</span>
+          </>
+        ) : loading ? (
+          <>
+            <span>⏳</span>
+            <span>Support हो रहा है...</span>
+          </>
+        ) : supported ? (
+          <>
+            <span>✓</span>
+            <span>आपने Support किया</span>
           </>
         ) : (
           <>
-            <span className="text-base">♡</span>
-
-            <span>समस्या को support करें</span>
+            <span>♡</span>
+            <span>इस समस्या को Support करें</span>
           </>
         )}
       </button>
 
-      {/* ==========================================
-          SUPPORT COUNT
-      ========================================== */}
-
-      <p className="mt-2 text-center text-xs text-slate-500">
-        {count} लोगों ने इस समस्या को report किया
-      </p>
-
-      {/* ==========================================
-          ERROR
-      ========================================== */}
-
-      {error && (
-        <p className="mt-2 text-center text-xs text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
     </div>
   );
 }
