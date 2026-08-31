@@ -221,30 +221,26 @@ export default function IssueDetails() {
   const areaParts = [];
 
   if (issue.district) {
-    areaParts.push(`जिला: ${formatLabel(issue.district)}`);
+    areaParts.push({ label: "जिला", value: formatLabel(issue.district) });
   }
 
   if (
     issue.areaType === "urban" &&
     issue.localBody
   ) {
-    areaParts.push(
-      `नगर निकाय: ${formatLabel(issue.localBody)}`
-    );
+    areaParts.push({
+      label: "नगर निकाय",
+      value: formatLabel(issue.localBody),
+    });
   }
 
   if (issue.areaType === "rural") {
-    areaParts.push("ग्रामीण क्षेत्र");
+    areaParts.push({ label: "क्षेत्र", value: "ग्रामीण" });
   }
 
   if (issue.ward) {
-    areaParts.push(`वार्ड: ${formatLabel(issue.ward)}`);
+    areaParts.push({ label: "वार्ड", value: formatLabel(issue.ward) });
   }
-
-  const areaText =
-    areaParts.length > 0
-      ? areaParts.join(" • ")
-      : "क्षेत्र की जानकारी उपलब्ध नहीं है";
 
   const hasVideos =
     Array.isArray(issue.videoLinks) &&
@@ -298,9 +294,27 @@ export default function IssueDetails() {
             {formatLabel(issue.category) || "समस्या"}
           </h1>
 
-          <p className="mt-2 text-sm text-slate-600">
-            {areaText}
-          </p>
+          <div className="mt-3 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700">
+            <span className="text-base">📍</span>
+
+            {areaParts.length > 0 ? (
+              areaParts.map((part, index) => (
+                <React.Fragment key={index}>
+                  {index > 0 && <span className="text-slate-300">•</span>}
+                  <span>
+                    <span className="font-bold text-slate-900">
+                      {part.label}:
+                    </span>{" "}
+                    {part.value}
+                  </span>
+                </React.Fragment>
+              ))
+            ) : (
+              <span className="text-slate-500">
+                क्षेत्र की जानकारी उपलब्ध नहीं है
+              </span>
+            )}
+          </div>
         </div>
 
         <Link
