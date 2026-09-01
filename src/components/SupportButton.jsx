@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-export default function SupportButton({ problemId, initialCount = 1 }) {
+export default function SupportButton({ problemId, initialCount = 1,  onCreatorStatus,}) {
   const [count, setCount] = useState(
     typeof initialCount === "number" ? initialCount : 1
   );
@@ -84,17 +84,20 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
         // ==========================================
 
         if (response.data?.success) {
-          setIsCreator(Boolean(response.data.isCreator));
 
-          setSupported(Boolean(response.data.supported));
+          const creator = Boolean(response.data.isCreator);
+  const userSupported = Boolean(response.data.supported);
+
+          setIsCreator(creator);
+setSupported(userSupported);
 
           // ==========================================
           // COUNT
           // ==========================================
 
-          if (typeof response.data.reportCount === "number") {
-            setCount(response.data.reportCount);
-          }
+        if (typeof onCreatorStatus === "function") {
+  onCreatorStatus(creator);
+}
 
           // Agar backend supportCount bhejta hai
           else if (typeof response.data.supportCount === "number") {
@@ -334,30 +337,30 @@ export default function SupportButton({ problemId, initialCount = 1 }) {
   // ==========================================
   // CREATOR UI
   // ==========================================
+if (isCreator) {
+  const supportCount = Math.max((count || 1) - 1, 0);
 
-  if (isCreator) {
-    const supportCount = Math.max((count || 1) - 1, 0);
+  return (
+    <button
+      type="button"
+      disabled
+      className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white opacity-90"
+      title="आप अपनी समस्या को स्वयं support नहीं कर सकते"
+    >
+      <span>♥</span>
 
-    return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-lg text-emerald-700">
-            ♥
-          </div>
+        <span className="leading-4">
+        <span className="block">
+          {supportCount} लोगों ने इस समस्या को
+        </span>
 
-          <div>
-            <p className="text-sm font-semibold text-emerald-800">
-              आपकी समस्या को समर्थन मिल रहा है
-            </p>
-
-            <p className="mt-1 text-xs text-emerald-700">
-              {supportCount} लोगों ने इस समस्या को support किया है।
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+        <span className="block">
+          support किया है
+        </span>
+      </span>
+    </button>
+  );
+}
 
   // ==========================================
   // NORMAL USER UI
