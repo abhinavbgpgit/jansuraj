@@ -19,7 +19,7 @@ body {
 
 html[lang="hi"] body,
 html[lang="hi"] body * {
-  font-family: "Noto Sans Devanagari", sans-serif;
+  font-family: theme('fontFamily.devanagari');
 }
 
 button,
