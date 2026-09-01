@@ -9,6 +9,7 @@ const AddressConfirmModal = ({
   onConfirm,
 }) => {
   const { language, t } = useLanguage();
+
   const districtName =
     districts.find((item) => item.id === form.district)?.name || "-";
 
@@ -19,15 +20,30 @@ const AddressConfirmModal = ({
       ? district?.rural?.panchayats || []
       : district?.urban?.local_bodies || [];
 
+  // ==========================================
+  // SELECTED PANCHAYAT / LOCAL BODY ID
+  // ==========================================
+  const selectedLocationId =
+    form.areaType === "rural"
+      ? form.panchayat || form.localBody
+      : form.localBody;
+
+  // ==========================================
+  // FIND SELECTED LOCATION
+  // ==========================================
+  const selectedLocation = locations.find(
+    (item) => String(item.id || item._id) === String(selectedLocationId)
+  );
+
   const localBodyName =
-    locations.find((item) => item.id === form.localBody)?.name ||
-    form.localBody ||
+    selectedLocation?.name ||
+    selectedLocation?.name_en ||
+    selectedLocationId ||
     "-";
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-
         <h3 className="text-xl font-semibold text-slate-800">
           {t("Review your address")}
         </h3>
@@ -37,21 +53,18 @@ const AddressConfirmModal = ({
         </p>
 
         <div className="mt-5 space-y-3 rounded-xl bg-slate-50 p-4">
-
+          {/* DISTRICT */}
           <div className="flex justify-between gap-4">
-            <span className="text-sm text-slate-500">
-              {t("District")}
-            </span>
+            <span className="text-sm text-slate-500">{t("District")}</span>
 
             <span className="text-right text-sm font-medium text-slate-800">
               {districtName}
             </span>
           </div>
 
+          {/* AREA */}
           <div className="flex justify-between gap-4">
-            <span className="text-sm text-slate-500">
-              {t("Area")}
-            </span>
+            <span className="text-sm text-slate-500">{t("Area")}</span>
 
             <span className="text-right text-sm font-medium text-slate-800">
               {form.areaType === "rural"
@@ -62,6 +75,7 @@ const AddressConfirmModal = ({
             </span>
           </div>
 
+          {/* GRAM PANCHAYAT / URBAN LOCAL BODY */}
           <div className="flex justify-between gap-4">
             <span className="text-sm text-slate-500">
               {form.areaType === "rural"
@@ -74,16 +88,14 @@ const AddressConfirmModal = ({
             </span>
           </div>
 
+          {/* WARD */}
           <div className="flex justify-between gap-4">
-            <span className="text-sm text-slate-500">
-              {t("Ward")}
-            </span>
+            <span className="text-sm text-slate-500">{t("Ward")}</span>
 
             <span className="text-right text-sm font-medium text-slate-800">
               {form.ward ? `${t("Ward")} ${form.ward}` : "-"}
             </span>
           </div>
-
         </div>
 
         <p className="mt-4 text-sm font-medium text-slate-700">
@@ -91,7 +103,6 @@ const AddressConfirmModal = ({
         </p>
 
         <div className="mt-5 flex justify-end gap-3">
-
           <button
             type="button"
             onClick={onBack}
@@ -106,9 +117,12 @@ const AddressConfirmModal = ({
             onClick={onConfirm}
             className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-60"
           >
-            {loading ? t("Please wait...") : language === "hi" ? "ठीक है" : t("Confirm")}
+            {loading
+              ? t("Please wait...")
+              : language === "hi"
+              ? "ठीक है"
+              : t("Confirm")}
           </button>
-
         </div>
       </div>
     </div>
