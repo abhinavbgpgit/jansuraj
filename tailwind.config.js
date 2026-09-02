@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "Poppins", "system-ui", "sans-serif"],
+        devanagari: ["Noto Sans Devanagari", "sans-serif"],
       },
       boxShadow: {
         soft: "0 30px 60px rgba(15, 23, 42, 0.08)",
