@@ -341,8 +341,20 @@ export default function JanSuraajHero() {
                     const location = getAreaText(issue);
 
                     const createdDate = issue.createdAt
-                      ? new Date(issue.createdAt).toLocaleDateString("hi-IN")
-                      : "";
+  ? new Date(issue.createdAt).toLocaleDateString("hi-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  : "";
+
+const createdTime = issue.createdAt
+  ? new Date(issue.createdAt).toLocaleTimeString("hi-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+  : "";
 
                     return (
                       <article
@@ -362,9 +374,15 @@ export default function JanSuraajHero() {
                             {statusText}
                           </span>
 
-                          <span className="text-[8px] text-[#6B766F]">
-                            {createdDate}
-                          </span>
+                          <div className="flex flex-col items-end">
+  <span className="text-[12px] text-[#6B766F]">
+    {createdDate}
+  </span>
+
+  <span className="mt-0.5 text-[10px] text-[#9CA3AF]">
+    🕒 {createdTime}
+  </span>
+</div>
                         </div>
 
                         {/* CATEGORY */}
