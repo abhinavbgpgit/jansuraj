@@ -29,67 +29,83 @@
         "blocks": [
           {
             "id": "bihpur",
-            "name": "बिहपुर"
+            "name": "बिहपुर",
+            "name_en": "bihpur"
           },
           {
             "id": "gopalpur",
-            "name": "गोपालपुर"
+            "name": "गोपालपुर",
+            "name_en": "gopalpur"
           },
           {
             "id": "goradih",
-            "name": "गोराडीह"
+            "name": "गोराडीह",
+            "name_en": "goradih"
           },
           {
             "id": "ismailpur",
-            "name": "इस्माइलपुर"
+            "name": "इस्माइलपुर",
+            "name_en": "ismailpur"
           },
           {
             "id": "jagdishpur",
-            "name": "जगदीशपुर"
+            "name": "जगदीशपुर",
+            "name_en": "jagdishpur"
           },
           {
             "id": "kahalgaon",
-            "name": "कहलगांव"
+            "name": "कहलगांव",
+            "name_en": "kahalgaon"
           },
           {
             "id": "kharik",
-            "name": "खरीक"
+            "name": "खरीक",
+            "name_en": "kharik"
           },
           {
             "id": "narayanpur",
-            "name": "नारायणपुर"
+            "name": "नारायणपुर",
+            "name_en": "narayanpur"
           },
           {
             "id": "nathnagar",
-            "name": "नाथनगर"
+            "name": "नाथनगर",
+            "name_en": "nathnagar"
           },
           {
             "id": "naugachia",
-            "name": "नवगछिया"
+            "name": "नवगछिया",
+            "name_en": "naugachia"
           },
           {
             "id": "pirpainti",
-            "name": "पीरपैंती"
+            "name": "पीरपैंती",
+            "name_en": "pirpainti"
           },
           {
             "id": "rangra_chowk",
-            "name": "रंगरा चौक"
+            "name": "रंगरा चौक",
+            "name_en": "rangra chowk"
           },
           {
             "id": "sabour",
-            "name": "सबौर"
+            "name": "सबौर",
+            "name_en": "sabour"
           },
           {
             "id": "shahkund",
-            "name": "शाहकुंड"
+            "name": "शाहकुंड",
+            "name_en": "shahkund"
           },
           {
             "id": "sanhoula",
-            "name": "सन्हौला"
+            "name": "सन्हौला",
+            "name_en": "sanhoula"
           },
           {
             "id": "sultanganj",
-            "name": "सुल्तानगंज"
+            "name": "सुल्तानगंज",
+            "name_en": "sultanganj"
           }
         ],
         "panchayats": [
@@ -97,7 +113,7 @@
             "id": "bihpur_gps_1",
             "name": "बिहपुर ग्राम पंचायत",
             "name_en": "Bihpur Gram Panchayat",
-             "block_id": "bihpur",
+            "block_id": "bihpur",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -150,7 +166,7 @@
             "id": "kahalgaon_gps_1",
             "name": "कहलगांव ग्राम पंचायत",
             "name_en": "Kahalgaon Gram Panchayat",
-             "block_id": "kahalgaon",
+            "block_id": "kahalgaon",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
@@ -160,7 +176,7 @@
             "id": "kharik_gps_1",
             "name": "खरीक ग्राम पंचायत",
             "name_en": "Kharik Gram Panchayat",
-             "block_id": "kharik",
+            "block_id": "kharik",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -171,7 +187,7 @@
             "id": "narayanpur_gps_1",
             "name": "नारायणपुर ग्राम पंचायत",
             "name_en": "Narayanpur Gram Panchayat",
-             "block_id": "narayanpur",
+            "block_id": "narayanpur",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
@@ -181,7 +197,7 @@
             "id": "nathnagar_gps_1",
             "name": "नाथनगर ग्राम पंचायत",
             "name_en": "Nathnagar Gram Panchayat",
-             "block_id": "nathnagar",
+            "block_id": "nathnagar",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -192,7 +208,7 @@
             "id": "naugachia_gps_1",
             "name": "नवगछिया ग्राम पंचायत",
             "name_en": "Naugachia Gram Panchayat",
-             "block_id": "naugachia",
+            "block_id": "naugachia",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
@@ -202,7 +218,62 @@
             "id": "pirpainti_gps_1",
             "name": "पीरपैंती ग्राम पंचायत",
             "name_en": "Pirpainti Gram Panchayat",
-             "block_id": "pirpainti",
+            "block_id": "pirpainti",
+            "wards": [
+              { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+              { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+              { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+            ]
+          },
+          {
+            "id": "rangra_chowk_gps_1",
+            "name": "रंगरा चौक ग्राम पंचायत",
+            "name_en": "Rangra Chowk Gram Panchayat",
+            "block_id": "rangra_chowk",
+            "wards": [
+              { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+              { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+              { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+            ]
+          },
+          {
+            "id": "sabour_gps_1",
+            "name": "सबौर ग्राम पंचायत",
+            "name_en": "Sabour Gram Panchayat",
+            "block_id": "sabour",
+            "wards": [
+              { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+              { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+              { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+            ]
+          },
+          {
+            "id": "shahkund_gps_1",
+            "name": "शाहकुंड ग्राम पंचायत",
+            "name_en": "Shahkund Gram Panchayat",
+            "block_id": "shahkund",
+            "wards": [
+              { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+              { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+              { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+            ]
+          },
+          {
+            "id": "sanhoula_gps_1",
+            "name": "सन्हौला ग्राम पंचायत",
+            "name_en": "Sanhoula Gram Panchayat",
+            "block_id": "sanhoula",
+            "wards": [
+              { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
+              { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
+              { "id": "ward_03", "number": 3, "name": "वार्ड 3" }
+            ]
+          },
+          {
+            "id": "sultanganj_gps_1",
+            "name": "सुल्तानगंज ग्राम पंचायत",
+            "name_en": "Sultanganj Gram Panchayat",
+            "block_id": "sultanganj",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -219,7 +290,7 @@
           {
             "id": "bhagalpur_municipal_corporation",
             "name": "नगर निगम भागलपुर",
-            "name_en":"bhagalpur_municipal_corporation",
+            "name_en": "bhagalpur_municipal_corporation",
             "type": "नगर निगम",
             "wards": [
               {
