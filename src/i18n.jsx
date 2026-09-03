@@ -247,7 +247,7 @@ const LanguageContext = createContext(null);
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === "hi" || stored === "en" ? stored : "en";
+    return stored === "hi" || stored === "en" ? stored : "hi";
   });
 
   useEffect(() => {

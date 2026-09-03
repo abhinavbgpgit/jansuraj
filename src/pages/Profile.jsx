@@ -5,7 +5,7 @@ import { useLanguage } from "../i18n";
 import MembershipCardComponent from "../components/MembershipCardComponent";
 import areaData from "../data/area.json";
 import districts from "../data/districts.json";
-import profileHeaderImg from "../assets/profile_header.png";
+import profileHeaderImg from "../assets/profile_header_2.png";
 
 // ==========================================
 // Backend se aane wale raw slug values
@@ -388,9 +388,22 @@ export default function Profile() {
       ========================================== */}
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div
-          className="h-24 bg-slate-200 bg-cover bg-center sm:h-32"
+          className="relative aspect-[1942/623] w-full bg-slate-200 bg-cover bg-center"
           style={{ backgroundImage: `url(${profileHeaderImg})` }}
-        />
+        >
+          <div className="absolute inset-0 bg-black/30" />
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-4 text-center">
+            <h1 className="text-2xl font-bold text-white drop-shadow-md sm:text-3xl">
+              {user.name}
+            </h1>
+
+            <div className="inline-flex items-center gap-2 text-sm font-medium text-white drop-shadow-md">
+              <span>📱</span>
+              <span>{user.phone}</span>
+            </div>
+          </div>
+        </div>
 
         <div className="px-5 pb-6 sm:px-8">
           <div className="-mt-12 flex flex-col items-center gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
@@ -408,11 +421,7 @@ export default function Profile() {
               )}
 
               <div className="text-center sm:pb-1 sm:text-left">
-                <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-                  {user.name}
-                </h1>
-
-                <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                   {user.registrationStatus === "completed" && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                       ✓ सत्यापित सदस्य
@@ -437,15 +446,6 @@ export default function Profile() {
                 ✏️ प्रोफ़ाइल संपादित करें
               </button>
             )}
-          </div>
-
-          {/* PHONE - always visible, never editable */}
-          <div className="mt-5 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700">
-            <span>📱</span>
-            <span className="font-medium">{user.phone}</span>
-            <span className="ml-1 inline-flex items-center gap-1 text-xs text-slate-400">
-              🔒 अपरिवर्तनीय
-            </span>
           </div>
         </div>
       </div>
