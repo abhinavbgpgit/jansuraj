@@ -97,6 +97,7 @@
             "id": "bihpur_gps_1",
             "name": "बिहपुर ग्राम पंचायत",
             "name_en": "Bihpur Gram Panchayat",
+             "block_id": "bihpur",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -107,6 +108,7 @@
             "id": "gopalpur_gps_1",
             "name": "गोपालपुर ग्राम पंचायत",
             "name_en": "Gopalpur Gram Panchayat",
+            "block_id": "gopalpur",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
@@ -116,6 +118,7 @@
             "id": "goradih_gps_1",
             "name": "गोराडीह ग्राम पंचायत",
             "name_en": "Goradih Gram Panchayat",
+            "block_id": "goradih",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -126,6 +129,7 @@
             "id": "ismailpur_gps_1",
             "name": "इस्माइलपुर ग्राम पंचायत",
             "name_en": "Ismailpur Gram Panchayat",
+            "block_id": "ismailpur",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
@@ -135,6 +139,7 @@
             "id": "jagdishpur_gps_1",
             "name": "जगदीशपुर ग्राम पंचायत",
             "name_en": "Jagdishpur Gram Panchayat",
+            "block_id": "jagdishpur",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -145,6 +150,7 @@
             "id": "kahalgaon_gps_1",
             "name": "कहलगांव ग्राम पंचायत",
             "name_en": "Kahalgaon Gram Panchayat",
+             "block_id": "kahalgaon",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
@@ -154,6 +160,7 @@
             "id": "kharik_gps_1",
             "name": "खरीक ग्राम पंचायत",
             "name_en": "Kharik Gram Panchayat",
+             "block_id": "kharik",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -164,6 +171,7 @@
             "id": "narayanpur_gps_1",
             "name": "नारायणपुर ग्राम पंचायत",
             "name_en": "Narayanpur Gram Panchayat",
+             "block_id": "narayanpur",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
@@ -173,6 +181,7 @@
             "id": "nathnagar_gps_1",
             "name": "नाथनगर ग्राम पंचायत",
             "name_en": "Nathnagar Gram Panchayat",
+             "block_id": "nathnagar",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },
@@ -183,6 +192,7 @@
             "id": "naugachia_gps_1",
             "name": "नवगछिया ग्राम पंचायत",
             "name_en": "Naugachia Gram Panchayat",
+             "block_id": "naugachia",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" }
@@ -192,6 +202,7 @@
             "id": "pirpainti_gps_1",
             "name": "पीरपैंती ग्राम पंचायत",
             "name_en": "Pirpainti Gram Panchayat",
+             "block_id": "pirpainti",
             "wards": [
               { "id": "ward_01", "number": 1, "name": "वार्ड 1" },
               { "id": "ward_02", "number": 2, "name": "वार्ड 2" },

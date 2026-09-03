@@ -12,6 +12,7 @@ import townImg from "../assets/town.jpg";
 function LocationPicker({
   districtId,
   areaType,
+    blockId,
   value,
   onChange,
   type = "localBody",
@@ -28,8 +29,10 @@ function LocationPicker({
       ? districts.filter((d) => d.id === "BHAGALPUR")
       : type === "block"
       ? district?.rural?.blocks || []
-      : type === "panchayat"
-      ? district?.rural?.panchayats || []
+   : type === "panchayat"
+? (district?.rural?.panchayats || []).filter(
+    (panchayat) => panchayat.block_id === blockId
+  )
       : type === "localBody"
       ? district?.urban?.local_bodies || []
       : [];
@@ -1332,6 +1335,7 @@ export default function Join() {
                         type="panchayat"
                         districtId={form.district}
                         areaType={form.areaType}
+                         blockId={form.block}
                         value={form.panchayat}
                         onChange={(value) => {
                           update("panchayat", value);

@@ -202,11 +202,18 @@ export default function Issues() {
                   {getStatusText(issue.status)}
                 </span>
 
-                <span className="text-xs text-slate-500">
-                  {issue.createdAt
-                    ? new Date(issue.createdAt).toLocaleDateString("hi-IN")
-                    : ""}
-                </span>
+               <span className="text-xs text-slate-500">
+  {issue.createdAt
+    ? new Date(issue.createdAt).toLocaleString("hi-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : ""}
+</span>
               </div>
 
               {/* =================================

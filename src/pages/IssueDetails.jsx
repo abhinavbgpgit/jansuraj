@@ -321,10 +321,28 @@ export default function IssueDetails() {
             </span>
 
             {issue.createdAt && (
-              <span className="text-sm text-slate-500">
-                {new Date(issue.createdAt).toLocaleDateString("hi-IN")}
-              </span>
-            )}
+  <div className="flex items-center gap-2 text-sm text-slate-500">
+    <span>
+      📅{" "}
+      {new Date(issue.createdAt).toLocaleDateString("hi-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })}
+    </span>
+
+    <span className="text-slate-400">•</span>
+
+    <span>
+      🕒{" "}
+      {new Date(issue.createdAt).toLocaleTimeString("hi-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })}
+    </span>
+  </div>
+)}
 
             <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
               {issue.reportCount || 1} रिपोर्ट
