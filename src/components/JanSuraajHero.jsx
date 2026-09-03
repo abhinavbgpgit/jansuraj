@@ -62,6 +62,14 @@ export default function JanSuraajHero() {
       ? issues
       : issues.filter((issue) => issue.status === filter);
 
+  const areaInfo =
+    issues.length > 0
+      ? {
+          district: issues[0].district,
+          ward: issues[0].ward,
+        }
+      : null;
+
   // ==========================================
   // VIEW ISSUE
   // ==========================================
@@ -241,7 +249,9 @@ export default function JanSuraajHero() {
 
                 <div>
                   <strong className="block text-[14px]">
-                    भागलपुर • वार्ड 24
+                    {areaInfo
+                      ? `${areaInfo.district} • ${areaInfo.ward}`
+                      : "क्षेत्र की जानकारी"}
                   </strong>
 
                   <span className="mt-0.5 block text-[9px] text-[#6B766F]">
@@ -341,20 +351,20 @@ export default function JanSuraajHero() {
                     const location = getAreaText(issue);
 
                     const createdDate = issue.createdAt
-  ? new Date(issue.createdAt).toLocaleDateString("hi-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-  : "";
+                      ? new Date(issue.createdAt).toLocaleDateString("hi-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "";
 
-const createdTime = issue.createdAt
-  ? new Date(issue.createdAt).toLocaleTimeString("hi-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    })
-  : "";
+                    const createdTime = issue.createdAt
+                      ? new Date(issue.createdAt).toLocaleTimeString("hi-IN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      : "";
 
                     return (
                       <article
@@ -375,14 +385,14 @@ const createdTime = issue.createdAt
                           </span>
 
                           <div className="flex flex-col items-end">
-  <span className="text-[12px] text-[#6B766F]">
-    {createdDate}
-  </span>
+                            <span className="text-[12px] text-[#6B766F]">
+                              {createdDate}
+                            </span>
 
-  <span className="mt-0.5 text-[10px] text-[#9CA3AF]">
-    🕒 {createdTime}
-  </span>
-</div>
+                            <span className="mt-0.5 text-[10px] text-[#9CA3AF]">
+                              🕒 {createdTime}
+                            </span>
+                          </div>
                         </div>
 
                         {/* CATEGORY */}
