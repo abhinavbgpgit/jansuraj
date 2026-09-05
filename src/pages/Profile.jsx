@@ -62,6 +62,38 @@ function getWardName(districtId, areaType, panchayatId, localBodyId, wardId) {
 }
 
 // ==========================================
+// "+919570452929" -> "+91 95704 52929"
+// ==========================================
+function formatPhone(phone) {
+  if (!phone) return "";
+
+  const match = String(phone).match(/^(\+\d{1,3})(\d{5})(\d{5})$/);
+  return match ? `${match[1]} ${match[2]} ${match[3]}` : phone;
+}
+
+// ==========================================
+// Two-tone (saffron/green) pennant accent,
+// flanking the "जनसुराज" wordmark.
+// ==========================================
+function FlagPennant({ direction = "left" }) {
+  const clipPath =
+    direction === "left"
+      ? "polygon(100% 0, 0% 50%, 100% 100%)"
+      : "polygon(0 0, 100% 50%, 0 100%)";
+
+  return (
+    <span
+      className="inline-block h-4 w-6 shrink-0 sm:h-5 sm:w-7"
+      style={{
+        background: "linear-gradient(to bottom, #F97316 50%, #16A34A 50%)",
+        clipPath,
+      }}
+      aria-hidden="true"
+    />
+  );
+}
+
+// ==========================================
 // EDIT FORM OPTIONS (Join.jsx ke sath consistent)
 // ==========================================
 const EDUCATION_OPTIONS = [
@@ -239,7 +271,7 @@ export default function Profile() {
 
   async function handleSave() {
     if (!editForm.firstName.trim()) {
-      setSaveError("पहला नाम भरना आवश्यक है।");
+      setSaveError(t("First name is required."));
       return;
     }
 
@@ -384,56 +416,115 @@ export default function Profile() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
       {/* ==========================================
-          HERO
+          HERO — sirf brand + tagline, koi bhi user
+          identity (naam/phone/badge/date/button)
+          yahan nahi aati.
       ========================================== */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
         <div
-          className="relative aspect-[1942/623] w-full bg-slate-200 bg-cover bg-center"
+          className="relative h-[220px] w-full bg-slate-800 bg-cover bg-center sm:h-[260px] md:h-[300px] lg:h-[340px]"
           style={{ backgroundImage: `url(${profileHeaderImg})` }}
         >
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/45" />
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-4 text-center">
-            <h1 className="text-2xl font-bold text-white drop-shadow-md sm:text-3xl">
-              {user.name}
-            </h1>
+          {/* <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <FlagPennant direction="left" />
 
-            <div className="inline-flex items-center gap-2 text-sm font-medium text-white drop-shadow-md">
-              <span>📱</span>
-              <span>{user.phone}</span>
+              <p className="text-3xl font-extrabold text-white drop-shadow-md sm:text-4xl">
+                जनसुराज
+              </p>
+
+              <FlagPennant direction="right" />
             </div>
+
+            <p className="text-xs font-medium text-white/90 drop-shadow-md sm:text-sm">
+              सही लोग • सही सोच • सामूहिक प्रयास
+            </p>
+          </div> */}
+
+          <div className="absolute bottom-4 right-5 hidden text-right sm:block">
+            <p className="text-xs font-semibold leading-tight text-white drop-shadow-md">
+              एक बेहतर
+              <br />
+              बिहार की ओर
+            </p>
+
+            <div
+              className="ml-auto mt-1 h-1 w-16 rounded-full"
+              style={{
+                background:
+                  "linear-gradient(to right, #F97316, #ffffff, #16A34A)",
+              }}
+            />
           </div>
         </div>
 
-        <div className="px-5 pb-6 sm:px-8">
-          <div className="-mt-12 flex flex-col items-center gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-end">
+        {/* ==========================================
+            PROFILE IDENTITY — avatar hero boundary
+            ko deliberately overlap karta hai
+        ========================================== */}
+        <div className="px-4 pb-8 sm:px-8 md:px-10">
+          <div className="-mt-14 flex flex-col items-center gap-4 sm:-mt-16 sm:flex-row sm:justify-between">
+            <div className="relative mt-4 shrink-0">
               {user.photo ? (
                 <img
                   src={user.photo}
                   alt={user.name}
-                  className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-lg sm:h-28 sm:w-28"
+                  className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-lg sm:h-32 sm:w-32"
                 />
               ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-slate-200 text-2xl font-bold text-slate-500 shadow-lg sm:h-28 sm:w-28">
+                <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-white bg-slate-200 text-2xl font-bold text-slate-500 shadow-lg sm:h-32 sm:w-32">
                   {(user.name || "U").charAt(0).toUpperCase()}
                 </div>
               )}
 
-              <div className="text-center sm:pb-1 sm:text-left">
-                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                  {user.registrationStatus === "completed" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                      ✓ सत्यापित सदस्य
-                    </span>
-                  )}
+              {user.registrationStatus === "completed" && (
+                <span
+                  className="absolute bottom-1 right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-xs font-bold text-white shadow sm:h-7 sm:w-7"
+                  aria-label={t("Verified member")}
+                >
+                  ✓
+                </span>
+              )}
+            </div>
 
-                  {memberSince && (
-                    <span className="text-xs text-slate-500">
-                      सदस्य बने: {memberSince}
+            <div className="min-w-0 w-full flex-1 text-center mt-4 sm:mt-[70px] sm:text-left">
+              <h1 className="truncate text-[22px] font-bold leading-tight text-slate-900 sm:text-[30px]">
+                {user.name}
+              </h1>
+
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 sm:justify-start">
+                {user.registrationStatus === "completed" && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                    ✓ {t("Verified member")}
+                  </span>
+                )}
+
+                {user.registrationStatus === "completed" && memberSince && (
+                  <span className="text-slate-300">|</span>
+                )}
+
+                {memberSince && (
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
+                    <span aria-hidden="true">📅</span> {t("Member since:")} {memberSince}
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-sm text-slate-600 sm:justify-start">
+                <span className="inline-flex items-center gap-1.5">
+                  <span aria-hidden="true">📱</span> {formatPhone(user.phone)}
+                </span>
+
+                {districtName && (
+                  <>
+                    <span className="text-slate-300">|</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span aria-hidden="true">📍</span> {districtName}, {t("Bihar")}
                     </span>
-                  )}
-                </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -441,9 +532,9 @@ export default function Profile() {
               <button
                 type="button"
                 onClick={startEditing}
-                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 sm:mb-1"
+                className="inline-flex h-[48px] shrink-0 items-center gap-2 rounded-full bg-slate-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 sm:mt-16"
               >
-                ✏️ प्रोफ़ाइल संपादित करें
+                ✏️ {t("Edit profile")}
               </button>
             )}
           </div>
@@ -455,7 +546,7 @@ export default function Profile() {
       ========================================== */}
       {saveSuccess && !isEditing && (
         <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          ✓ आपकी प्रोफ़ाइल अपडेट हो गई है।
+          ✓ {t("Profile updated successfully.")}
         </div>
       )}
 
@@ -467,13 +558,13 @@ export default function Profile() {
           {/* NAME */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-              नाम <span className="text-red-500">*</span>
+              {t("Name")} <span className="text-red-500">*</span>
             </label>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <input
                 type="text"
-                placeholder="पहला नाम"
+                placeholder={t("First name")}
                 value={editForm.firstName}
                 onChange={(e) => updateField("firstName", e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
@@ -481,7 +572,7 @@ export default function Profile() {
 
               <input
                 type="text"
-                placeholder="मध्य नाम"
+                placeholder={t("Middle name")}
                 value={editForm.middleName}
                 onChange={(e) => updateField("middleName", e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
@@ -489,7 +580,7 @@ export default function Profile() {
 
               <input
                 type="text"
-                placeholder="अंतिम नाम"
+                placeholder={t("Last name")}
                 value={editForm.lastName}
                 onChange={(e) => updateField("lastName", e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
@@ -501,7 +592,7 @@ export default function Profile() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700">
-                शिक्षा
+                {t("Education")}
               </label>
 
               <select
@@ -520,7 +611,7 @@ export default function Profile() {
 
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700">
-                पेशा
+                {t("Profession")}
               </label>
 
               <select
@@ -541,7 +632,7 @@ export default function Profile() {
           {/* SKILLS */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-              कौशल
+              {t("Skills")}
             </label>
 
             <div className="flex flex-wrap gap-2.5">
@@ -570,7 +661,7 @@ export default function Profile() {
           {/* AREA TYPE */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-              क्षेत्र प्रकार
+              {t("Area type")}
             </label>
 
             <div className="grid grid-cols-2 gap-3">
@@ -588,7 +679,7 @@ export default function Profile() {
                     : "border-slate-200 bg-white text-slate-600 hover:border-green-300"
                 }`}
               >
-                🌾 ग्रामीण क्षेत्र
+                🌾 {t("Rural area")}
               </button>
 
               <button
@@ -605,7 +696,7 @@ export default function Profile() {
                     : "border-slate-200 bg-white text-slate-600 hover:border-blue-300"
                 }`}
               >
-                🏙️ शहरी क्षेत्र
+                🏙️ {t("Urban area")}
               </button>
             </div>
           </div>
@@ -613,7 +704,7 @@ export default function Profile() {
           {/* DISTRICT - fixed, not editable */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-              जिला
+              {t("District")}
             </label>
 
             <input
@@ -629,7 +720,7 @@ export default function Profile() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  प्रखंड
+                  {t("Block")}
                 </label>
 
                 <select
@@ -637,7 +728,7 @@ export default function Profile() {
                   onChange={(e) => updateField("block", e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
                 >
-                  <option value="">चुनें</option>
+                  <option value="">{t("Choose")}</option>
                   {blockOptions.map((b) => (
                     <option key={b.id} value={b.id}>
                       {b.name}
@@ -648,7 +739,7 @@ export default function Profile() {
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  ग्राम पंचायत
+                  {t("Gram panchayat")}
                 </label>
 
                 <select
@@ -656,7 +747,7 @@ export default function Profile() {
                   onChange={(e) => updateField("panchayat", e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
                 >
-                  <option value="">चुनें</option>
+                  <option value="">{t("Choose")}</option>
                   {panchayatOptions.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}
@@ -668,7 +759,7 @@ export default function Profile() {
           ) : (
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700">
-                नगर निकाय
+                {t("Urban local body")}
               </label>
 
               <select
@@ -676,7 +767,7 @@ export default function Profile() {
                 onChange={(e) => updateField("localBody", e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
               >
-                <option value="">चुनें</option>
+                <option value="">{t("Choose")}</option>
                 {localBodyOptions.map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.name}
@@ -689,13 +780,13 @@ export default function Profile() {
           {/* WARD */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-              वार्ड नंबर
+              {t("Ward number")}
             </label>
 
             <input
               type="text"
               inputMode="numeric"
-              placeholder="जैसे 12"
+              placeholder={t("e.g. 12")}
               value={editForm.ward}
               onChange={(e) =>
                 updateField("ward", e.target.value.replace(/\D/g, ""))
@@ -707,13 +798,13 @@ export default function Profile() {
           {/* PHONE - read only */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-              फ़ोन नंबर
+              {t("Phone number")}
             </label>
 
             <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500">
               <span>🔒</span>
               <span>{user.phone}</span>
-              <span className="ml-auto text-xs">बदला नहीं जा सकता</span>
+              <span className="ml-auto text-xs">{t("Cannot be changed")}</span>
             </div>
           </div>
 
@@ -730,7 +821,7 @@ export default function Profile() {
               disabled={saving}
               className="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              रद्द करें
+              {t("Cancel")}
             </button>
 
             <button
@@ -739,7 +830,7 @@ export default function Profile() {
               disabled={saving}
               className="rounded-full bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {saving ? "सेव हो रहा है..." : "बदलाव सहेजें"}
+              {saving ? t("Saving...") : t("Save changes")}
             </button>
           </div>
         </div>
@@ -749,19 +840,19 @@ export default function Profile() {
               VIEW MODE
           ========================================== */}
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <InfoCard icon="🎓" title="शिक्षा" value={user.education} />
-            <InfoCard icon="💼" title="पेशा" value={user.profession} />
+            <InfoCard icon="🎓" title={t("Education")} value={user.education} />
+            <InfoCard icon="💼" title={t("Profession")} value={user.profession} />
           </div>
 
           {/* ADDRESS */}
           <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
             <h3 className="flex items-center gap-2 font-semibold text-slate-900">
-              📍 पता
+              📍 {t("Address")}
             </h3>
 
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-slate-700">
               <span>
-                <span className="font-bold text-slate-900">जिला:</span>{" "}
+                <span className="font-bold text-slate-900">{t("District")}:</span>{" "}
                 {districtName}
               </span>
 
@@ -771,7 +862,7 @@ export default function Profile() {
                     <span className="text-slate-300">•</span>
                     <span>
                       <span className="font-bold text-slate-900">
-                        नगर निकाय:
+                        {t("Urban local body")}:
                       </span>{" "}
                       {localBodyName}
                     </span>
@@ -784,7 +875,7 @@ export default function Profile() {
                       <span className="text-slate-300">•</span>
                       <span>
                         <span className="font-bold text-slate-900">
-                          प्रखंड:
+                          {t("Block")}:
                         </span>{" "}
                         {blockName}
                       </span>
@@ -796,7 +887,7 @@ export default function Profile() {
                       <span className="text-slate-300">•</span>
                       <span>
                         <span className="font-bold text-slate-900">
-                          ग्राम पंचायत:
+                          {t("Gram panchayat")}:
                         </span>{" "}
                         {panchayatName}
                       </span>
@@ -809,7 +900,7 @@ export default function Profile() {
                 <>
                   <span className="text-slate-300">•</span>
                   <span>
-                    <span className="font-bold text-slate-900">वार्ड:</span>{" "}
+                    <span className="font-bold text-slate-900">{t("Ward")}:</span>{" "}
                     {wardName}
                   </span>
                 </>
@@ -820,7 +911,7 @@ export default function Profile() {
           {/* SKILLS */}
           {Array.isArray(user.skills) && user.skills.length > 0 && (
             <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
-              <h3 className="font-semibold text-slate-900">🛠️ कौशल</h3>
+              <h3 className="font-semibold text-slate-900">🛠️ {t("Skills")}</h3>
 
               <div className="mt-3 flex flex-wrap gap-2">
                 {user.skills.map((skill) => (
@@ -828,7 +919,7 @@ export default function Profile() {
                     key={skill}
                     className="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700"
                   >
-                    {skill}
+                    {t(skill)}
                   </span>
                 ))}
               </div>
@@ -843,10 +934,10 @@ export default function Profile() {
             >
               <div>
                 <p className="text-sm font-semibold text-sky-900">
-                  नई समस्या दर्ज करें
+                  {t("New Issue")}
                 </p>
                 <p className="mt-0.5 text-xs text-sky-700">
-                  किसी सार्वजनिक समस्या की रिपोर्ट करें
+                  {t("Report a public issue")}
                 </p>
               </div>
               <span className="text-sky-500">→</span>
@@ -858,10 +949,10 @@ export default function Profile() {
             >
               <div>
                 <p className="text-sm font-semibold text-slate-900">
-                  अपने क्षेत्र की समस्याएं
+                  {t("Issues in your area")}
                 </p>
                 <p className="mt-0.5 text-xs text-slate-500">
-                  दर्ज हुई समस्याओं की स्थिति देखें
+                  {t("View status of reported issues")}
                 </p>
               </div>
               <span className="text-slate-400">→</span>

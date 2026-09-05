@@ -239,6 +239,26 @@ const translations = {
     "Back": "वापस",
     "Next": "अगला",
     "Joining...": "जुड़ रहे हैं...",
+
+    // Profile page
+    "Skills": "कौशल",
+    "Area type": "क्षेत्र प्रकार",
+    "Block": "प्रखंड",
+    "Ward number": "वार्ड नंबर",
+    "Cannot be changed": "बदला नहीं जा सकता",
+    "Save changes": "बदलाव सहेजें",
+    "Saving...": "सेव हो रहा है...",
+    "e.g. 12": "जैसे 12",
+    "Choose": "चुनें",
+    "Address": "पता",
+    "Verified member": "सत्यापित सदस्य",
+    "Member since:": "सदस्य बने:",
+    "Profile updated successfully.": "आपकी प्रोफ़ाइल अपडेट हो गई है।",
+    "Edit profile": "प्रोफ़ाइल संपादित करें",
+    "Report a public issue": "किसी सार्वजनिक समस्या की रिपोर्ट करें",
+    "Issues in your area": "अपने क्षेत्र की समस्याएं",
+    "View status of reported issues": "दर्ज हुई समस्याओं की स्थिति देखें",
+    "Bihar": "बिहार",
   },
 };
 
