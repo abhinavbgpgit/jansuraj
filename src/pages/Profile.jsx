@@ -970,6 +970,10 @@ export default function Profile() {
                 ...user,
                 district: districtName,
                 ward: wardName || user.ward,
+                block: blockName,
+                panchayat: panchayatName,
+                localBody: localBodyName,
+                memberSince,
               }}
             />
           </div>

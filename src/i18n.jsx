@@ -259,6 +259,18 @@ const translations = {
     "Issues in your area": "अपने क्षेत्र की समस्याएं",
     "View status of reported issues": "दर्ज हुई समस्याओं की स्थिति देखें",
     "Bihar": "बिहार",
+
+    // Membership card
+    "Member ID": "सदस्य आईडी",
+    "Digital Member Card": "डिजिटल सदस्यता कार्ड",
+    "Membership details": "सदस्यता विवरण",
+    "Scan for full details": "पूरी जानकारी के लिए स्कैन करें",
+    "Tap to flip": "पलटने के लिए टैप करें",
+    "View front": "सामने देखें",
+    "View back": "पीछे देखें",
+    "Download PNG": "PNG डाउनलोड करें",
+    "This is a digital membership card issued by Jansuraaj.":
+      "यह जनसुराज द्वारा जारी डिजिटल सदस्यता कार्ड है।",
   },
 };
 
