@@ -46,7 +46,7 @@ function StatusStepper({ status }) {
                   : "bg-slate-100 text-slate-400"
               }`}
             >
-              {index < currentIndex ? "✓" : index + 1}
+              {index <= currentIndex ? "✓" : index + 1}
             </div>
 
             <span
@@ -321,28 +321,28 @@ export default function IssueDetails() {
             </span>
 
             {issue.createdAt && (
-  <div className="flex items-center gap-2 text-sm text-slate-500">
-    <span>
-      📅{" "}
-      {new Date(issue.createdAt).toLocaleDateString("hi-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })}
-    </span>
+              <div className="flex items-center gap-2 text-sm text-slate-500">
+                <span>
+                  📅{" "}
+                  {new Date(issue.createdAt).toLocaleDateString("hi-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
 
-    <span className="text-slate-400">•</span>
+                <span className="text-slate-400">•</span>
 
-    <span>
-      🕒{" "}
-      {new Date(issue.createdAt).toLocaleTimeString("hi-IN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })}
-    </span>
-  </div>
-)}
+                <span>
+                  🕒{" "}
+                  {new Date(issue.createdAt).toLocaleTimeString("hi-IN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </span>
+              </div>
+            )}
 
             <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
               {issue.reportCount || 1} रिपोर्ट
@@ -486,15 +486,46 @@ export default function IssueDetails() {
             </h3>
 
             <div className="mt-4 space-y-3 text-sm text-slate-600">
-              {Array.isArray(issue.timeline) && issue.timeline.length > 0 ? (
-                issue.timeline.map((item, index) => (
+              {Array.isArray(issue.statusHistory) &&
+              issue.statusHistory.length > 0 ? (
+                issue.statusHistory.map((item, index) => (
                   <div
-                    key={index}
+                    key={item._id || index}
                     className="rounded-2xl border border-slate-200 bg-white p-3"
                   >
-                    {typeof item === "string"
-                      ? item
-                      : item?.message || item?.text || "Timeline update"}
+                    {/* Status */}
+                    <p className="font-semibold text-slate-800">
+                      {item.status === "pending"
+                        ? "समस्या दर्ज हुई"
+                        : item.status === "in-progress"
+                        ? "कार्य प्रगति पर है"
+                        : item.status === "resolved"
+                        ? "समाधान हो गया"
+                        : "स्थिति अपडेट"}
+                    </p>
+
+                    {/* Ward Head Note */}
+                    {item.note && (
+                      <p className="mt-1 text-sm text-slate-600">{item.note}</p>
+                    )}
+
+                    {/* Expected Completion Date */}
+                    {item.status === "in-progress" &&
+                      item.expectedCompletionDate && (
+                        <p className="mt-2 text-xs text-slate-500">
+                          अपेक्षित समाधान तिथि:{" "}
+                          {new Date(
+                            item.expectedCompletionDate
+                          ).toLocaleDateString("hi-IN")}
+                        </p>
+                      )}
+
+                    {/* Update Time */}
+                    {item.updatedAt && (
+                      <p className="mt-2 text-xs text-slate-400">
+                        {new Date(item.updatedAt).toLocaleString("hi-IN")}
+                      </p>
+                    )}
                   </div>
                 ))
               ) : (

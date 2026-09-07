@@ -182,6 +182,9 @@ export default function Profile() {
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState("");
+
   // ==========================================
   // FETCH PROFILE
   // ==========================================
@@ -244,6 +247,8 @@ export default function Profile() {
     });
     setSaveError("");
     setSaveSuccess(false);
+    setSelectedPhoto(null);
+    setPhotoPreview(user.photo || "");
     setIsEditing(true);
   }
 
@@ -269,6 +274,20 @@ export default function Profile() {
     });
   }
 
+  function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setSaveError("Please select a valid image file.");
+      return;
+    }
+
+    setSelectedPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
   async function handleSave() {
     if (!editForm.firstName.trim()) {
       setSaveError(t("First name is required."));
@@ -287,18 +306,29 @@ export default function Profile() {
         .trim();
 
       // PROFILE FIELDS
+      const formData = new FormData();
+
+      formData.append("firstName", editForm.firstName);
+      formData.append("middleName", editForm.middleName);
+      formData.append("lastName", editForm.lastName);
+      formData.append("name", name);
+      formData.append("education", editForm.education);
+      formData.append("profession", editForm.profession);
+
+      // Skills
+      formData.append("skills", JSON.stringify(editForm.skills));
+
+      // Profile Photo
+      if (selectedPhoto) {
+        formData.append("photo", selectedPhoto);
+      }
+
       const profileResponse = await axios.put(
         `${backendUrl}/api/members/${user._id}/profile`,
+        formData,
         {
-          firstName: editForm.firstName,
-          middleName: editForm.middleName,
-          lastName: editForm.lastName,
-          name,
-          education: editForm.education,
-          profession: editForm.profession,
-          skills: editForm.skills,
-        },
-        { withCredentials: true }
+          withCredentials: true,
+        }
       );
 
       if (!profileResponse.data?.success) {
@@ -331,10 +361,7 @@ export default function Profile() {
       setIsEditing(false);
       setSaveSuccess(true);
     } catch (err) {
-      console.error(
-        "Profile update error:",
-        err.response?.data || err.message
-      );
+      console.error("Profile update error:", err.response?.data || err.message);
 
       setSaveError(
         err.response?.data?.message || err.message || "Failed to save changes."
@@ -507,7 +534,8 @@ export default function Profile() {
 
                 {memberSince && (
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
-                    <span aria-hidden="true">📅</span> {t("Member since:")} {memberSince}
+                    <span aria-hidden="true">📅</span> {t("Member since:")}{" "}
+                    {memberSince}
                   </span>
                 )}
               </div>
@@ -521,7 +549,8 @@ export default function Profile() {
                   <>
                     <span className="text-slate-300">|</span>
                     <span className="inline-flex items-center gap-1.5">
-                      <span aria-hidden="true">📍</span> {districtName}, {t("Bihar")}
+                      <span aria-hidden="true">📍</span> {districtName},{" "}
+                      {t("Bihar")}
                     </span>
                   </>
                 )}
@@ -555,6 +584,39 @@ export default function Profile() {
       ========================================== */}
       {isEditing ? (
         <div className="mt-6 space-y-5 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-slate-50 p-5 sm:p-6">
+          {/* PROFILE PHOTO */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">
+              {t("Profile photo")}
+            </label>
+
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              {photoPreview ? (
+                <img
+                  src={photoPreview}
+                  alt="Profile preview"
+                  className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-md"
+                />
+              ) : (
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-slate-200 text-2xl font-bold text-slate-500">
+                  {(user.name || "U").charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="block w-full text-sm text-slate-600"
+                />
+
+                <p className="mt-2 text-xs text-slate-500">
+                  {t("Only image files are allowed. Maximum size 5 MB.")}
+                </p>
+              </div>
+            </div>
+          </div>
           {/* NAME */}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -841,7 +903,11 @@ export default function Profile() {
           ========================================== */}
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <InfoCard icon="🎓" title={t("Education")} value={user.education} />
-            <InfoCard icon="💼" title={t("Profession")} value={user.profession} />
+            <InfoCard
+              icon="💼"
+              title={t("Profession")}
+              value={user.profession}
+            />
           </div>
 
           {/* ADDRESS */}
@@ -852,7 +918,9 @@ export default function Profile() {
 
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-slate-700">
               <span>
-                <span className="font-bold text-slate-900">{t("District")}:</span>{" "}
+                <span className="font-bold text-slate-900">
+                  {t("District")}:
+                </span>{" "}
                 {districtName}
               </span>
 
@@ -900,7 +968,9 @@ export default function Profile() {
                 <>
                   <span className="text-slate-300">•</span>
                   <span>
-                    <span className="font-bold text-slate-900">{t("Ward")}:</span>{" "}
+                    <span className="font-bold text-slate-900">
+                      {t("Ward")}:
+                    </span>{" "}
                     {wardName}
                   </span>
                 </>
