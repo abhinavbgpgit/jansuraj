@@ -182,8 +182,11 @@ export default function Issues() {
           {issues.map((issue) => (
             <div
               key={issue._id}
-              // to={`/issues/${issue._id}`}
-              className="group rounded-3xl border border-slate-200 bg-white p-5 text-slate-900 transition hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
+              className={`group rounded-3xl border bg-white p-5 text-slate-900 transition ${
+                issue.isDeleted
+                  ? "border-red-200 bg-red-50"
+                  : "border-slate-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg"
+              }`}
             >
               {/* =================================
                   STATUS + DATE
@@ -192,28 +195,49 @@ export default function Issues() {
               <div className="mb-3 flex items-center justify-between gap-3">
                 <span
                   className={`text-xs font-semibold uppercase tracking-[0.12em] ${
-                    issue.status === "resolved"
+                    issue.isDeleted
+                      ? "text-red-600"
+                      : issue.status === "resolved"
                       ? "text-green-600"
                       : issue.status === "in-progress"
                       ? "text-orange-600"
                       : "text-slate-500"
                   }`}
                 >
-                  {getStatusText(issue.status)}
+                  {issue.isDeleted ? "हटाई गई" : getStatusText(issue.status)}
                 </span>
 
-               <span className="text-xs text-slate-500">
-  {issue.createdAt
-    ? new Date(issue.createdAt).toLocaleString("hi-IN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
-    : ""}
-</span>
+                <span className="text-xs text-slate-500">
+                  {issue.createdAt
+                    ? new Date(issue.createdAt).toLocaleString("hi-IN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : ""}
+                </span>
+
+                {issue.isDeleted ? (
+                  <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+                    <p className="text-sm font-bold text-red-700">
+                      ⚠️ समस्या हटाई गई
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-red-600">
+                      यह समस्या Super Admin द्वारा हटा दी गई है।
+                    </p>
+
+                    {issue.deletionReason && (
+                      <p className="mt-2 text-xs leading-5 text-slate-700">
+                        <span className="font-semibold">कारण:</span>{" "}
+                        {issue.deletionReason}
+                      </p>
+                    )}
+                  </div>
+                ) : null}
               </div>
 
               {/* =================================
@@ -250,43 +274,48 @@ export default function Issues() {
     PHOTO PREVIEWS
 ================================= */}
 
-              <PhotoPreview photos={issue.photos} />
+              {/* <PhotoPreview photos={issue.photos} /> */}
               {/* =================================
     VIDEO PREVIEWS
 ================================= */}
 
-              {Array.isArray(issue.videoLinks) &&
-                issue.videoLinks.filter(Boolean).length > 0 && (
-                  <div className="mt-4">
-                    <VideoPreview videos={issue.videoLinks.filter(Boolean)} />
+              {!issue.isDeleted && (
+                <>
+                  <PhotoPreview photos={issue.photos} />
+
+                  {Array.isArray(issue.videoLinks) &&
+                    issue.videoLinks.filter(Boolean).length > 0 && (
+                      <div className="mt-4">
+                        <VideoPreview
+                          videos={issue.videoLinks.filter(Boolean)}
+                        />
+                      </div>
+                    )}
+
+                  <div className="mt-4 text-xs text-slate-500">
+                    {issue.reportCount || 1} लोगों ने इस समस्या को रिपोर्ट किया
                   </div>
-                )}
 
-              {/* =================================
-                  REPORT COUNT
-              ================================= */}
-
-              <div className="mt-4 text-xs text-slate-500">
-                {issue.reportCount || 1} लोगों ने इस समस्या को रिपोर्ट किया
-              </div>
-
-              <SupportButton
-                problemId={issue._id}
-                initialCount={issue.reportCount || 1}
-              />
+                  <SupportButton
+                    problemId={issue._id}
+                    initialCount={issue.reportCount || 1}
+                  />
+                </>
+              )}
 
               {/* =================================
                   DETAILS
               ================================= */}
-
-              <div className="mt-5 flex items-center justify-end text-sm font-semibold">
-                <Link
-                  to={`/issues/${issue._id}`}
-                  className="text-sky-600 hover:text-sky-700"
-                >
-                  विस्तार देखें →
-                </Link>
-              </div>
+              {!issue.isDeleted && (
+                <div className="mt-5 flex items-center justify-end text-sm font-semibold">
+                  <Link
+                    to={`/issues/${issue._id}`}
+                    className="text-sky-600 hover:text-sky-700"
+                  >
+                    विस्तार देखें →
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
         </div>
