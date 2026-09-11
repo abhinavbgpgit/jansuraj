@@ -57,10 +57,12 @@ export default function JanSuraajHero() {
   // FILTER ISSUES
   // ==========================================
 
+  const visibleIssues = issues.filter((issue) => !issue.isDeleted);
+
   const filteredIssues =
     filter === "all"
-      ? issues
-      : issues.filter((issue) => issue.status === filter);
+      ? visibleIssues
+      : visibleIssues.filter((issue) => issue.status === filter);
 
   const areaInfo =
     issues.length > 0
@@ -449,7 +451,9 @@ export default function JanSuraajHero() {
 
               <div className="mt-3 flex items-center justify-between rounded-[13px] bg-[#0F4D38] px-3.5 py-3 text-white">
                 <div className="flex items-baseline gap-1.5">
-                  <strong className="text-[21px]">{issues.length}</strong>
+                  <strong className="text-[21px]">
+                    {visibleIssues.length}
+                  </strong>
 
                   <span className="text-[8px] text-white/60">
                     {t("कुल समस्याएँ")}
@@ -458,13 +462,15 @@ export default function JanSuraajHero() {
 
                 <div className="text-right text-[8px] leading-[1.5] text-white/70">
                   {
-                    issues.filter((issue) => issue.status === "in-progress")
-                      .length
+                    visibleIssues.filter(
+                      (issue) => issue.status === "in-progress"
+                    ).length
                   }{" "}
                   {t("पर कार्रवाई जारी")}
                   <br />
                   {
-                    issues.filter((issue) => issue.status === "resolved").length
+                    visibleIssues.filter((issue) => issue.status === "resolved")
+                      .length
                   }{" "}
                   {t("का समाधान")}
                 </div>
